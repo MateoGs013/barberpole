@@ -10,6 +10,9 @@ import Servicios from '../pages/Servicios.jsx'
 import Empleados from '../pages/Empleados.jsx'
 import Clientes from '../pages/Clientes.jsx'
 import Turnos from '../pages/Turnos.jsx'
+import Landing from '../pages/Landing.jsx'
+import Dashboard from '../pages/Dashboard.jsx'
+import Perfil from '../pages/Perfil.jsx'
 
 const Placeholder = ({ titulo, descripcion }) => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 p-8 text-center">
@@ -29,30 +32,12 @@ const Placeholder = ({ titulo, descripcion }) => (
   </div>
 )
 
-const LandingPlaceholder = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-8 text-center bg-crema">
-    <span className="badge badge-pendiente">EN CONSTRUCCION</span>
-    <h1 className="text-6xl md:text-8xl font-display font-bold uppercase tracking-tighter">
-      Landing.
-    </h1>
-    <p className="font-mono text-sm uppercase">Reservas públicas (próxima fase)</p>
-    <div className="flex gap-3 mt-4">
-      <Link to="/login" className="btn btn-primario">
-        Iniciar sesión
-      </Link>
-      <Link to="/registro" className="btn btn-peligro">
-        Registrarme
-      </Link>
-    </div>
-  </div>
-)
-
 export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<LandingPlaceholder />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
 
@@ -64,9 +49,9 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<Placeholder titulo="Dashboard" descripcion="Resumen del negocio" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/turnos" element={<Turnos />} />
-          <Route path="/perfil" element={<Placeholder titulo="Perfil" descripcion="Tus datos" />} />
+          <Route path="/perfil" element={<Perfil />} />
         </Route>
 
         {/* Solo admin */}
