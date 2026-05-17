@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
+import { useToast } from '../hooks/useToast.js'
 
 export default function Registro() {
   const [nombre, setNombre] = useState('')
@@ -18,6 +19,7 @@ export default function Registro() {
   const [enviando, setEnviando] = useState(false)
 
   const { registrar } = useAuth()
+  const toast = useToast()
   const navigate = useNavigate()
 
   const validar = () => {
@@ -41,7 +43,9 @@ export default function Registro() {
 
     setEnviando(true)
     try {
-      await registrar({ nombre: nombre.trim(), email: email.trim(), password })
+      const usuario = await registrar({ nombre: nombre.trim(), email: email.trim(), password })
+      const primerNombre = usuario.nombre?.split(' ')[0] || ''
+      toast.exito(`Bienvenido a Peluquería SaaS, ${primerNombre}`)
       navigate('/dashboard', { replace: true })
     } catch (err) {
       setErrorGlobal(err.response?.data?.error || 'No pudimos crear la cuenta')

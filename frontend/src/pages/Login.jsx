@@ -6,6 +6,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
+import { useToast } from '../hooks/useToast.js'
 import { BarberPole } from '../components/BarberPole.jsx'
 
 export default function Login() {
@@ -16,6 +17,7 @@ export default function Login() {
   const [enviando, setEnviando] = useState(false)
 
   const { login } = useAuth()
+  const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
   // Si el usuario intentó entrar a una ruta protegida sin sesión, lo mandamos
@@ -41,7 +43,9 @@ export default function Login() {
 
     setEnviando(true)
     try {
-      await login({ email: email.trim(), password })
+      const usuario = await login({ email: email.trim(), password })
+      const primerNombre = usuario.nombre?.split(' ')[0] || ''
+      toast.exito(`Hola de nuevo, ${primerNombre}`)
       navigate(destino, { replace: true })
     } catch (err) {
       setErrorGlobal(err.response?.data?.error || 'No pudimos iniciar la sesión')
