@@ -73,7 +73,7 @@ parcial-2-peluqueria/
 │   │   ├── layouts/        LayoutAutenticado (header con nav + outlet)
 │   │   ├── pages/          Landing, Login, Registro, Dashboard, Turnos,
 │   │   │                   Servicios, Empleados, Clientes, Usuarios,
-│   │   │                   Reservar, Perfil
+│   │   │                   Reservar, Perfil, NotFound
 │   │   ├── router/         AppRouter
 │   │   ├── App.jsx
 │   │   ├── main.jsx
@@ -328,7 +328,15 @@ Notas para defender en el oral, agrupadas por tema.
   - Empleados → cards "sticker" con rotación determinística por índice
   - Clientes → lista vertical con franja lateral coloreada por inicial
   - Turnos → agrupado por día con encabezado tipográfico grande
+  - Usuarios → tabla brutalista en desktop, cards en mobile
   - Landing → secciones con fondos alternantes (crema/negro/crema/negro)
+
+### Responsive
+
+- **Desktop (≥1024px)**: nav horizontal en el header.
+- **Mobile (<1024px)**: el nav baja al pie en un `BottomNav` sticky con 4 items principales por rol; admin tiene un 5to "Más" que abre un sheet con los items restantes. El header queda solo con logo + botón Salir.
+- Tablas se convierten en cards en mobile (caso Usuarios) para evitar scroll horizontal.
+- Tipografías y paddings escalan con `md:` / `lg:` para mantener legibilidad.
 
 ---
 
@@ -341,6 +349,7 @@ Estas son cosas que **no** hicimos a propósito para acotar el alcance del parci
 - **No hay refresh tokens** — el JWT simple con expiración de 7 días alcanza para el caso de uso.
 - **El perfil es read-only** — para cambiar la contraseña hay que ir por el endpoint admin-only `PUT /api/usuarios/:id` o desde la página `/usuarios` (admin).
 - **El empleado ve todos los turnos**, no solo los suyos asignados. En una versión más madura se filtraría también para el rol empleado.
+- **La paginación es cliente-side** (`usePaginacion` hace el slice en el front). Para datasets muy grandes habría que mover la lógica al backend con `skip`/`limit` y devolver metadata de total.
 
 ---
 
