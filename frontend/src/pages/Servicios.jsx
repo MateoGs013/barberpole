@@ -11,14 +11,17 @@ import {
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
+import { usePaginacion } from '../hooks/usePaginacion.js'
 import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
+import { Paginacion } from '../components/Paginacion.jsx'
 
 export default function Servicios() {
   const { usuario } = useAuth()
   const toast = useToast()
   const esAdmin = usuario?.rol === 'admin'
   const { datos: servicios, cargando, error, recargar } = useFetch(() => listarServiciosAPI())
+  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(servicios, 12)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
@@ -86,17 +89,20 @@ export default function Servicios() {
 
       {/* Grid de servicios */}
       {servicios && servicios.length > 0 && (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {servicios.map((s) => (
-            <CardServicio
-              key={s._id}
-              servicio={s}
-              esAdmin={esAdmin}
-              onEditar={() => abrirEditar(s)}
-              onEliminar={() => setPidiendoEliminar(s)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pagina.map((s) => (
+              <CardServicio
+                key={s._id}
+                servicio={s}
+                esAdmin={esAdmin}
+                onEditar={() => abrirEditar(s)}
+                onEliminar={() => setPidiendoEliminar(s)}
+              />
+            ))}
+          </div>
+          <Paginacion pagina={nPagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
+        </>
       )}
 
       {/* Modal de form */}

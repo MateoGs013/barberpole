@@ -12,15 +12,18 @@ import {
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
+import { usePaginacion } from '../hooks/usePaginacion.js'
 import { listarUsuariosAPI } from '../api/usuarios.api.js'
 import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
+import { Paginacion } from '../components/Paginacion.jsx'
 
 export default function Empleados() {
   const toast = useToast()
   const { datos: empleados, cargando, error, recargar } = useFetch(() =>
     listarEmpleadosAPI()
   )
+  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(empleados, 12)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
@@ -83,17 +86,20 @@ export default function Empleados() {
       )}
 
       {empleados && empleados.length > 0 && (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 py-4">
-          {empleados.map((emp, i) => (
-            <CardEmpleado
-              key={emp._id}
-              empleado={emp}
-              indice={i}
-              onEditar={() => abrirEditar(emp)}
-              onEliminar={() => setPidiendoEliminar(emp)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 py-4">
+            {pagina.map((emp, i) => (
+              <CardEmpleado
+                key={emp._id}
+                empleado={emp}
+                indice={i}
+                onEditar={() => abrirEditar(emp)}
+                onEliminar={() => setPidiendoEliminar(emp)}
+              />
+            ))}
+          </div>
+          <Paginacion pagina={nPagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
+        </>
       )}
 
       <Modal

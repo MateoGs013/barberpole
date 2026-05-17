@@ -13,9 +13,11 @@ import {
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
+import { usePaginacion } from '../hooks/usePaginacion.js'
 import { listarUsuariosAPI } from '../api/usuarios.api.js'
 import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
+import { Paginacion } from '../components/Paginacion.jsx'
 
 export default function Clientes() {
   const { usuario } = useAuth()
@@ -37,6 +39,7 @@ export default function Clientes() {
     () => listarClientesAPI({ q: busqueda }),
     [busqueda]
   )
+  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(clientes, 15)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
@@ -108,17 +111,20 @@ export default function Clientes() {
       )}
 
       {clientes && clientes.length > 0 && (
-        <ul className="flex flex-col gap-3">
-          {clientes.map((c) => (
-            <FilaCliente
-              key={c._id}
-              cliente={c}
-              esAdmin={esAdmin}
-              onEditar={() => abrirEditar(c)}
-              onEliminar={() => setPidiendoEliminar(c)}
-            />
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-3">
+            {pagina.map((c) => (
+              <FilaCliente
+                key={c._id}
+                cliente={c}
+                esAdmin={esAdmin}
+                onEditar={() => abrirEditar(c)}
+                onEliminar={() => setPidiendoEliminar(c)}
+              />
+            ))}
+          </ul>
+          <Paginacion pagina={nPagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
+        </>
       )}
 
       <Modal

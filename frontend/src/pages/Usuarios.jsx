@@ -12,8 +12,10 @@ import {
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
+import { usePaginacion } from '../hooks/usePaginacion.js'
 import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
+import { Paginacion } from '../components/Paginacion.jsx'
 
 const COLORES_ROL = {
   admin: 'bg-negro text-white',
@@ -25,6 +27,7 @@ export default function Usuarios() {
   const { usuario: yo } = useAuth()
   const toast = useToast()
   const { datos: usuarios, cargando, error, recargar } = useFetch(() => listarUsuariosAPI())
+  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(usuarios, 15)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
@@ -83,7 +86,7 @@ export default function Usuarios() {
         <>
           {/* Vista mobile: cards apiladas (la tabla no entra prolijamente). */}
           <ul className="lg:hidden space-y-3">
-            {usuarios.map((u) => (
+            {pagina.map((u) => (
               <li key={u._id} className="card !p-4 space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
@@ -139,7 +142,7 @@ export default function Usuarios() {
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map((u, i) => (
+                {pagina.map((u, i) => (
                   <tr
                     key={u._id}
                     className={`border-t-2 border-negro ${i % 2 === 0 ? 'bg-white' : 'bg-crema'}`}
@@ -180,6 +183,8 @@ export default function Usuarios() {
               </tbody>
             </table>
           </div>
+
+          <Paginacion pagina={nPagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
         </>
       )}
 
