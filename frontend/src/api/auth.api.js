@@ -21,6 +21,13 @@ export const yoAPI = async () => {
   return data
 }
 
+// Trae (o crea lazy) el perfil Cliente vinculado al usuario logueado.
+// Cualquier rol puede llamarlo, pero solo tiene sentido para clientes.
+export const miClienteAPI = async () => {
+  const { data } = await http.get('/auth/mi-cliente')
+  return data
+}
+
 export const logoutAPI = () => {
   borrarToken()
 }

@@ -72,8 +72,27 @@ function Hero() {
             sin esperar.
           </p>
           <div className="flex flex-wrap gap-3 mt-8">
-            <Link to="/registro" className="btn btn-peligro text-base">
-              Reservar ahora
+            {/*
+              El CTA principal manda al destino correcto segun la sesion:
+              - sin sesion: a registro
+              - cliente: directo al wizard de reservas
+              - admin/empleado: al dashboard (no son clientes, no reservan)
+            */}
+            <Link
+              to={
+                !usuario
+                  ? '/registro'
+                  : usuario.rol === 'cliente'
+                  ? '/reservar'
+                  : '/dashboard'
+              }
+              className="btn btn-peligro text-base"
+            >
+              {!usuario
+                ? 'Reservar ahora'
+                : usuario.rol === 'cliente'
+                ? 'Reservar mi turno'
+                : 'Ir al panel'}
             </Link>
             <a href="#servicios" className="btn btn-secundario text-base">
               Ver servicios

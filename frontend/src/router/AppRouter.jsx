@@ -14,6 +14,7 @@ import Landing from '../pages/Landing.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Perfil from '../pages/Perfil.jsx'
 import Usuarios from '../pages/Usuarios.jsx'
+import Reservar from '../pages/Reservar.jsx'
 
 const Placeholder = ({ titulo, descripcion }) => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 p-8 text-center">
@@ -61,6 +62,17 @@ export function AppRouter() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/turnos" element={<Turnos />} />
           <Route path="/perfil" element={<Perfil />} />
+        </Route>
+
+        {/* Solo clientes */}
+        <Route
+          element={
+            <ProtectedRoute roles={['cliente']}>
+              <LayoutAutenticado />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/reservar" element={<Reservar />} />
         </Route>
 
         {/* Solo admin */}

@@ -22,6 +22,7 @@ const LINKS_POR_ROL = {
   ],
   cliente: [
     { to: '/dashboard', label: 'Dashboard' },
+    { to: '/reservar', label: 'Reservar' },
     { to: '/turnos', label: 'Mis turnos' },
     { to: '/perfil', label: 'Perfil' },
   ],
