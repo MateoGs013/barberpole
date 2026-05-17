@@ -16,7 +16,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen flex flex-col">
       <HeaderPublico usuario={usuario} />
-      <Hero />
+      <Hero usuario={usuario} />
       <SeccionServicios servicios={serviciosActivos} />
       <SeccionComoFunciona />
       <FooterPublico />
@@ -53,7 +53,7 @@ function HeaderPublico({ usuario }) {
   )
 }
 
-function Hero() {
+function Hero({ usuario }) {
   return (
     <section className="bg-crema border-b-3 border-negro overflow-hidden">
       <div className="px-4 lg:px-8 py-16 lg:py-24 max-w-7xl mx-auto grid lg:grid-cols-[1.3fr_1fr] gap-12 items-center">
