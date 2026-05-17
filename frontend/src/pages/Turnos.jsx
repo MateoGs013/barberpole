@@ -77,15 +77,31 @@ export default function Turnos() {
 
   const [filtroEstado, setFiltroEstado] = useState('')
   const [filtroEmpleado, setFiltroEmpleado] = useState('')
+  const [filtroDesde, setFiltroDesde] = useState('')
+  const [filtroHasta, setFiltroHasta] = useState('')
 
   const params = {}
   if (filtroEstado) params.estado = filtroEstado
   if (filtroEmpleado) params.empleadoId = filtroEmpleado
+  // El backend acepta cualquier fecha ISO 8601. Concatenamos T00:00 y T23:59
+  // para que el filtro "desde" tome desde el inicio del dia y "hasta" hasta
+  // el final del dia local del usuario.
+  if (filtroDesde) params.desde = `${filtroDesde}T00:00:00`
+  if (filtroHasta) params.hasta = `${filtroHasta}T23:59:59`
 
   const { datos: turnos, cargando, error, recargar } = useFetch(
     () => listarTurnosAPI(params),
-    [filtroEstado, filtroEmpleado]
+    [filtroEstado, filtroEmpleado, filtroDesde, filtroHasta]
   )
+
+  const limpiarFiltros = () => {
+    setFiltroEstado('')
+    setFiltroEmpleado('')
+    setFiltroDesde('')
+    setFiltroHasta('')
+  }
+
+  const hayFiltros = !!(filtroEstado || filtroEmpleado || filtroDesde || filtroHasta)
 
   // Para el filtro por empleado (solo gestores lo ven). Lo cargamos siempre
   // que el rol lo permita; los clientes no necesitan este filtro.
@@ -156,38 +172,72 @@ export default function Turnos() {
       </div>
 
       {/* Filtros */}
-      <div className="card mb-6 grid sm:grid-cols-2 gap-4">
-        <div>
-          <label className="label">Estado</label>
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            className="input"
-          >
-            <option value="">Todos</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="confirmado">Confirmado</option>
-            <option value="completado">Completado</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
+      <div className="card mb-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="font-mono text-xs uppercase tracking-tight">Filtros</p>
+          {hayFiltros && (
+            <button
+              type="button"
+              onClick={limpiarFiltros}
+              className="font-mono text-xs uppercase underline decoration-2 underline-offset-4 hover:text-rojo-faro"
+            >
+              Limpiar todos
+            </button>
+          )}
         </div>
-        {puedeGestionar && (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="label">Empleado</label>
+            <label className="label">Estado</label>
             <select
-              value={filtroEmpleado}
-              onChange={(e) => setFiltroEmpleado(e.target.value)}
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
               className="input"
             >
               <option value="">Todos</option>
-              {empleadosFiltro?.map((e) => (
-                <option key={e._id} value={e._id}>
-                  {e.nombre} — {e.especialidad}
-                </option>
-              ))}
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="completado">Completado</option>
+              <option value="cancelado">Cancelado</option>
             </select>
           </div>
-        )}
+          {puedeGestionar && (
+            <div>
+              <label className="label">Empleado</label>
+              <select
+                value={filtroEmpleado}
+                onChange={(e) => setFiltroEmpleado(e.target.value)}
+                className="input"
+              >
+                <option value="">Todos</option>
+                {empleadosFiltro?.map((e) => (
+                  <option key={e._id} value={e._id}>
+                    {e.nombre} — {e.especialidad}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="label">Desde</label>
+            <input
+              type="date"
+              className="input"
+              value={filtroDesde}
+              onChange={(e) => setFiltroDesde(e.target.value)}
+              max={filtroHasta || undefined}
+            />
+          </div>
+          <div>
+            <label className="label">Hasta</label>
+            <input
+              type="date"
+              className="input"
+              value={filtroHasta}
+              onChange={(e) => setFiltroHasta(e.target.value)}
+              min={filtroDesde || undefined}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Estados */}
