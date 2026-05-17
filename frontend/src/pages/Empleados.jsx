@@ -10,7 +10,9 @@ import {
   eliminarEmpleadoAPI,
 } from '../api/empleados.api.js'
 import { useFetch } from '../hooks/useFetch.js'
+import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
+import { listarUsuariosAPI } from '../api/usuarios.api.js'
 import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
 
@@ -171,10 +173,23 @@ function CardEmpleado({ empleado, indice, onEditar, onEliminar }) {
 
 function FormEmpleado({ inicial, onCancelar, onGuardado }) {
   const esEdicion = !!inicial
+  const { usuario } = useAuth()
+  const esAdmin = usuario?.rol === 'admin'
+
+  // Solo el admin puede ver la lista de usuarios y vincular. El endpoint
+  // /api/usuarios es admin-only, así que si es empleado le mandamos un
+  // promise vacío para no disparar un 403.
+  const { datos: todosUsuarios } = useFetch(
+    () => (esAdmin ? listarUsuariosAPI() : Promise.resolve([])),
+    [esAdmin]
+  )
+  const usuariosCandidatos = (todosUsuarios || []).filter((u) => u.rol === 'empleado')
+
   const [nombre, setNombre] = useState(inicial?.nombre || '')
   const [especialidad, setEspecialidad] = useState(inicial?.especialidad || '')
   const [telefono, setTelefono] = useState(inicial?.telefono || '')
   const [email, setEmail] = useState(inicial?.email || '')
+  const [usuarioId, setUsuarioId] = useState(inicial?.usuario?._id || inicial?.usuario || '')
   const [activo, setActivo] = useState(inicial?.activo ?? true)
   const [errores, setErrores] = useState({})
   const [errorGlobal, setErrorGlobal] = useState('')
@@ -202,6 +217,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
         especialidad: especialidad.trim(),
         telefono: telefono.trim(),
         email: email.trim(),
+        usuario: usuarioId || null,
         activo,
       }
       if (esEdicion) await actualizarEmpleadoAPI(inicial._id, payload)
@@ -252,6 +268,32 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
           {errores.email && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.email}</p>}
         </div>
       </div>
+
+      {esAdmin && (
+        <div>
+          <label className="label" htmlFor="usuarioVinc">
+            Cuenta vinculada <span className="text-negro/60 normal-case font-mono text-[10px]">(opcional — permite que el empleado se loguee)</span>
+          </label>
+          <select
+            id="usuarioVinc"
+            className="input"
+            value={usuarioId}
+            onChange={(e) => setUsuarioId(e.target.value)}
+          >
+            <option value="">— Sin cuenta vinculada —</option>
+            {usuariosCandidatos.map((u) => (
+              <option key={u._id} value={u._id}>
+                {u.nombre} · {u.email}
+              </option>
+            ))}
+          </select>
+          {usuariosCandidatos.length === 0 && (
+            <p className="font-mono text-xs text-negro/60 mt-2">
+              No hay usuarios con rol "empleado" disponibles. Crealos desde /usuarios.
+            </p>
+          )}
+        </div>
+      )}
 
       <label className="flex items-center gap-3 cursor-pointer">
         <input

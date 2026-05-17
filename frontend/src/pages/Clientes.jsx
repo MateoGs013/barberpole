@@ -13,6 +13,7 @@ import {
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
+import { listarUsuariosAPI } from '../api/usuarios.api.js'
 import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
 
@@ -206,10 +207,23 @@ function FilaCliente({ cliente, esAdmin, onEditar, onEliminar }) {
 
 function FormCliente({ inicial, onCancelar, onGuardado }) {
   const esEdicion = !!inicial
+  const { usuario } = useAuth()
+  const esAdmin = usuario?.rol === 'admin'
+
+  // Igual que en Empleados: solo admin ve el dropdown porque /api/usuarios
+  // es admin-only. Para empleados el campo "usuario" queda como el inicial
+  // (no lo pueden cambiar desde la UI).
+  const { datos: todosUsuarios } = useFetch(
+    () => (esAdmin ? listarUsuariosAPI() : Promise.resolve([])),
+    [esAdmin]
+  )
+  const usuariosCandidatos = (todosUsuarios || []).filter((u) => u.rol === 'cliente')
+
   const [nombre, setNombre] = useState(inicial?.nombre || '')
   const [email, setEmail] = useState(inicial?.email || '')
   const [telefono, setTelefono] = useState(inicial?.telefono || '')
   const [notas, setNotas] = useState(inicial?.notas || '')
+  const [usuarioId, setUsuarioId] = useState(inicial?.usuario?._id || inicial?.usuario || '')
   const [errores, setErrores] = useState({})
   const [errorGlobal, setErrorGlobal] = useState('')
   const [enviando, setEnviando] = useState(false)
@@ -235,6 +249,7 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
         email: email.trim(),
         telefono: telefono.trim(),
         notas: notas.trim(),
+        usuario: usuarioId || null,
       }
       if (esEdicion) await actualizarClienteAPI(inicial._id, payload)
       else await crearClienteAPI(payload)
@@ -282,6 +297,27 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
           onChange={(e) => setNotas(e.target.value)}
         />
       </div>
+
+      {esAdmin && (
+        <div>
+          <label className="label" htmlFor="usuarioVinc">
+            Cuenta vinculada <span className="text-negro/60 normal-case font-mono text-[10px]">(opcional — permite al cliente ver sus turnos)</span>
+          </label>
+          <select
+            id="usuarioVinc"
+            className="input"
+            value={usuarioId}
+            onChange={(e) => setUsuarioId(e.target.value)}
+          >
+            <option value="">— Sin cuenta vinculada —</option>
+            {usuariosCandidatos.map((u) => (
+              <option key={u._id} value={u._id}>
+                {u.nombre} · {u.email}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="flex gap-3 pt-4 border-t-2 border-negro">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
