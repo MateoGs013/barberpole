@@ -22,7 +22,16 @@ export const obtenerEmpleado = async (id) => {
 }
 
 export const crearEmpleado = async (datos) => {
-  return Empleado.create(datos)
+  const payload = { ...datos }
+  if (payload.email) {
+    const emailNorm = payload.email.toLowerCase().trim()
+    payload.email = emailNorm
+    if (!payload.googleCalendarId) {
+      payload.googleCalendarId = emailNorm
+      payload.googleSyncActivo = true
+    }
+  }
+  return Empleado.create(payload)
 }
 
 export const actualizarEmpleado = async (id, datos) => {

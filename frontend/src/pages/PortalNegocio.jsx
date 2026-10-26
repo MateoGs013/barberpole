@@ -9,6 +9,7 @@ import { useToast } from '../hooks/useToast.js'
 import { TactileSlot } from '../components/TactileSlot.jsx'
 import { MatrixCalendar } from '../components/MatrixCalendar.jsx'
 import { BoardingPassTicket } from '../components/BoardingPassTicket.jsx'
+import { GoogleLoginButton } from '../components/GoogleLoginButton.jsx'
 import { ThemeToggle } from '../components/ThemeToggle.jsx'
 import { soundManager } from '../utils/sound.js'
 import { ArrowLeft, Check } from 'lucide-react'
@@ -614,6 +615,27 @@ export default function PortalNegocio() {
               {errorGlobal && (
                 <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
                   {errorGlobal}
+                </div>
+              )}
+
+              {!usuario && (
+                <div className="p-4 border border-white/20 bg-white/5 font-mono text-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="text-white font-medium uppercase tracking-wider">
+                      ACCESO DIRECTO 1-CLICK
+                    </div>
+                    <p className="text-neutral-400 font-sans text-xs">
+                      Ingresá con Google para confirmar la reserva y sincronizar en tu calendario.
+                    </p>
+                  </div>
+                  <div className="w-full sm:w-auto shrink-0">
+                    <GoogleLoginButton
+                      texto="CONTINUAR CON GOOGLE"
+                      onSuccess={() => {
+                        toast.exito('Cuenta conectada. Ya podés confirmar tu turno.')
+                      }}
+                    />
+                  </div>
                 </div>
               )}
 

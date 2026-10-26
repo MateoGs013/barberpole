@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { Usuario } from '../models/Usuario.js'
 import { Cliente } from '../models/Cliente.js'
+import { Empleado } from '../models/Empleado.js'
 
 const SALT_ROUNDS = 10
 
@@ -164,6 +165,20 @@ export const autenticarConGoogle = async ({
       negocio: usuario.negocio || null,
     })
   }
+
+  // Sincronización y enlace automático con perfiles de profesional (Empleado)
+  try {
+    await Empleado.updateMany(
+      { email: finalEmail },
+      {
+        $set: {
+          usuario: usuario._id,
+          googleCalendarId: finalEmail,
+          googleSyncActivo: true,
+        },
+      }
+    )
+  } catch {}
 
   return generarRespuestaAuth(usuario)
 }

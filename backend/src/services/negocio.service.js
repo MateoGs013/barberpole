@@ -117,20 +117,33 @@ export const onboardingNegocio = async ({
     throw conError('Ese identificador (slug) ya está registrado. Elegí otro.', 409)
   }
 
-  // Validar unicidad de email
-  const emailOcupado = await Usuario.findOne({ email: email.toLowerCase().trim() })
-  if (emailOcupado) {
-    throw conError('Ya existe una cuenta con ese email.', 409)
-  }
+  // Validar o reutilizar usuario existente (por ej. autenticado previamente con Google)
+  const emailNorm = email.toLowerCase().trim()
+  let usuario = await Usuario.findOne({ email: emailNorm })
+  let usuarioCreadoEnEstaTx = false
 
-  // Hashear password y crear owner
-  const passwordHasheada = await bcrypt.hash(password, SALT_ROUNDS)
-  const usuario = await Usuario.create({
-    nombre: nombreOwner.trim(),
-    email: email.toLowerCase().trim(),
-    password: passwordHasheada,
-    rol: 'admin',
-  })
+  if (usuario) {
+    if (usuario.negocio) {
+      throw conError('Ya existe una cuenta administrando un negocio con ese email.', 409)
+    }
+    usuario.nombre = nombreOwner.trim() || usuario.nombre
+    usuario.rol = 'admin'
+    if (password) {
+      usuario.password = await bcrypt.hash(password, SALT_ROUNDS)
+    }
+    await usuario.save()
+  } else {
+    const passwordHasheada = password
+      ? await bcrypt.hash(password, SALT_ROUNDS)
+      : await bcrypt.hash(`Pass_${Date.now()}`, SALT_ROUNDS)
+    usuario = await Usuario.create({
+      nombre: nombreOwner.trim(),
+      email: emailNorm,
+      password: passwordHasheada,
+      rol: 'admin',
+    })
+    usuarioCreadoEnEstaTx = true
+  }
 
   // Crear Negocio (Tenant)
   let negocio
@@ -170,18 +183,20 @@ export const onboardingNegocio = async ({
       }))
     )
 
-    // Crear profesional inicial adaptado a la modalidad y rubro
+    // Crear profesional inicial adaptado a la modalidad y rubro con Google Calendar conectado automáticamente
     await Empleado.create({
       negocio: negocio._id,
       nombre: nombreOwner.trim(),
       especialidad: ESPECIALIDAD_POR_RUBRO[rubroValido] || 'Profesional a cargo',
       telefono: telefono.trim(),
-      email: email.toLowerCase().trim(),
+      email: emailNorm,
       usuario: usuario._id,
+      googleCalendarId: emailNorm,
+      googleSyncActivo: true,
       activo: true,
     })
   } catch (error) {
-    if (usuario) await Usuario.findByIdAndDelete(usuario._id)
+    if (usuario && usuarioCreadoEnEstaTx) await Usuario.findByIdAndDelete(usuario._id)
     if (negocio) await Negocio.findByIdAndDelete(negocio._id)
     throw error
   }
@@ -380,7 +395,7 @@ export const crearNegocioSuperadmin = async ({
     }))
   )
 
-  // Empleado inicial
+  // Empleado inicial con sincronización de Google Calendar automática
   await Empleado.create({
     negocio: negocio._id,
     nombre: usuarioOwner.nombre,
@@ -388,6 +403,8 @@ export const crearNegocioSuperadmin = async ({
     telefono: telefono.trim(),
     email: usuarioOwner.email,
     usuario: usuarioOwner._id,
+    googleCalendarId: usuarioOwner.email,
+    googleSyncActivo: true,
     activo: true,
   })
 

@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { onboardingNegocioAPI } from '../api/negocios.api.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
 import { ThemeToggle } from '../components/ThemeToggle.jsx'
+import { GoogleLoginButton } from '../components/GoogleLoginButton.jsx'
 import {
   ArrowLeft,
   ArrowRight,
@@ -53,9 +54,16 @@ export default function OnboardingNegocio() {
   const [errorGlobal, setErrorGlobal] = useState('')
   const [enviando, setEnviando] = useState(false)
 
-  const { guardarSesion } = useAuth()
+  const { guardarSesion, usuario } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (usuario?.email) {
+      setEmail((prev) => prev || usuario.email)
+      setNombreOwner((prev) => prev || usuario.nombre || '')
+    }
+  }, [usuario])
 
   const handleNombreNegocioChange = (e) => {
     const val = e.target.value
@@ -79,7 +87,7 @@ export default function OnboardingNegocio() {
     if (!nombreOwner.trim()) errs.nombreOwner = 'Ingresá tu nombre y apellido'
     if (!email.trim() || !/\S+@\S+\.\S+/.test(email))
       errs.email = 'Ingresá un email válido'
-    if (!password || password.length < 6)
+    if (!usuario?.email && (!password || password.length < 6))
       errs.password = 'La contraseña debe tener mínimo 6 caracteres'
     return errs
   }
@@ -369,7 +377,34 @@ export default function OnboardingNegocio() {
                 className="space-y-4"
               >
                 <div>
-                  <label className="label" htmlFor="nombreOwner">
+                  {usuario?.email ? (
+                  <div className="p-3 border border-white/20 bg-white/5 font-mono text-xs flex items-center justify-between">
+                    <div>
+                      <span className="text-neutral-500 uppercase">CUENTA GOOGLE: </span>
+                      <span className="text-white font-medium">{usuario.nombre}</span> ({usuario.email})
+                    </div>
+                    <span className="text-emerald-400 uppercase text-[10px] tracking-widest">CONECTADO</span>
+                  </div>
+                ) : (
+                  <div className="space-y-3 pb-3 border-b border-white/10">
+                    <GoogleLoginButton
+                      texto="AUTOCOMPLETAR CON GOOGLE"
+                      onSuccess={(u) => {
+                        if (u?.nombre) setNombreOwner(u.nombre)
+                        if (u?.email) setEmail(u.email)
+                      }}
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="h-px bg-white/10 flex-1" />
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-neutral-500">
+                        O CON EMAIL DIRECTO
+                      </span>
+                      <span className="h-px bg-white/10 flex-1" />
+                    </div>
+                  </div>
+                )}
+
+                <label className="label" htmlFor="nombreOwner">
                     Tu nombre y apellido *
                   </label>
                   <input
