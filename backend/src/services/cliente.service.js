@@ -1,20 +1,44 @@
-// Lógica de negocio de Clientes.
-
+import escapeStringRegexp from 'escape-string-regexp'
 import { Cliente } from '../models/Cliente.js'
 
 const POBLAR_USUARIO = { path: 'usuario', select: 'nombre email rol' }
 
-export const listarClientes = async ({ busqueda = '' } = {}) => {
-  // Si llega "busqueda" en la query, filtramos por nombre o email (case-insensitive).
-  // Esto le va a servir al frontend para una caja de búsqueda en la página de clientes.
-  const filtro = busqueda
-    ? {
-        $or: [
-          { nombre: { $regex: busqueda, $options: 'i' } },
-          { email: { $regex: busqueda, $options: 'i' } },
-        ],
-      }
-    : {}
+export const listarClientes = async ({ busqueda = '', negocioId, page, limit } = {}) => {
+  const filtro = {}
+  if (negocioId) filtro.negocio = negocioId
+  if (busqueda && busqueda.trim()) {
+    const escaped = escapeStringRegexp(busqueda.trim())
+    filtro.$or = [
+      { nombre: { $regex: escaped, $options: 'i' } },
+      { email: { $regex: escaped, $options: 'i' } },
+    ]
+  }
+
+  if (page) {
+    const pagina = Math.max(1, parseInt(page, 10) || 1)
+    const limite = Math.max(1, Math.min(100, parseInt(limit, 10) || 10))
+    const skip = (pagina - 1) * limite
+
+    const [total, datos] = await Promise.all([
+      Cliente.countDocuments(filtro),
+      Cliente.find(filtro)
+        .populate(POBLAR_USUARIO)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limite),
+    ])
+
+    return {
+      datos,
+      paginacion: {
+        total,
+        pagina,
+        limite,
+        totalPaginas: Math.max(1, Math.ceil(total / limite)),
+      },
+    }
+  }
+
   return Cliente.find(filtro).populate(POBLAR_USUARIO).sort({ createdAt: -1 })
 }
 

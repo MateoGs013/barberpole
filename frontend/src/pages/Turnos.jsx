@@ -10,6 +10,7 @@ import {
   crearTurnoAPI,
   actualizarTurnoAPI,
   eliminarTurnoAPI,
+  cancelarTurnoAPI,
 } from '../api/turnos.api.js'
 import { listarClientesAPI } from '../api/clientes.api.js'
 import { listarEmpleadosAPI } from '../api/empleados.api.js'
@@ -19,6 +20,7 @@ import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
 import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
+import { generarGoogleCalendarUrl } from '../utils/calendar.js'
 
 // ─── Helpers de fecha ──────────────────────────────────────────────────────
 
@@ -113,6 +115,7 @@ export default function Turnos() {
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
   const [pidiendoEliminar, setPidiendoEliminar] = useState(null)
+  const [pidiendoCancelar, setPidiendoCancelar] = useState(null)
 
   const abrirNuevo = () => {
     setEditando(null)
@@ -125,6 +128,19 @@ export default function Turnos() {
   const cerrarModal = () => {
     setModalAbierto(false)
     setEditando(null)
+  }
+
+  const confirmarCancelar = async () => {
+    const turno = pidiendoCancelar
+    setPidiendoCancelar(null)
+    if (!turno) return
+    try {
+      await cancelarTurnoAPI(turno._id)
+      recargar()
+      toast.exito('Turno cancelado correctamente')
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'No se pudo cancelar el turno')
+    }
   }
 
   const cambiarEstado = async (turno, nuevoEstado) => {
@@ -157,7 +173,7 @@ export default function Turnos() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
         <div>
-          <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">
+          <p className="font-mono text-xs uppercase text-zinc-500 tracking-tight">
             {esCliente ? 'Mis' : 'Agenda de'}
           </p>
           <h1 className="text-5xl md:text-7xl font-display font-bold uppercase tracking-tighter leading-none">
@@ -165,9 +181,20 @@ export default function Turnos() {
           </h1>
         </div>
         {puedeGestionar && (
-          <button onClick={abrirNuevo} className="btn btn-aceptar">
-            + Nuevo turno
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="https://calendar.google.com/calendar/u/0/r"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secundario text-xs font-mono uppercase"
+              title="Abrir Google Calendar en una pestaña nueva"
+            >
+              Google Calendar ↗
+            </a>
+            <button onClick={abrirNuevo} className="btn btn-aceptar">
+              + Nuevo turno
+            </button>
+          </div>
         )}
       </div>
 
@@ -262,11 +289,11 @@ export default function Turnos() {
           const fechaDelGrupo = new Date(lista[0].fechaHora)
           return (
             <section key={clave}>
-              <header className="flex items-end justify-between border-b-3 border-negro pb-2 mb-4">
+              <header className="flex items-end justify-between border-b border-white/10 pb-2 mb-4">
                 <h2 className="font-display font-bold text-2xl md:text-4xl uppercase tracking-tighter leading-none">
                   {formatearDia(fechaDelGrupo)}
                 </h2>
-                <span className="font-mono text-xs uppercase text-negro/60">
+                <span className="font-mono text-xs uppercase text-zinc-500">
                   {lista.length} {lista.length === 1 ? 'turno' : 'turnos'}
                 </span>
               </header>
@@ -278,6 +305,7 @@ export default function Turnos() {
                     puedeGestionar={puedeGestionar}
                     onEditar={() => abrirEditar(turno)}
                     onCambiarEstado={(estado) => cambiarEstado(turno, estado)}
+                    onCancelarCliente={() => setPidiendoCancelar(turno)}
                     onEliminar={() => setPidiendoEliminar(turno)}
                   />
                 ))}
@@ -316,48 +344,70 @@ export default function Turnos() {
         textoConfirmar="Eliminar"
         peligro
       />
+
+      <ModalConfirmacion
+        abierto={!!pidiendoCancelar}
+        onCerrar={() => setPidiendoCancelar(null)}
+        onConfirmar={confirmarCancelar}
+        titulo="Cancelar reserva"
+        mensaje="¿Seguro que querés cancelar tu turno? Las cancelaciones deben realizarse con al menos 2 horas de anticipación."
+        textoConfirmar="Cancelar turno"
+        peligro
+      />
     </div>
   )
 }
 
 // ─── Card de turno ─────────────────────────────────────────────────────────
 
-function CardTurno({ turno, puedeGestionar, onEditar, onCambiarEstado, onEliminar }) {
+function CardTurno({
+  turno,
+  puedeGestionar,
+  onEditar,
+  onCambiarEstado,
+  onCancelarCliente,
+  onEliminar,
+}) {
   const fecha = new Date(turno.fechaHora)
   const claseBadge = CLASES_BADGE_ESTADO[turno.estado] || 'badge-pendiente'
 
   return (
-    <li className="card !p-0 flex flex-col sm:flex-row hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-bruta-lg transition-all duration-100">
+    <li className="border-b border-white/10 hover:bg-white/[0.02] transition-colors py-4 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       {/* Bloque hora */}
-      <div className="bg-negro text-white px-5 py-4 sm:py-6 flex sm:flex-col items-center justify-center gap-2 sm:gap-1 border-b-3 sm:border-b-0 sm:border-r-3 border-negro sm:min-w-[110px]">
+      <div className="flex sm:flex-col items-baseline sm:items-start gap-2 sm:gap-0 sm:min-w-[120px] shrink-0">
         <p className="font-display font-bold text-3xl sm:text-4xl tracking-tighter leading-none">
           {formatearHora(fecha)}
         </p>
-        <p className="font-mono text-[10px] uppercase text-white/60">
-          {turno.servicio?.duracionMinutos || '?'} min
+        <p className="font-mono text-[10px] uppercase text-zinc-500 tracking-wider">
+          {turno.duracionMinutos || turno.servicio?.duracionMinutos || '?'} min
         </p>
       </div>
 
       {/* Contenido */}
-      <div className="flex-1 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <span className={`badge ${claseBadge}`}>{turno.estado}</span>
+            {turno.precioCobrado != null && (
+              <span className="font-mono text-xs font-bold text-zinc-300">
+                ${turno.precioCobrado}
+              </span>
+            )}
           </div>
           <h3 className="font-display font-bold text-xl uppercase tracking-tight leading-tight line-clamp-1 break-words">
             {turno.cliente?.nombre || '—'}
           </h3>
           <p className="font-sans text-sm mt-1 line-clamp-2 break-words">
-            <span className="font-mono text-xs uppercase text-negro/60">→</span>{' '}
+            <span className="font-mono text-xs uppercase text-zinc-500">→</span>{' '}
             {turno.servicio?.nombre} ·{' '}
-            <span className="text-negro/70">{turno.empleado?.nombre}</span>
+            <span className="text-zinc-400">{turno.empleado?.nombre}</span>
           </p>
           {turno.notas && (
-            <p className="font-mono text-xs mt-1 text-negro/70 line-clamp-2">{turno.notas}</p>
+            <p className="font-mono text-xs mt-1 text-zinc-400 line-clamp-2">{turno.notas}</p>
           )}
         </div>
 
-        {puedeGestionar && (
+        {puedeGestionar ? (
           <div className="flex flex-wrap gap-2 shrink-0">
             {turno.estado === 'pendiente' && (
               <button
@@ -390,6 +440,34 @@ function CardTurno({ turno, puedeGestionar, onEditar, onCambiarEstado, onElimina
               ✕
             </button>
           </div>
+        ) : (
+          /* Acciones para Clientes sobre sus propios turnos */
+          (turno.estado === 'pendiente' || turno.estado === 'confirmado') && (
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={generarGoogleCalendarUrl({
+                  titulo: `${turno.servicio?.nombre || 'Turno'} — BarberPole`,
+                  descripcion: `Turno confirmado con ${turno.empleado?.nombre} en BarberPole Studio.\nServicio: ${turno.servicio?.nombre}`,
+                  ubicacion: 'Studio Palermo, Palermo Soho, CABA',
+                  fechaHora: turno.fechaHora,
+                  duracionMinutos: turno.duracionMinutos || 30,
+                })}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secundario !px-3 !py-2 text-xs"
+                title="Sincronizar automáticamente con Google Calendar"
+              >
+                + Calendar ↗
+              </a>
+              <button
+                onClick={onCancelarCliente}
+                className="btn btn-peligro !px-3 !py-2 text-xs"
+                title="Cancelar con al menos 2 horas de anticipación"
+              >
+                Cancelar reserva
+              </button>
+            </div>
+          )
         )}
       </div>
     </li>
@@ -458,7 +536,7 @@ function FormTurno({ inicial, onCancelar, onGuardado }) {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       {errorGlobal && (
-        <div className="border-3 border-negro bg-rojo-faro text-white px-4 py-3 font-mono text-sm uppercase">
+        <div className="rounded-xl border border-rose-500/30 bg-rose-950/40 text-rose-300 px-4 py-3 font-mono text-xs">
           {errorGlobal}
         </div>
       )}

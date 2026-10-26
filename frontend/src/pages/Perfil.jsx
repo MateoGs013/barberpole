@@ -1,18 +1,4 @@
-// Perfil: muestra los datos del usuario logueado como un "carnet" brutalista.
-// En esta versión es read-only — para cambiar password contactá al admin.
-// (Decisión consciente para acotar el alcance del parcial.)
-
 import { useAuth } from '../hooks/useAuth.js'
-import { BarberPole } from '../components/BarberPole.jsx'
-
-const formatearFecha = (iso) => {
-  if (!iso) return '—'
-  return new Intl.DateTimeFormat('es-AR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(iso))
-}
 
 const ETIQUETAS_ROL = {
   admin: 'Administrador',
@@ -25,60 +11,64 @@ export default function Perfil() {
   if (!usuario) return null
 
   return (
-    <div className="p-4 lg:p-8 max-w-3xl mx-auto">
-      <div className="mb-10">
-        <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">Tu</p>
-        <h1 className="text-5xl md:text-7xl font-display font-bold uppercase tracking-tighter leading-none">
-          Perfil.
+    <div className="p-4 lg:p-8 max-w-4xl mx-auto space-y-8">
+      <div className="border-b border-white/10 pb-6">
+        <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+          — IDENTIDAD DE USUARIO
+        </p>
+        <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          PERFIL.
         </h1>
       </div>
 
-      {/* Tarjeta tipo carnet */}
-      <article className="card !p-0 overflow-hidden">
-        <div className="grid sm:grid-cols-[1fr_auto]">
-          <div className="p-6 lg:p-8 space-y-6">
-            <div>
-              <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">
-                Identificación
-              </p>
-              <p className="font-display font-bold text-3xl lg:text-4xl uppercase tracking-tighter leading-tight">
-                {usuario.nombre}
-              </p>
-              <span className="badge badge-confirmado mt-2">
-                {ETIQUETAS_ROL[usuario.rol] || usuario.rol}
-              </span>
-            </div>
+      <div className="divide-y divide-white/10 border-t border-b border-white/10">
+        <div className="py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <span className="font-mono text-xs uppercase tracking-wider text-neutral-500 sm:w-1/3">
+            Nombre Completo
+          </span>
+          <span className="font-mono text-lg font-medium text-white sm:w-2/3">
+            {usuario.nombre}
+          </span>
+        </div>
 
-            <Dato etiqueta="Email" valor={usuario.email} />
-            <Dato etiqueta="ID interno" valor={usuario.id} mono />
-
-            <div className="pt-6 border-t-2 border-negro">
-              <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">
-                Nota
-              </p>
-              <p className="font-sans text-sm mt-1">
-                Para cambiar tu nombre o contraseña, contactá al administrador del sistema.
-              </p>
-            </div>
-          </div>
-
-          {/* Decoración lateral */}
-          <div className="hidden sm:flex bg-negro p-6 items-center justify-center border-l-3 border-negro">
-            <BarberPole className="w-20 h-72" />
+        <div className="py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <span className="font-mono text-xs uppercase tracking-wider text-neutral-500 sm:w-1/3">
+            Rol del Sistema
+          </span>
+          <div className="sm:w-2/3">
+            <span className="badge badge-confirmado">
+              {ETIQUETAS_ROL[usuario.rol] || usuario.rol}
+            </span>
           </div>
         </div>
-      </article>
-    </div>
-  )
-}
 
-function Dato({ etiqueta, valor, mono = false }) {
-  return (
-    <div>
-      <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">{etiqueta}</p>
-      <p className={`${mono ? 'font-mono text-sm break-all' : 'font-sans text-base'} mt-1`}>
-        {valor}
-      </p>
+        <div className="py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <span className="font-mono text-xs uppercase tracking-wider text-neutral-500 sm:w-1/3">
+            Correo Electrónico
+          </span>
+          <span className="font-mono text-sm text-neutral-300 sm:w-2/3">
+            {usuario.email}
+          </span>
+        </div>
+
+        <div className="py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <span className="font-mono text-xs uppercase tracking-wider text-neutral-500 sm:w-1/3">
+            ID de Cuenta
+          </span>
+          <span className="font-mono text-xs text-neutral-400 break-all sm:w-2/3">
+            {usuario.id}
+          </span>
+        </div>
+
+        <div className="py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+          <span className="font-mono text-xs uppercase tracking-wider text-neutral-500 sm:w-1/3">
+            Seguridad
+          </span>
+          <p className="font-sans text-xs text-neutral-400 font-light sm:w-2/3">
+            Para modificar tu contraseña o datos de contacto, comunicate directamente con el administrador de la plataforma.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

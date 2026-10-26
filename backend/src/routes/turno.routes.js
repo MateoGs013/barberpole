@@ -26,6 +26,9 @@ turnoRouter.put(
   ctrl.actualizar
 )
 
+// Cancelar turno (clientes pueden cancelar sus propios turnos con anticipación; admin y empleados pueden cancelar cualquier turno)
+turnoRouter.patch('/:id/cancelar', reglaIdParam, validarRequest, ctrl.cancelar)
+
 // Eliminar = borrar la reserva. Solo admin.
 turnoRouter.delete(
   '/:id',

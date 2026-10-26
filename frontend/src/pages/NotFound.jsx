@@ -1,43 +1,42 @@
-// Página 404 con layout propio (no usa LayoutAutenticado para que sea
-// accesible sin sesión también). Mantiene la onda neo-brutalista con un
-// "404" tipográfico gigante en los colores del faro.
-
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
+import { ArrowLeft, LayoutDashboard } from 'lucide-react'
 
 export default function NotFound() {
   const { usuario } = useAuth()
   return (
-    <div className="min-h-screen bg-crema flex flex-col">
-      <header className="px-4 lg:px-8 py-3 border-b-3 border-negro">
+    <div className="min-h-screen bg-[#050505] text-zinc-100 flex flex-col">
+      <header className="px-4 lg:px-8 py-3.5 border-b border-white/10 bg-zinc-950/80 backdrop-blur-xl">
         <Link
           to="/"
-          className="font-display font-bold text-lg lg:text-xl uppercase tracking-tighter"
+          className="flex items-center gap-2 group w-fit"
         >
-          <span className="text-rojo-faro">✂</span> Peluquería
-          <span className="text-azul-faro"> SaaS</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-white" />
+          <span className="font-mono text-xs uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
+            BarberPole <span className="text-zinc-600">—</span> Studio
+          </span>
         </Link>
       </header>
 
       <main className="flex-1 flex items-center justify-center p-6">
-        <div className="text-center max-w-2xl">
-          <p className="font-display font-bold leading-none tracking-tighter text-[28vw] lg:text-[14rem]">
-            <span className="text-rojo-faro">4</span>
-            <span className="text-azul-faro">0</span>
-            <span>4</span>
+        <div className="text-center max-w-xl">
+          <p className="font-mono font-bold leading-none tracking-tight text-[22vw] lg:text-[10rem] text-zinc-800 select-none">
+            404
           </p>
-          <p className="font-display font-bold text-2xl md:text-4xl uppercase tracking-tighter mt-4">
-            Esta página no existe.
+          <h1 className="font-display font-bold text-2xl md:text-3xl tracking-tight text-white mt-4">
+            Página no encontrada.
+          </h1>
+          <p className="font-mono text-xs uppercase mt-2 tracking-wider text-zinc-500">
+            La ruta solicitada no se encuentra disponible en el sistema.
           </p>
-          <p className="font-mono text-sm uppercase mt-3 tracking-tight text-negro/70">
-            La ruta que pediste no está en el mapa.
-          </p>
-          <div className="flex gap-3 justify-center flex-wrap mt-8">
+          <div className="flex gap-2.5 justify-center flex-wrap mt-8">
             <Link to="/" className="btn btn-primario">
+              <ArrowLeft className="w-3.5 h-3.5 mr-1" />
               Volver al inicio
             </Link>
             {usuario && (
               <Link to="/dashboard" className="btn btn-secundario">
+                <LayoutDashboard className="w-3.5 h-3.5 mr-1" />
                 Ir al panel
               </Link>
             )}

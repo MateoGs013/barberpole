@@ -1,14 +1,17 @@
 import { AuthProvider } from './context/AuthContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import { AppRouter } from './router/AppRouter.jsx'
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <AppRouter />
-      </ToastProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <AppRouter />
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

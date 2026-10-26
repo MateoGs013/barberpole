@@ -1,9 +1,13 @@
-// Modelo de Servicio: corte, color, brushing, etc.
-
 import mongoose from 'mongoose'
 
 const servicioSchema = new mongoose.Schema(
   {
+    negocio: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Negocio',
+      default: null,
+      index: true,
+    },
     nombre: { type: String, required: [true, 'El nombre es obligatorio'], trim: true },
     descripcion: { type: String, trim: true, default: '' },
     precio: { type: Number, required: true, min: [0, 'El precio no puede ser negativo'] },
@@ -16,5 +20,7 @@ const servicioSchema = new mongoose.Schema(
   },
   { timestamps: true }
 )
+
+servicioSchema.index({ negocio: 1, activo: 1 })
 
 export const Servicio = mongoose.model('Servicio', servicioSchema)

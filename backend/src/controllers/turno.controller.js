@@ -1,11 +1,6 @@
-// Controller HTTP de Turnos.
-// Tiene lógica de rol para que un cliente solo vea/cree turnos para si mismo.
-
 import * as turnoService from '../services/turno.service.js'
 import { Cliente } from '../models/Cliente.js'
 
-// Si el usuario logueado es cliente, devuelve su documento Cliente
-// (el que tiene Cliente.usuario === req.usuario.id). Si no, null.
 const obtenerClienteDelUsuario = async (req) => {
   if (req.usuario.rol !== 'cliente') return null
   return Cliente.findOne({ usuario: req.usuario.id })
@@ -16,14 +11,22 @@ export const listar = async (req, res, next) => {
     const filtros = {
       empleadoId: req.query.empleadoId,
       clienteId: req.query.clienteId,
+      negocioId: req.negocioId || req.query.negocioId,
       estado: req.query.estado,
       desde: req.query.desde,
       hasta: req.query.hasta,
+      page: req.query.page,
+      limit: req.query.limit,
     }
-    // Si el usuario es cliente, lo forzamos a ver SOLO sus propios turnos.
     if (req.usuario.rol === 'cliente') {
       const miCliente = await obtenerClienteDelUsuario(req)
-      if (!miCliente) return res.json([])
+      if (!miCliente) {
+        return res.json(
+          req.query.page
+            ? { datos: [], paginacion: { total: 0, pagina: 1, limite: 10, totalPaginas: 1 } }
+            : []
+        )
+      }
       filtros.clienteId = miCliente._id
     }
     const turnos = await turnoService.listarTurnos(filtros)
@@ -36,7 +39,6 @@ export const listar = async (req, res, next) => {
 export const obtener = async (req, res, next) => {
   try {
     const turno = await turnoService.obtenerTurno(req.params.id)
-    // Si el solicitante es cliente, validamos que el turno sea suyo.
     if (req.usuario.rol === 'cliente') {
       const miCliente = await obtenerClienteDelUsuario(req)
       if (!miCliente || String(turno.cliente._id) !== String(miCliente._id)) {
@@ -51,7 +53,6 @@ export const obtener = async (req, res, next) => {
 
 export const crear = async (req, res, next) => {
   try {
-    // Un cliente solo puede crear turnos para su propio perfil Cliente.
     if (req.usuario.rol === 'cliente') {
       const miCliente = await obtenerClienteDelUsuario(req)
       if (!miCliente) {
@@ -60,11 +61,26 @@ export const crear = async (req, res, next) => {
         })
       }
       if (String(req.body.cliente) !== String(miCliente._id)) {
-        return res.status(403).json({ error: 'No podés crear turnos para otro cliente' })
+        return res.status(403).json({ error: 'No podés crear turnos para otros clientes' })
       }
     }
-    const turno = await turnoService.crearTurno(req.body)
+    const turno = await turnoService.crearTurno({
+      ...req.body,
+      negocio: req.body.negocio || req.negocioId,
+    })
     res.status(201).json(turno)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const cancelar = async (req, res, next) => {
+  try {
+    const turno = await turnoService.cancelarTurno(req.params.id, {
+      usuarioId: req.usuario.id,
+      rol: req.usuario.rol,
+    })
+    res.json(turno)
   } catch (error) {
     next(error)
   }
@@ -81,8 +97,8 @@ export const actualizar = async (req, res, next) => {
 
 export const eliminar = async (req, res, next) => {
   try {
-    await turnoService.eliminarTurno(req.params.id)
-    res.status(204).end()
+    const turno = await turnoService.eliminarTurno(req.params.id)
+    res.json(turno)
   } catch (error) {
     next(error)
   }

@@ -17,3 +17,7 @@ npm-debug.log*
 
 .omc/
 .claude/
+
+# Datos locales
+backend/.data/
+*.lock

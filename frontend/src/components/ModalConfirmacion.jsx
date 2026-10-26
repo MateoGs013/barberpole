@@ -1,6 +1,3 @@
-// Modal para confirmar acciones destructivas/importantes.
-// Reemplaza al confirm() nativo del browser para mantener la onda brutalista.
-
 import { Modal } from './Modal.jsx'
 
 export function ModalConfirmacion({
@@ -15,8 +12,8 @@ export function ModalConfirmacion({
 }) {
   return (
     <Modal abierto={abierto} onCerrar={onCerrar} titulo={titulo} ancho="max-w-md">
-      <p className="font-sans text-base mb-6">{mensaje}</p>
-      <div className="flex gap-3 pt-4 border-t-2 border-negro">
+      <p className="font-sans text-sm text-zinc-300 mb-6 leading-relaxed">{mensaje}</p>
+      <div className="flex gap-2.5 pt-4 border-t border-white/10">
         <button onClick={onCerrar} className="btn btn-secundario flex-1">
           {textoCancelar}
         </button>

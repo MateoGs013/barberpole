@@ -1,9 +1,4 @@
-// Página de Clientes.
-// Layout vertical: lista de filas con franja lateral coloreada por inicial.
-// Buscador con debounce simple — espera 300ms tras el último tipeo antes
-// de pedir al backend para no inundarlo de requests.
-
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import {
   listarClientesAPI,
   crearClienteAPI,
@@ -24,9 +19,6 @@ export default function Clientes() {
   const toast = useToast()
   const esAdmin = usuario?.rol === 'admin'
 
-  // Buscador con debounce. "busquedaInput" es lo que tipea el usuario en
-  // tiempo real; "busqueda" es lo que efectivamente le mandamos al backend,
-  // y se actualiza 300ms después de que dejó de tipear.
   const [busquedaInput, setBusquedaInput] = useState('')
   const [busqueda, setBusqueda] = useState('')
 
@@ -72,20 +64,22 @@ export default function Clientes() {
   }
 
   return (
-    <div className="p-4 lg:p-8 max-w-5xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+    <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">Base de</p>
-          <h1 className="text-5xl md:text-7xl font-display font-bold uppercase tracking-tighter leading-none">
-            Clientes.
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+            — BASE DE DATOS
+          </p>
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+            CLIENTES.
           </h1>
         </div>
-        <button onClick={abrirNuevo} className="btn btn-aceptar">
+        <button onClick={abrirNuevo} className="btn btn-primario self-start sm:self-auto">
           + Nuevo cliente
         </button>
       </div>
 
-      <div className="mb-6">
+      <div className="w-full">
         <input
           type="search"
           placeholder="Buscar por nombre o email..."
@@ -95,24 +89,24 @@ export default function Clientes() {
         />
       </div>
 
-      {cargando && <p className="font-mono uppercase">Cargando...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando...</p>}
       {error && (
-        <div className="card !p-4 bg-rojo-faro text-white font-mono uppercase">
+        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar clientes
         </div>
       )}
 
       {clientes && clientes.length === 0 && (
-        <div className="card text-center">
-          <p className="font-display text-2xl uppercase mb-2">
+        <div className="py-12 border border-white/10 text-center">
+          <p className="font-mono text-sm uppercase text-neutral-400">
             {busqueda ? 'No encontramos clientes con esa búsqueda' : 'No hay clientes cargados'}
           </p>
         </div>
       )}
 
       {clientes && clientes.length > 0 && (
-        <>
-          <ul className="flex flex-col gap-3">
+        <div className="space-y-6">
+          <ul className="divide-y divide-white/10 border-t border-b border-white/10">
             {pagina.map((c) => (
               <FilaCliente
                 key={c._id}
@@ -124,7 +118,7 @@ export default function Clientes() {
             ))}
           </ul>
           <Paginacion pagina={nPagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
-        </>
+        </div>
       )}
 
       <Modal
@@ -157,55 +151,30 @@ export default function Clientes() {
   )
 }
 
-// Mapea la primera letra del nombre a un color de la paleta para la franja.
-// A-G rojo, H-N azul, O-T negro, U-Z crema. Es estable: el mismo nombre
-// siempre cae al mismo color.
-const colorPorInicial = (nombre = '') => {
-  const c = nombre.trim().charAt(0).toUpperCase()
-  if (c >= 'A' && c <= 'G') return 'bg-rojo-faro text-white'
-  if (c >= 'H' && c <= 'N') return 'bg-azul-faro text-white'
-  if (c >= 'O' && c <= 'T') return 'bg-negro text-white'
-  return 'bg-crema text-negro'
-}
-
 function FilaCliente({ cliente, esAdmin, onEditar, onEliminar }) {
-  const claseFranja = useMemo(() => colorPorInicial(cliente.nombre), [cliente.nombre])
-  const inicial = cliente.nombre?.trim().charAt(0).toUpperCase() || '?'
-
   return (
-    <li className="card !p-0 flex hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-bruta-lg transition-all duration-100">
-      <div
-        className={`${claseFranja} w-16 lg:w-24 flex items-center justify-center font-display font-bold text-3xl lg:text-5xl uppercase border-r-3 border-negro shrink-0`}
-      >
-        {inicial}
+    <li className="py-4 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-1 min-w-0">
+        <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-white truncate">
+          {cliente.nombre}
+        </h3>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 font-mono text-xs text-neutral-400">
+          {cliente.email && <span>{cliente.email}</span>}
+          {cliente.telefono && <span>· {cliente.telefono}</span>}
+        </div>
+        {cliente.notas && (
+          <p className="font-mono text-xs mt-1 text-neutral-500 line-clamp-1">{cliente.notas}</p>
+        )}
       </div>
-      <div className="flex-1 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-display font-bold text-xl uppercase tracking-tight leading-tight truncate">
-            {cliente.nombre}
-          </h3>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-            {cliente.email && (
-              <p className="font-mono text-xs text-negro/70 truncate">{cliente.email}</p>
-            )}
-            {cliente.telefono && (
-              <p className="font-mono text-xs text-negro/70">{cliente.telefono}</p>
-            )}
-          </div>
-          {cliente.notas && (
-            <p className="font-sans text-sm mt-1 line-clamp-1">{cliente.notas}</p>
-          )}
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <button onClick={onEditar} className="btn btn-secundario !px-3 !py-2 text-xs">
-            Editar
+      <div className="flex gap-2 shrink-0 items-center">
+        <button onClick={onEditar} className="btn btn-secundario !px-3 !py-1.5 text-xs">
+          Editar
+        </button>
+        {esAdmin && (
+          <button onClick={onEliminar} className="btn btn-peligro !px-3 !py-1.5 text-xs">
+            Eliminar
           </button>
-          {esAdmin && (
-            <button onClick={onEliminar} className="btn btn-peligro !px-3 !py-2 text-xs">
-              Eliminar
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </li>
   )
@@ -216,9 +185,6 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
   const { usuario } = useAuth()
   const esAdmin = usuario?.rol === 'admin'
 
-  // Igual que en Empleados: solo admin ve el dropdown porque /api/usuarios
-  // es admin-only. Para empleados el campo "usuario" queda como el inicial
-  // (no lo pueden cambiar desde la UI).
   const { datos: todosUsuarios } = useFetch(
     () => (esAdmin ? listarUsuariosAPI() : Promise.resolve([])),
     [esAdmin]
@@ -270,7 +236,7 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       {errorGlobal && (
-        <div className="border-3 border-negro bg-rojo-faro text-white px-4 py-3 font-mono text-sm uppercase">
+        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           {errorGlobal}
         </div>
       )}
@@ -278,14 +244,14 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
       <div>
         <label className="label" htmlFor="nombre">Nombre</label>
         <input id="nombre" type="text" className="input" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-        {errores.nombre && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.nombre}</p>}
+        {errores.nombre && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.nombre}</p>}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <label className="label" htmlFor="email">Email</label>
           <input id="email" type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
-          {errores.email && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.email}</p>}
+          {errores.email && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.email}</p>}
         </div>
         <div>
           <label className="label" htmlFor="telefono">Teléfono</label>
@@ -298,7 +264,7 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
         <textarea
           id="notas"
           className="input min-h-[80px] resize-y"
-          placeholder="Alergias, preferencias, color favorito..."
+          placeholder="Alergias, preferencias, etc..."
           value={notas}
           onChange={(e) => setNotas(e.target.value)}
         />
@@ -307,7 +273,7 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
       {esAdmin && (
         <div>
           <label className="label" htmlFor="usuarioVinc">
-            Cuenta vinculada <span className="text-negro/60 normal-case font-mono text-[10px]">(opcional — permite al cliente ver sus turnos)</span>
+            Cuenta vinculada <span className="text-neutral-500 normal-case font-mono text-[10px]">(opcional — permite al cliente ver sus turnos)</span>
           </label>
           <select
             id="usuarioVinc"
@@ -325,7 +291,7 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
         </div>
       )}
 
-      <div className="flex gap-3 pt-4 border-t-2 border-negro">
+      <div className="flex gap-3 pt-6 border-t border-white/10">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
           Cancelar
         </button>

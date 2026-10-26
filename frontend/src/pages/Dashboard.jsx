@@ -1,12 +1,22 @@
-// Dashboard: pantalla de inicio para usuarios logueados.
-// Adapta el contenido según el rol del usuario.
-// - Admin/empleado: 4 KPIs sobre todos los turnos + lista de próximos.
-// - Cliente: KPIs sobre sus propios turnos + sus próximos.
-
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useFetch } from '../hooks/useFetch.js'
 import { listarTurnosAPI } from '../api/turnos.api.js'
 import { useAuth } from '../hooks/useAuth.js'
+import { SpotlightCard } from '../components/SpotlightCard.jsx'
+import { NumberTicker } from '../components/NumberTicker.jsx'
+import { ShinyText } from '../components/ShinyText.jsx'
+import {
+  Calendar,
+  Clock,
+  TrendingUp,
+  CheckCircle2,
+  AlertCircle,
+  PlusCircle,
+  ArrowRight,
+  User,
+  Sparkles,
+} from 'lucide-react'
 
 const formatearHora = (fecha) =>
   new Intl.DateTimeFormat('es-AR', {
@@ -18,9 +28,6 @@ const formatearHora = (fecha) =>
     hour12: false,
   }).format(fecha)
 
-// Filtra turnos cuya fechaHora es >= ahora y los ordena ascendente.
-// Importante usar `if (!turnos) return []` y no `(turnos = [])`: el default
-// solo se aplica con undefined, pero useFetch arranca con null mientras carga.
 const proximosTurnos = (turnos, cantidad = 5) => {
   if (!turnos) return []
   const ahora = Date.now()
@@ -30,14 +37,17 @@ const proximosTurnos = (turnos, cantidad = 5) => {
     .slice(0, cantidad)
 }
 
-// Suma precios de servicios de turnos completados del mes en curso.
 const ingresosDelMes = (turnos) => {
   if (!turnos) return 0
   const ahora = new Date()
   const desde = new Date(ahora.getFullYear(), ahora.getMonth(), 1)
   return turnos
     .filter((t) => t.estado === 'completado' && new Date(t.fechaHora) >= desde)
-    .reduce((acc, t) => acc + (t.servicio?.precio || 0), 0)
+    .reduce(
+      (acc, t) =>
+        acc + (t.precioCobrado != null ? t.precioCobrado : (t.servicio?.precio || 0)),
+      0
+    )
 }
 
 export default function Dashboard() {
@@ -48,102 +58,161 @@ export default function Dashboard() {
   const total = turnos?.length || 0
   const pendientes = turnos?.filter((t) => t.estado === 'pendiente').length || 0
   const confirmados = turnos?.filter((t) => t.estado === 'confirmado').length || 0
+  const completados = turnos?.filter((t) => t.estado === 'completado').length || 0
   const ingresos = ingresosDelMes(turnos)
   const proximos = proximosTurnos(turnos)
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-      <div className="mb-10">
-        <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">
-          Hola, {usuario?.nombre?.split(' ')[0]?.toLowerCase()}
-        </p>
-        <h1 className="text-5xl md:text-7xl font-display font-bold uppercase tracking-tighter leading-none">
-          {esCliente ? 'Bienvenido.' : 'Tu panel.'}
-        </h1>
+    <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-8">
+      {/* Header Telemetría */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            <span className="font-mono text-xs uppercase tracking-widest text-zinc-400">
+              Sesión activa · {usuario?.rol}
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-display font-bold text-white tracking-tight leading-none uppercase">
+            {esCliente ? 'Tu Espacio.' : 'Consola de Control.'}
+          </h1>
+        </div>
+
+        {esCliente ? (
+          <Link to="/reservar" className="btn btn-primario self-start sm:self-auto">
+            <PlusCircle className="w-4 h-4" />
+            <span>Reservar turno</span>
+          </Link>
+        ) : (
+          <a
+            href="https://calendar.google.com/calendar/u/0/r"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secundario self-start sm:self-auto text-xs font-mono uppercase flex items-center gap-2"
+          >
+            <span>Google Calendar</span>
+            <span className="text-zinc-500">↗</span>
+          </a>
+        )}
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <CardKpi
-          etiqueta={esCliente ? 'Mis turnos' : 'Turnos'}
-          valor={total}
-          fondo="bg-crema"
-        />
-        <CardKpi etiqueta="Pendientes" valor={pendientes} fondo="bg-white" />
-        <CardKpi etiqueta="Confirmados" valor={confirmados} fondo="bg-azul-faro text-white" />
-        {esCliente ? (
-          <CardKpi
-            etiqueta="Completados"
-            valor={turnos?.filter((t) => t.estado === 'completado').length || 0}
-            fondo="bg-negro text-white"
-          />
-        ) : (
-          <CardKpi
-            etiqueta="Ingresos del mes"
-            valor={`$${ingresos.toLocaleString('es-AR')}`}
-            fondo="bg-rojo-faro text-white"
-          />
-        )}
+      {/* Bento Grid de KPIs con NumberTickers */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <SpotlightCard className="p-5">
+          <div className="flex items-center justify-between text-zinc-500 mb-3">
+            <span className="font-mono text-xs uppercase tracking-wider">
+              {esCliente ? 'Mis turnos' : 'Turnos totales'}
+            </span>
+            <Calendar className="w-4 h-4 text-zinc-400" />
+          </div>
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+            <NumberTicker value={total} />
+          </p>
+        </SpotlightCard>
+
+        <SpotlightCard className="p-5">
+          <div className="flex items-center justify-between text-zinc-500 mb-3">
+            <span className="font-mono text-xs uppercase tracking-wider">Pendientes</span>
+            <AlertCircle className="w-4 h-4 text-zinc-400" />
+          </div>
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+            <NumberTicker value={pendientes} />
+          </p>
+        </SpotlightCard>
+
+        <SpotlightCard className="p-5">
+          <div className="flex items-center justify-between text-zinc-500 mb-3">
+            <span className="font-mono text-xs uppercase tracking-wider">Confirmados</span>
+            <CheckCircle2 className="w-4 h-4 text-zinc-400" />
+          </div>
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+            <NumberTicker value={confirmados} />
+          </p>
+        </SpotlightCard>
+
+        <SpotlightCard className="p-5">
+          <div className="flex items-center justify-between text-zinc-500 mb-3">
+            <span className="font-mono text-xs uppercase tracking-wider">
+              {esCliente ? 'Completados' : 'Facturación mes'}
+            </span>
+            <TrendingUp className="w-4 h-4 text-zinc-400" />
+          </div>
+          <p className="font-mono font-bold text-2xl lg:text-3xl text-white tracking-tight">
+            {esCliente ? (
+              <NumberTicker value={completados} />
+            ) : (
+              <NumberTicker value={ingresos} prefix="$" />
+            )}
+          </p>
+        </SpotlightCard>
       </div>
 
       {/* Próximos turnos */}
-      <section>
-        <div className="flex items-end justify-between border-b-3 border-negro pb-2 mb-4">
-          <h2 className="font-display font-bold text-2xl md:text-4xl uppercase tracking-tighter leading-none">
-            Próximos turnos
-          </h2>
+      <section className="space-y-4">
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-zinc-400" />
+            <h2 className="font-display font-semibold text-xl text-white tracking-tight">
+              Próximos turnos
+            </h2>
+          </div>
           <Link
             to="/turnos"
-            className="font-mono text-xs uppercase underline decoration-2 underline-offset-4 hover:text-azul-faro"
+            className="font-mono text-xs uppercase tracking-wider text-zinc-400 hover:text-white transition-colors inline-flex items-center gap-1"
           >
-            Ver todos →
+            <span>Ver agenda completa</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        {cargando && <p className="font-mono uppercase">Cargando...</p>}
-        {!cargando && proximos.length === 0 && (
-          <div className="card text-center">
-            <p className="font-display text-xl uppercase">No hay turnos próximos</p>
+        {cargando ? (
+          <div className="p-12 text-center font-mono text-xs text-zinc-500 uppercase tracking-widest animate-pulse">
+            Sincronizando telemetría...
           </div>
-        )}
-        {proximos.length > 0 && (
-          <ul className="space-y-3">
+        ) : proximos.length === 0 ? (
+          <div className="p-12 text-center border border-dashed border-white/10 bg-transparent">
+            <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-3" />
+            <p className="font-mono text-xs uppercase text-zinc-400 tracking-wider">
+              No hay turnos futuros programados
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-white/10 border-y border-white/10">
             {proximos.map((t) => (
-              <FilaTurnoProximo key={t._id} turno={t} />
+              <div
+                key={t._id}
+                className="py-3.5 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-white/[0.02] transition-colors"
+              >
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                  <div className="truncate">
+                    <p className="font-sans font-medium text-sm text-white truncate">
+                      {t.servicio?.nombre || 'Servicio'}
+                    </p>
+                    <div className="flex items-center gap-2 font-mono text-xs text-zinc-500 mt-0.5">
+                      <span>{t.empleado?.nombre}</span>
+                      <span>·</span>
+                      <span className="flex items-center gap-1 text-zinc-400">
+                        <User className="w-3 h-3" />
+                        {t.cliente?.nombre || 'Cliente'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                  <span className="font-mono text-xs text-zinc-400">
+                    {formatearHora(new Date(t.fechaHora))}
+                  </span>
+                  <span className="badge badge-confirmado">
+                    {t.estado}
+                  </span>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </section>
     </div>
-  )
-}
-
-function CardKpi({ etiqueta, valor, fondo }) {
-  return (
-    <article className={`${fondo} border-3 border-negro shadow-bruta p-5`}>
-      <p className="font-mono text-xs uppercase tracking-tight opacity-70">{etiqueta}</p>
-      <p className="font-display font-bold text-4xl lg:text-5xl mt-1 tracking-tighter">{valor}</p>
-    </article>
-  )
-}
-
-function FilaTurnoProximo({ turno }) {
-  return (
-    <li className="card !p-4 flex items-center gap-4">
-      <div className="font-mono text-xs uppercase bg-negro text-white px-3 py-2 shrink-0">
-        {formatearHora(new Date(turno.fechaHora))}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-display font-bold uppercase tracking-tight truncate">
-          {turno.cliente?.nombre || '—'} · {turno.servicio?.nombre || '—'}
-        </p>
-        <p className="font-mono text-xs text-negro/60">
-          con {turno.empleado?.nombre || '—'}
-        </p>
-      </div>
-      <span className={`badge ${turno.estado === 'confirmado' ? 'badge-confirmado' : 'badge-pendiente'} shrink-0`}>
-        {turno.estado}
-      </span>
-    </li>
   )
 }

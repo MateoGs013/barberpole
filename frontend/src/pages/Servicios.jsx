@@ -1,6 +1,3 @@
-// Página de Servicios.
-// Grid de cards con el catálogo. Solo admin puede crear/editar/eliminar.
-
 import { useState } from 'react'
 import {
   listarServiciosAPI,
@@ -21,7 +18,7 @@ export default function Servicios() {
   const toast = useToast()
   const esAdmin = usuario?.rol === 'admin'
   const { datos: servicios, cargando, error, recargar } = useFetch(() => listarServiciosAPI())
-  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(servicios, 12)
+  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(servicios, 15)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
@@ -54,45 +51,42 @@ export default function Servicios() {
   }
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-      {/* Header de página */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+    <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">
-            Catálogo
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+            — CATÁLOGO DE TRABAJOS
           </p>
-          <h1 className="text-5xl md:text-7xl font-display font-bold uppercase tracking-tighter leading-none">
-            Servicios.
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+            SERVICIOS.
           </h1>
         </div>
         {esAdmin && (
-          <button onClick={abrirNuevo} className="btn btn-aceptar">
+          <button onClick={abrirNuevo} className="btn btn-primario self-start sm:self-auto">
             + Nuevo servicio
           </button>
         )}
       </div>
 
-      {/* Estados de carga / error / vacío */}
-      {cargando && <p className="font-mono uppercase">Cargando...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando...</p>}
       {error && (
-        <div className="card !p-4 bg-rojo-faro text-white font-mono uppercase">
+        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar servicios
         </div>
       )}
 
       {servicios && servicios.length === 0 && (
-        <div className="card text-center">
-          <p className="font-display text-2xl uppercase mb-2">No hay servicios cargados</p>
-          {esAdmin && <p className="font-mono text-sm">Apretá "+ Nuevo servicio" para empezar</p>}
+        <div className="py-12 border border-white/10 text-center">
+          <p className="font-mono text-sm uppercase text-neutral-400">No hay servicios cargados</p>
         </div>
       )}
 
-      {/* Grid de servicios */}
       {servicios && servicios.length > 0 && (
-        <>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
+          <ul className="divide-y divide-white/10 border-t border-b border-white/10">
             {pagina.map((s) => (
-              <CardServicio
+              <FilaServicio
                 key={s._id}
                 servicio={s}
                 esAdmin={esAdmin}
@@ -100,12 +94,11 @@ export default function Servicios() {
                 onEliminar={() => setPidiendoEliminar(s)}
               />
             ))}
-          </div>
+          </ul>
           <Paginacion pagina={nPagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
-        </>
+        </div>
       )}
 
-      {/* Modal de form */}
       <Modal
         abierto={modalAbierto}
         onCerrar={cerrarModal}
@@ -136,39 +129,41 @@ export default function Servicios() {
   )
 }
 
-function CardServicio({ servicio, esAdmin, onEditar, onEliminar }) {
+function FilaServicio({ servicio, esAdmin, onEditar, onEliminar }) {
   return (
-    <article className="card hover:rotate-[-1deg] transition-transform duration-150">
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <h3 className="font-display font-bold text-2xl uppercase tracking-tight leading-tight line-clamp-2 break-words min-w-0">
-          {servicio.nombre}
-        </h3>
-        {!servicio.activo && (
-          <span className="badge badge-cancelado shrink-0">Inactivo</span>
-        )}
-      </div>
-      {servicio.descripcion && (
-        <p className="font-sans text-sm text-negro/70 mb-4 line-clamp-3">{servicio.descripcion}</p>
-      )}
-      <div className="flex items-end justify-between gap-4 mt-auto">
-        <div>
-          <p className="font-display font-bold text-3xl">${servicio.precio}</p>
-          <p className="font-mono text-xs uppercase text-negro/60">
-            {servicio.duracionMinutos} min
+    <li className="py-5 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-white truncate">
+            {servicio.nombre}
+          </h3>
+          {!servicio.activo && (
+            <span className="badge badge-cancelado shrink-0">Inactivo</span>
+          )}
+        </div>
+        {servicio.descripcion && (
+          <p className="font-sans text-xs text-neutral-400 mb-2 line-clamp-2 max-w-2xl font-light">
+            {servicio.descripcion}
           </p>
+        )}
+        <div className="flex items-center gap-3 font-mono text-xs text-neutral-500">
+          <span>{servicio.duracionMinutos} MIN</span>
+          <span>·</span>
+          <span className="text-white font-semibold">${servicio.precio?.toLocaleString('es-AR')}</span>
         </div>
       </div>
+
       {esAdmin && (
-        <div className="flex gap-2 mt-4 pt-4 border-t-2 border-negro">
-          <button onClick={onEditar} className="btn btn-secundario !px-3 !py-2 text-xs flex-1">
+        <div className="flex gap-2 shrink-0 items-center">
+          <button onClick={onEditar} className="btn btn-secundario !px-3 !py-1.5 text-xs">
             Editar
           </button>
-          <button onClick={onEliminar} className="btn btn-peligro !px-3 !py-2 text-xs">
+          <button onClick={onEliminar} className="btn btn-peligro !px-3 !py-1.5 text-xs">
             Eliminar
           </button>
         </div>
       )}
-    </article>
+    </li>
   )
 }
 
@@ -222,7 +217,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       {errorGlobal && (
-        <div className="border-3 border-negro bg-rojo-faro text-white px-4 py-3 font-mono text-sm uppercase">
+        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           {errorGlobal}
         </div>
       )}
@@ -230,7 +225,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
       <div>
         <label className="label" htmlFor="nombre">Nombre</label>
         <input id="nombre" type="text" className="input" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-        {errores.nombre && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.nombre}</p>}
+        {errores.nombre && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.nombre}</p>}
       </div>
 
       <div>
@@ -245,7 +240,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="label" htmlFor="precio">Precio</label>
+          <label className="label" htmlFor="precio">Precio ($)</label>
           <input
             id="precio"
             type="number"
@@ -255,7 +250,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
             value={precio}
             onChange={(e) => setPrecio(e.target.value)}
           />
-          {errores.precio && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.precio}</p>}
+          {errores.precio && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.precio}</p>}
         </div>
         <div>
           <label className="label" htmlFor="duracion">Duración (min)</label>
@@ -268,21 +263,21 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
             value={duracion}
             onChange={(e) => setDuracion(e.target.value)}
           />
-          {errores.duracion && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.duracion}</p>}
+          {errores.duracion && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.duracion}</p>}
         </div>
       </div>
 
-      <label className="flex items-center gap-3 cursor-pointer">
+      <label className="flex items-center gap-3 cursor-pointer pt-2">
         <input
           type="checkbox"
           checked={activo}
           onChange={(e) => setActivo(e.target.checked)}
-          className="w-5 h-5 border-3 border-negro accent-azul-faro"
+          className="w-4 h-4 rounded-none accent-white cursor-pointer"
         />
-        <span className="font-mono text-sm uppercase tracking-tight">Servicio activo</span>
+        <span className="font-mono text-xs uppercase tracking-wider text-neutral-300">Servicio activo</span>
       </label>
 
-      <div className="flex gap-3 pt-4 border-t-2 border-negro">
+      <div className="flex gap-3 pt-6 border-t border-white/10">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
           Cancelar
         </button>

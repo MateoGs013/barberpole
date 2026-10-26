@@ -1,84 +1,267 @@
-/* Fuentes desde Google Fonts. El display=swap evita FOIT (texto invisible
-   mientras carga la fuente) usando un fallback hasta que llega la fuente real. */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: dark;
+    --bg-canvas: #000000;
+    --bg-surface: #0a0a0a;
+    --text-main: #ffffff;
+    --text-muted: #71717a;
+    --border-hairline: rgba(255, 255, 255, 0.08);
+  }
+
+  html.light,
+  [data-theme='light'] {
+    color-scheme: light;
+    --bg-canvas: #ffffff;
+    --bg-surface: #f9f9f9;
+    --text-main: #000000;
+    --text-muted: #555555;
+    --border-hairline: rgba(0, 0, 0, 0.08);
+  }
+
   html,
   body {
-    @apply bg-crema text-negro;
+    background-color: var(--bg-canvas);
+    color: var(--text-main);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
+
   body {
-    @apply font-sans antialiased;
+    @apply font-sans antialiased selection:bg-white selection:text-black;
+    min-height: 100vh;
   }
+
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply font-display tracking-tight;
+    @apply font-display tracking-tight text-white;
   }
 }
 
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: #333333;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
 @layer components {
-  /* Botón base neo-brutalista. Las clases btn-primario / btn-secundario /
-     btn-peligro se aplican encima para dar el color. */
+  /* Botones monocromáticos de alta respuesta táctil binaria */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 font-display font-bold uppercase tracking-tight border-3 border-negro shadow-bruta transition-all duration-100 cursor-pointer select-none;
-  }
-  .btn:hover:not(:disabled) {
-    @apply shadow-bruta-sm translate-x-[4px] translate-y-[4px];
-  }
-  .btn:active:not(:disabled) {
-    @apply shadow-none translate-x-[6px] translate-y-[6px];
-  }
-  .btn:disabled {
-    @apply opacity-50 cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-none font-mono text-xs uppercase font-medium tracking-wider transition-all duration-150 cursor-pointer select-none active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none;
   }
   .btn-primario {
-    @apply bg-azul-faro text-white;
+    @apply bg-white text-black hover:bg-neutral-200;
   }
   .btn-secundario {
-    @apply bg-white text-negro;
+    @apply bg-transparent text-white border border-white/20 hover:border-white hover:bg-white hover:text-black;
+  }
+  .btn-terracotta {
+    @apply bg-white text-black hover:bg-neutral-200 active:scale-[0.98];
+  }
+  .btn-blanco {
+    @apply bg-white text-black hover:bg-neutral-200;
   }
   .btn-peligro {
-    @apply bg-rojo-faro text-white;
+    @apply bg-transparent text-rose-400 border border-rose-500/30 hover:bg-rose-500 hover:text-white;
   }
   .btn-aceptar {
-    @apply bg-negro text-white;
+    @apply bg-white text-black hover:bg-neutral-200;
   }
 
-  /* Inputs y campos de formulario. */
+  /* Inputs tipográficos integrados al lienzo (No-Card Layout) */
   .input {
-    @apply w-full px-4 py-3 bg-white border-3 border-negro font-sans text-negro placeholder:text-negro/40 focus:outline-none focus:shadow-bruta-sm transition-all duration-100;
+    @apply w-full px-0 py-3 bg-transparent border-b border-white/20 rounded-none font-mono text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-white transition-colors duration-150;
   }
   .label {
-    @apply block font-display font-bold uppercase text-sm tracking-tight mb-2;
+    @apply block font-mono text-[11px] uppercase tracking-widest text-neutral-400 mb-2;
   }
 
-  /* Card base. */
+  /* Fila base de tabla editorial (reemplazo de cards) */
   .card {
-    @apply bg-white border-3 border-negro shadow-bruta p-6;
+    @apply bg-transparent border border-white/10 rounded-none p-6 transition-colors duration-150 hover:border-white/25;
   }
 
-  /* Badge / chip para estados, roles, etc. */
+  /* Hairlines estructurales de 1px */
+  .hairline {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .hairline-t {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .hairline-b {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .hairline-terracotta {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Badges monocromáticos */
   .badge {
-    @apply inline-flex items-center px-2 py-1 font-mono text-xs font-bold uppercase border-2 border-negro;
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none font-mono text-[10px] uppercase font-medium tracking-widest border border-white/20 text-neutral-300;
+  }
+  .badge-terracotta {
+    @apply bg-white text-black border-white;
   }
   .badge-pendiente {
-    @apply bg-crema text-negro;
+    @apply bg-transparent text-neutral-400 border-white/20;
   }
   .badge-confirmado {
-    @apply bg-azul-faro text-white;
+    @apply bg-white/10 text-white border-white/30;
   }
   .badge-completado {
-    @apply bg-negro text-white;
+    @apply bg-transparent text-neutral-500 border-white/10;
   }
   .badge-cancelado {
-    @apply bg-rojo-faro text-white;
+    @apply bg-transparent text-rose-400 border-rose-500/20;
   }
+}
+
+/* ─── Reglas de Inversión Editorial Puro (Light Mode) ─────────────────────── */
+html.light,
+html.light body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light h5,
+html.light h6 {
+  color: #000000 !important;
+}
+
+html.light .bg-black,
+html.light .bg-\[\#000000\],
+html.light .bg-\[\#050505\],
+html.light .bg-zinc-950,
+html.light .bg-zinc-900\/40,
+html.light .bg-zinc-900\/50,
+html.light .bg-zinc-900\/60,
+html.light .bg-zinc-900 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-black\/95,
+html.light .bg-zinc-950\/90,
+html.light .bg-zinc-950\/80 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+html.light .text-white,
+html.light .text-zinc-100,
+html.light .text-zinc-200 {
+  color: #000000 !important;
+}
+
+html.light .text-neutral-300,
+html.light .text-neutral-400,
+html.light .text-zinc-300,
+html.light .text-zinc-400 {
+  color: #555555 !important;
+}
+
+html.light .text-neutral-500,
+html.light .text-neutral-600,
+html.light .text-zinc-500,
+html.light .text-zinc-600 {
+  color: #777777 !important;
+}
+
+html.light .border-white\/10,
+html.light .border-white\/5,
+html.light .border-white\/15,
+html.light .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light .border-white {
+  border-color: #000000 !important;
+}
+
+html.light .divide-white\/10 > :not([hidden]) ~ :not([hidden]),
+html.light .divide-white\/20 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light .btn-primario {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+html.light .btn-primario:hover {
+  background-color: #222222 !important;
+}
+
+html.light .btn-secundario {
+  background-color: transparent !important;
+  color: #000000 !important;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
+html.light .btn-secundario:hover {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+html.light .input {
+  border-bottom-color: rgba(0, 0, 0, 0.2) !important;
+  color: #000000 !important;
+}
+html.light .input:focus {
+  border-bottom-color: #000000 !important;
+}
+html.light .input::placeholder {
+  color: #888888 !important;
+}
+html.light .label {
+  color: #555555 !important;
+}
+
+html.light .bg-white {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+html.light .text-black {
+  color: #ffffff !important;
+}
+
+html.light .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html.light .hover\:bg-white\/\[0\.02\]:hover {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+html.light .rounded-full.bg-white {
+  background-color: #000000 !important;
+}
+
+html.light .card {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .badge {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: #333333 !important;
+}
+html.light .badge-confirmado {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  color: #000000 !important;
 }

@@ -1,24 +1,29 @@
-// Decoración inspirada en el faro/poste de peluquería tradicional.
-// Las bandas se hacen con un repeating-linear-gradient porque Tailwind no
-// expone esta utility por default, y meterlo en config sería over-engineer.
-
+// Emblema y columna de estudio inspirada en BarberPole en clave monocromática
 export function BarberPole({ className = '' }) {
   return (
     <div
-      className={`border-3 border-white shadow-bruta-lg ${className}`}
-      style={{
-        backgroundImage: `repeating-linear-gradient(
-          45deg,
-          #E60026 0px,
-          #E60026 32px,
-          #FFFFFF 32px,
-          #FFFFFF 64px,
-          #0044CC 64px,
-          #0044CC 96px,
-          #FFFFFF 96px,
-          #FFFFFF 128px
-        )`,
-      }}
-    />
+      className={`relative overflow-hidden rounded-2xl border border-white/20 shadow-[0_0_50px_rgba(255,255,255,0.06)] bg-zinc-950 ${className}`}
+    >
+      <div
+        className="absolute inset-0 opacity-40 animate-pulse-subtle"
+        style={{
+          backgroundImage: `repeating-linear-gradient(
+            -45deg,
+            #09090b 0px,
+            #09090b 24px,
+            #18181b 24px,
+            #18181b 48px,
+            #27272a 48px,
+            #27272a 72px,
+            rgba(255,255,255,0.08) 72px,
+            rgba(255,255,255,0.08) 96px
+          )`,
+          backgroundSize: '200% 200%',
+        }}
+      />
+      {/* Reflejo especular de cristal */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+      <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
+    </div>
   )
 }

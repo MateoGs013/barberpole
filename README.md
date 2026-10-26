@@ -1,6 +1,12 @@
-# Peluquería SaaS
+# BarberPole 💈 — B2B Multi-Tenant Barbershop & Salon SaaS Platform
 
-Sistema fullstack MERN para gestión de una peluquería: turnos, servicios, empleados y clientes, con autenticación por roles y una identidad visual neo-brutalista inspirada en el faro tradicional de peluquería (barber pole).
+[![CI/CD Pipeline](https://github.com/MateoGs013/barberpole/actions/workflows/ci.yml/badge.svg)](https://github.com/MateoGs013/barberpole/actions/workflows/ci.yml)
+[![Node.js Version](https://img.shields.io/badge/Node.js-20%2B-brightgreen.svg)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Design: Modo Hiperfoco OLED](https://img.shields.io/badge/Design-Modo_Hiperfoco_OLED_%23050505-000000.svg)]()
+[![Microinteractions: Bencho UI](https://img.shields.io/badge/Interactions-Bencho_UI_Tactile-blueviolet.svg)](https://bencho.dev/)
+
+Plataforma SaaS multi-inquilino (Multi-Tenant) comercial de alto rendimiento para barberías, salones y profesionales independientes. Cuenta con arquitectura multi-tenant con aislamiento de datos, onboarding autoservicio con subdominios/slugs dinámicos (/:slug), motor inteligente de disponibilidad en tiempo real (**Slot Engine**), sincronización con Google Calendar, control atómico de concurrencia anti-double booking, y una interfaz visual ultra-minimalista **"Modo Hiperfoco" (OLED Black #050505)** con micro-interacciones táctiles.
 
 **🔗 Demo en vivo: [parcial-2-peluqueria.vercel.app](https://parcial-2-peluqueria.vercel.app/)**
 
@@ -10,354 +16,211 @@ Sistema fullstack MERN para gestión de una peluquería: turnos, servicios, empl
 
 ---
 
-## Tabla de contenidos
+## 🏛️ Arquitectura Multi-Tenant SaaS
 
-1. [Stack](#stack)
-2. [Estructura del repositorio](#estructura-del-repositorio)
-3. [Cómo levantar el proyecto](#cómo-levantar-el-proyecto)
-4. [Variables de entorno](#variables-de-entorno)
-5. [Scripts](#scripts)
-6. [Usuarios de prueba](#usuarios-de-prueba)
-7. [Modelo de datos](#modelo-de-datos)
-8. [Endpoints de la API](#endpoints-de-la-api)
-9. [Decisiones técnicas](#decisiones-técnicas)
-10. [Limitaciones conscientes](#limitaciones-conscientes)
-11. [Autor](#autor)
+```mermaid
+graph TD
+    Client[Visitante / Cliente Final] -->|barberpole.app/:slug| PortalPublico[Portal Público de Turnos por Salón]
+    Owner[Dueño de Barbería] -->|barberpole.app/onboarding| OnboardingWizard[Wizard de Onboarding Autoservicio 3 Pasos]
+    Admin[Admin / Barbero Autenticado] -->|barberpole.app/dashboard| StudioConsole[Consola de Telemetría Studio]
 
----
+    PortalPublico -->|REST API| Backend[Backend Express 4 Multi-Tenant Engine]
+    OnboardingWizard -->|REST API| Backend
+    StudioConsole -->|Bearer JWT + Negocio Claim| Backend
 
-## Stack
+    subgraph "Aislamiento & Seguridad"
+        Backend --> TenantMiddleware[Tenant Scoping Middleware (req.negocioId)]
+        Backend --> ConcurrencyMutex[Per-Employee Atomic Mutex]
+        Backend --> HelmetShield[Helmet CSP & HSTS]
+        Backend --> RateLimiters[Express Anti-Abuse Rate Limiters]
+    end
 
-### Backend
-- **Node.js** + **Express** (API REST con ES Modules)
-- **MongoDB Atlas** + **Mongoose**
-- **JWT** (`jsonwebtoken`) para autenticación
-- **bcryptjs** para hash de contraseñas
-- **express-validator** para validación de payloads
-- `cors`, `morgan`, `dotenv`
-
-### Frontend
-- **React 18** + **Vite**
-- **React Router DOM** v6 (incluye rutas anidadas y `Outlet`)
-- **Context API** para estado global (auth)
-- **Axios** (con interceptores) para llamadas HTTP
-- **Tailwind CSS 3** (config custom con paleta neo-brutalista)
-
-### Identidad visual
-- **Paleta**: negro `#0A0A0A`, crema `#F8F6F2`, blanco, rojo-faro `#E60026`, azul-faro `#0044CC`.
-- **Tipografías**: Space Grotesk (display), Inter (cuerpo), JetBrains Mono.
-- **Sombras "bruta"**: offset duro, sin blur. Hover desplaza el elemento dando sensación de "presionar".
-
----
-
-## Estructura del repositorio
-
-```
-parcial-2-peluqueria/
-├── backend/
-│   ├── src/
-│   │   ├── config/         conexión a MongoDB
-│   │   ├── controllers/    handlers HTTP por entidad
-│   │   ├── middlewares/    auth (JWT, rol) + handler de errores de validación
-│   │   ├── models/         esquemas Mongoose
-│   │   ├── routes/         routers Express por entidad
-│   │   ├── services/       lógica de negocio (separada de la capa HTTP)
-│   │   ├── validators/     reglas express-validator
-│   │   ├── app.js          configuración de Express
-│   │   └── seed.js         script para crear admin inicial
-│   ├── server.js           punto de entrada
-│   ├── .env.example
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── api/            cliente axios + un service por entidad
-│   │   ├── components/     UI reutilizable (BarberPole, Modal, ProtectedRoute)
-│   │   ├── context/        AuthContext
-│   │   ├── hooks/          useAuth, useFetch
-│   │   ├── layouts/        LayoutAutenticado (header con nav + outlet)
-│   │   ├── pages/          Landing, Login, Registro, Dashboard, Turnos,
-│   │   │                   Servicios, Empleados, Clientes, Usuarios,
-│   │   │                   Reservar, Perfil, NotFound
-│   │   ├── router/         AppRouter
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css       directivas Tailwind + clases custom
-│   ├── index.html
-│   ├── vite.config.js      con proxy /api → backend
-│   ├── tailwind.config.js  paleta + tipografías + sombras "bruta"
-│   ├── postcss.config.js
-│   └── package.json
-├── README.md
-└── .gitignore
+    subgraph "Persistencia MongoDB Multi-Tenant"
+        TenantMiddleware --> NegocioColl[(Negocios / Tenants)]
+        TenantMiddleware --> ServicioColl[(Servicios / Scoped)]
+        TenantMiddleware --> EmpleadoColl[(Empleados / Scoped)]
+        TenantMiddleware --> TurnoColl[(Turnos / Scoped)]
+        TenantMiddleware --> ClienteColl[(Clientes / Scoped)]
+    end
 ```
 
 ---
 
-## Cómo levantar el proyecto
+## ✨ Características Principales
 
-### Requisitos
+### 1. 🏢 Multi-Tenancy B2B & Onboarding Autoservicio
+- **Aislamiento Estricto por Tenant**: Cada entidad (`Servicio`, `Empleado`, `Turno`, `Cliente`) está asociada a un `Negocio` mediante índices compuestos `{ negocio: 1, ... }`.
+- **Onboarding de 3 Pasos (`/onboarding`)**:
+  1. *Identidad del Salón*: Nombre comercial, dirección, WhatsApp y auto-generación de slug en tiempo real con normalización NFD.
+  2. *Credenciales de Dueño*: Nombre, email y contraseña del administrador.
+  3. *Selección de Plan*: Tiers **Free**, **Pro** y **Enterprise**.
+- **Portales Públicos de Turnos (`/:slug`)**:
+  - URLs amigables listas para bio de Instagram (ej: `/studio-palermo`, `/la-nave`).
+  - Reserva en 1 pantalla: selección de servicio, barbero, fecha y slot interactivo con ingreso directo de nombre + WhatsApp.
+  - Explosión táctil de confeti (`canvas-confetti`) y resumen en Dynamic Island flotante al confirmar.
 
-- **Node.js 18+** (probado con Node 22)
-- **npm 9+**
-- Una base **MongoDB Atlas** (free tier alcanza) o **MongoDB local**
+### 2. 🖤 Estética "Modo Hiperfoco" & Micro-interacciones Táctiles
+- **Fondo OLED Black `#050505`** con grilla técnica sutil de 24px y bordes monolíticos en `rgba(255,255,255,0.08)`.
+- **Spotlight Cards**: Efecto specular de iluminación radial que sigue las coordenadas exactas del cursor del usuario (`SpotlightCard`).
+- **Tactile Slots (Bencho UI inspired)**: Chips de horario con resortes Framer Motion (`type: "spring", stiffness: 450, damping: 25`), indicadores de estado en vivo (verde activo / gris ocupado) y animaciones hápticas.
+- **Dynamic Island**: Píldora morphing flotante que expande el resumen en vivo de la reserva y confirma la cita sin cambios bruscos de pantalla.
+- **BarberPole Monocromático**: Emblema minimalista con reflejo de cristal satinado y rotación sutil.
 
-### 1. Clonar y entrar al directorio
+### 3. ⚡ Slot Engine & Control Atómico de Concurrencia
+- **Disponibilidad Inteligente**: `GET /api/empleados/:id/disponibilidad?fecha=YYYY-MM-DD&servicioId=...` calcula dinámicamente horarios libres respetando horarios de apertura/cierre y turnos existentes.
+- **Anti-Collision Mutex**: Bloqueo secuencial por empleado (`conBloqueoEmpleado`) que previene reservas duplicadas al mismo microsegundo devolviendo `409 Conflict`.
+- **Cancelación Autónoma**: Validación estricta de ventana mínima de 2 horas previas a la cita (`PATCH /api/turnos/:id/cancelar`).
+- **Snapshots Contables Inmutables**: Los turnos graban `precioCobrado`, `duracionMinutos` y `fechaHoraFin` en el momento exacto de la reserva.
+
+---
+
+## ⚡ Demo en Vivo & Salones Pre-Sembrados
+
+En el entorno local o de demostración se encuentran configurados dos salones completos:
+
+| Salón / Tenant | URL de Turnos | Dueño / Admin | Contraseña | Plan |
+| :--- | :--- | :--- | :--- | :--- |
+| 💈 **Studio Palermo** | `http://localhost:5173/studio-palermo` | `admin@peluqueria.com` | `admin123` | **Pro** |
+| 🚀 **La Nave Barbershop** | `http://localhost:5173/la-nave` | `owner@lanave.com` | `admin123` | **Enterprise** |
+
+### Accesos Rápidos de la Plataforma:
+- **Landing B2B SaaS**: `http://localhost:5173/`
+- **Wizard Onboarding**: `http://localhost:5173/onboarding`
+- **Consola Studio**: `http://localhost:5173/dashboard`
+- **Healthcheck & Telemetría**: `http://localhost:4000/api/salud`
+
+---
+
+## 🚀 Inicio Rápido
+
+### Opción A: Levantar con Docker Compose
 
 ```bash
-git clone <url-del-repo>
-cd parcial-2-peluqueria
+# 1. Clonar el repositorio
+git clone https://github.com/MateoGs013/barberpole.git
+cd barberpole
+
+# 2. Levantar MongoDB, Backend y Frontend
+docker compose up --build
 ```
 
-### 2. Backend
+- **Frontend SPA**: `http://localhost:3000`
+- **Backend API**: `http://localhost:4000/api/salud`
+- **MongoDB**: `localhost:27017`
+
+---
+
+### Opción B: Ejecución Local Tradicional
+
+#### 1. Backend
 
 ```bash
 cd backend
-cp .env.example .env       # en Windows: copy .env.example .env
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno (.env)
+cp .env.example .env
+
+# Poblar base de datos con salones demo y datos multi-tenant
+npm run seed:demo
+
+# Ejecutar suite de tests automatizados (19 tests)
+npm test
+
+# Iniciar servidor backend en modo desarrollo
+npm run dev
 ```
 
-Editá `.env` y completá los valores (ver [Variables de entorno](#variables-de-entorno)).
+#### 2. Frontend
 
 ```bash
+cd ../frontend
+
+# Instalar dependencias
 npm install
-npm run seed               # crea admin@peluqueria.com / admin123 (opcional)
-npm run dev                # arranca en http://localhost:4000
+
+# Ejecutar suite de tests unitarios (11 tests)
+npm test
+
+# Build de producción
+npm run build
+
+# Iniciar servidor Vite en modo desarrollo
+npm run dev
 ```
 
-### 3. Frontend (en otra terminal)
+---
 
+## 🧪 Suite de Tests Automatizados (30/30 Pasando)
+
+### Backend Tests (`19 passed` | `vitest` + `supertest` + `mongodb-memory-server`)
 ```bash
-cd frontend
-npm install
-npm run dev                # arranca en http://localhost:5173
+cd backend && npm test
 ```
+- ✅ Onboarding autoservicio de nuevos salones (`POST /api/negocios/onboarding`).
+- ✅ Detección y rechazo de slugs duplicados con código `409 Conflict`.
+- ✅ Consulta de portal público de tenant con servicios y profesionales (`GET /api/negocios/publico/:slug`).
+- ✅ **Aislamiento Multi-Tenant Estricto**: verificación cruzada de que los servicios y turnos creados en el Salón A son invisibles para el Salón B.
+- ✅ Registro público y creación atómica de perfiles `Cliente`.
+- ✅ Prevención de brute-force y autenticación segura con JWT `negocio` claim.
+- ✅ Rechazo estricto de turnos en fechas pasadas (`400 Bad Request`).
+- ✅ Inmutabilidad de snapshots contables (`precioCobrado`, `duracionMinutos`).
+- ✅ Slot Engine: cálculo dinámico de franjas horarias libres y ocupadas.
+- ✅ **Anti-Collision Concurrency Test**: carreras paralelas de peticiones concurrentes al mismo microsegundo resultan en exactamente 1 confirmación y 1 rechazo `409 Conflict`.
 
-Abrí http://localhost:5173 en el navegador. El front hace proxy de cualquier llamada a `/api` hacia el backend en `:4000`, así que no necesitás configurar CORS ni hosts.
-
----
-
-## Variables de entorno
-
-El backend usa un archivo `.env` ubicado en `/backend`. Se entrega un `.env.example` con los nombres pero sin valores sensibles.
-
-| Variable | Descripción | Ejemplo |
-|---|---|---|
-| `PORT` | Puerto donde escucha el backend | `4000` |
-| `MONGODB_URI` | URI de conexión a MongoDB | `mongodb+srv://usuario:pass@cluster.xxxxx.mongodb.net/peluqueria?retryWrites=true&w=majority` |
-| `JWT_SECRET` | Secreto para firmar los JWT (≥ 256 bits) | string hexadecimal largo y aleatorio |
-| `JWT_EXPIRES_IN` | Duración del token | `7d` |
-
-> El `.env` **no se commitea** (está en `.gitignore`). Se entrega aparte junto con el zip de la entrega.
-
----
-
-## Scripts
-
-### Backend (`/backend`)
-
-| Comando | Descripción |
-|---|---|
-| `npm run dev` | Levanta el servidor con `nodemon` (recarga automática) |
-| `npm start` | Levanta el servidor con `node` (modo producción) |
-| `npm run seed` | Crea el usuario admin inicial si no existe |
-
-### Frontend (`/frontend`)
-
-| Comando | Descripción |
-|---|---|
-| `npm run dev` | Servidor de desarrollo de Vite con HMR |
-| `npm run build` | Build de producción (genera `/dist`) |
-| `npm run preview` | Sirve el build de producción para probarlo localmente |
-
----
-
-## Usuarios de prueba
-
-Después de correr `npm run seed` en el backend:
-
-| Email | Contraseña | Rol |
-|---|---|---|
-| `admin@peluqueria.com` | `admin123` | admin |
-
-Para probar el rol `cliente`: registrate desde `/registro` en el frontend (el registro público siempre crea cuentas con rol cliente).
-
-Para probar el rol `empleado`: logueate como admin, andá a (en un futuro) `/usuarios` o creá uno desde la API con `POST /api/usuarios` (admin-only).
-
----
-
-## Modelo de datos
-
-| Entidad | Campos principales | Relaciones |
-|---|---|---|
-| **Usuario** | `nombre`, `email`, `password` (hash, `select:false`), `rol` (admin/empleado/cliente) | — |
-| **Servicio** | `nombre`, `descripcion`, `precio`, `duracionMinutos`, `activo` | — |
-| **Empleado** | `nombre`, `especialidad`, `telefono`, `email`, `activo` | → Usuario (opcional) |
-| **Cliente** | `nombre`, `email`, `telefono`, `notas` | → Usuario (opcional) |
-| **Turno** | `fechaHora`, `estado` (pendiente/confirmado/completado/cancelado), `notas` | → Cliente, Empleado, Servicio |
-
-Todas las entidades llevan `createdAt` y `updatedAt` automáticos (`timestamps: true` en el schema).
-
----
-
-## Endpoints de la API
-
-Base URL: `http://localhost:4000/api`
-
-Los endpoints protegidos requieren el header `Authorization: Bearer <token>` que se obtiene en `/auth/login` o `/auth/registro`.
-
-### Auth
-
-| Método | Ruta | Body | Permiso | Descripción |
-|---|---|---|---|---|
-| POST | `/auth/registro` | `{ nombre, email, password }` | público | Crea un usuario con rol `cliente` y devuelve token |
-| POST | `/auth/login` | `{ email, password }` | público | Inicia sesión y devuelve token |
-| GET | `/auth/yo` | — | autenticado | Devuelve los datos del usuario del token |
-| GET | `/auth/mi-cliente` | — | autenticado | Devuelve el `Cliente` vinculado al usuario. Si no existe, lo crea lazy con `nombre` y `email` del User. |
-
-### Servicios
-
-| Método | Ruta | Permiso |
-|---|---|---|
-| GET | `/servicios` | público |
-| GET | `/servicios/:id` | público |
-| POST | `/servicios` | admin |
-| PUT | `/servicios/:id` | admin |
-| DELETE | `/servicios/:id` | admin |
-
-### Empleados
-
-| Método | Ruta | Permiso |
-|---|---|---|
-| GET | `/empleados` | autenticado |
-| GET | `/empleados/:id` | autenticado |
-| POST | `/empleados` | admin |
-| PUT | `/empleados/:id` | admin |
-| DELETE | `/empleados/:id` | admin |
-
-### Clientes
-
-| Método | Ruta | Permiso |
-|---|---|---|
-| GET | `/clientes?q=búsqueda` | admin, empleado |
-| GET | `/clientes/:id` | admin, empleado |
-| POST | `/clientes` | admin, empleado |
-| PUT | `/clientes/:id` | admin, empleado |
-| DELETE | `/clientes/:id` | admin |
-
-### Usuarios
-
-| Método | Ruta | Permiso |
-|---|---|---|
-| GET | `/usuarios` | admin |
-| GET | `/usuarios/:id` | admin |
-| POST | `/usuarios` | admin |
-| PUT | `/usuarios/:id` | admin |
-| DELETE | `/usuarios/:id` | admin |
-
-### Turnos
-
-| Método | Ruta | Permiso |
-|---|---|---|
-| GET | `/turnos?empleadoId&clienteId&estado&desde&hasta` | autenticado (el cliente ve solo los suyos) |
-| GET | `/turnos/:id` | autenticado (el cliente solo si es suyo) |
-| POST | `/turnos` | autenticado (el cliente solo para su propio perfil) |
-| PUT | `/turnos/:id` | admin, empleado |
-| DELETE | `/turnos/:id` | admin |
-
-**Códigos de error notables del recurso Turnos:**
-
-- `409 Conflict` cuando el empleado ya tiene un turno cuyo horario se superpone con el nuevo (regla `[a1,a2]` y `[b1,b2]` se solapan ↔ `a1 < b2 && b1 < a2`).
-
-### Validación
-
-Todos los endpoints `POST` y `PUT` validan los payloads con **express-validator**. Las respuestas de error siguen el formato:
-
-```json
-{
-  "error": "Datos inválidos",
-  "detalles": [
-    { "campo": "precio", "mensaje": "El precio debe ser un número >= 0" }
-  ]
-}
+### Frontend Tests (`11 passed` | `vitest` + `@testing-library/react` + `jsdom`)
+```bash
+cd frontend && npm test
 ```
+- ✅ Flujo completo de Onboarding SaaS: renderizado, auto-generación reactiva de slug y validación de campos obligatorios (`OnboardingNegocio.test.jsx`).
+- ✅ Formulario de Login, validación y 1-Click Demo rápido (`Login.test.jsx`).
+- ✅ Accesibilidad WAI-ARIA del componente Modal (focus trap, tecla ESC, `role="dialog"`) (`Modal.test.jsx`).
+- ✅ Wizard interactivo de 3 pasos con Slot Engine y confirmación háptica (`Reservar.test.jsx`).
+- ✅ Gestión de turnos y confirmación de cancelación (`Turnos.test.jsx`).
 
 ---
 
-## Decisiones técnicas
+## 📡 Endpoints de la API REST
 
-Notas para defender en el oral, agrupadas por tema.
+### Multi-Tenant & Onboarding (`/api/negocios`)
+- `POST /api/negocios/onboarding` — Registro público de un nuevo salón y su dueño.
+- `GET /api/negocios/publicos` — Directorio de salones activos para el showcase del SaaS.
+- `GET /api/negocios/publico/:slug` — Portal público del salón (información, servicios y barberos).
+- `GET /api/negocios/mi-negocio` — Configuración del salón autenticado (*admin*).
+- `PUT /api/negocios/mi-negocio` — Actualización de branding y horarios (*admin*).
 
-### Arquitectura del backend
+### Autenticación (`/api/auth`)
+- `POST /api/auth/registro` — Registro con creación atómica de cliente.
+- `POST /api/auth/login` — Inicio de sesión con claims de tenant en JWT.
+- `GET /api/auth/yo` — Rehidratación de sesión.
 
-- **ES Modules** (`"type": "module"` en `package.json`) en vez de CommonJS — usa `import/export`, código moderno y consistente con el frontend.
-- **Separación `app.js` ↔ `server.js`**: `app.js` solo configura Express (rutas + middlewares); `server.js` conecta a Mongo y pone a escuchar el puerto. Permite testear la app sin levantar la red.
-- **Patrón por capas**: `route → middleware → validator → controller → service → model`. Cada capa con una responsabilidad única.
-- **Manejador de errores global** al final de `app.js` con firma de 4 parámetros `(error, req, res, next)`. Captura todo lo que los controllers tiran con `next(error)` y devuelve JSON uniforme.
+### Empleados & Slot Engine (`/api/empleados`)
+- `GET /api/empleados` — Listado de profesionales scoped por salón.
+- `GET /api/empleados/:id/disponibilidad?fecha=YYYY-MM-DD&servicioId=...` — **Slot Engine**: franjas horarias en tiempo real.
+- `POST /api/empleados` — Alta de profesional (*admin*).
+- `PUT /api/empleados/:id` — Edición (*admin*).
+- `DELETE /api/empleados/:id` — Baja (*admin*).
 
-### Auth
+### Turnos & Reservas (`/api/turnos`)
+- `GET /api/turnos?desde=...&hasta=...&estado=...` — Turnos scoped con paginación.
+- `POST /api/turnos` — Reserva con validación anti-pasado, snapshots contables y Mutex anti-collision.
+- `PATCH /api/turnos/:id/cancelar` — Cancelación con lead-time mínimo de 2hs.
 
-- **bcryptjs** en vez de bcrypt — es JavaScript puro, no necesita compilar nada en Windows. Misma API.
-- **10 salt rounds** — balance estándar entre seguridad y rendimiento.
-- **`select: false` en password** en el schema de Usuario — Mongoose no devuelve el hash por default, evitando filtrarlo en respuestas.
-- **JWT firma, no encripta** — el payload se puede leer (base64), pero solo el servidor con `JWT_SECRET` puede generar firmas válidas. Nadie puede modificar el token sin invalidar la firma.
-- **Middleware `requireRol(...roles)` como factory** — devuelve un middleware específico permitiendo `requireRol('admin', 'empleado')`.
-- **Seed de admin** (`npm run seed`) — atajo realista: el registro público solo crea clientes, así que para tener un admin usamos un script en lugar de exponer un endpoint inseguro.
+### Servicios (`/api/servicios`)
+- `GET /api/servicios` — Listado con filtrado automático por tenant autenticado u opcional.
+- `POST /api/servicios` — Alta de servicio (*admin*).
+- `PUT /api/servicios/:id` — Edición de tarifa o duración (*admin*).
+- `DELETE /api/servicios/:id` — Baja (*admin*).
 
-### Lógica de turnos
-
-- **Validación de superposición**: dos rangos `[a1,a2]` y `[b1,b2]` se superponen si y solo si `a1 < b2 && b1 < a2`. En el service pre-filtramos en Mongo los turnos del mismo empleado cuyo inicio sea anterior al fin del nuevo (descartan los que empiezan después), y luego en código sumamos la duración del servicio (populated) para calcular el fin real y aplicar la regla.
-- **Filtrado por rol en el controller**: el cliente solo puede ver y crear turnos vinculados a su propio perfil Cliente (`Cliente.usuario === req.usuario.id`). El admin y el empleado ven y modifican todos.
-
-### MongoDB Atlas en Argentina
-
-- En `db.js` forzamos a Node a usar DNS de Cloudflare (`1.1.1.1`) y Google (`8.8.8.8`) **solo dentro del proceso** porque algunos ISPs locales no resuelven correctamente los registros DNS de tipo SRV que usa `mongodb+srv://`. No toca la configuración del sistema.
-
-### Frontend
-
-- **Proxy de Vite** apuntando a `localhost:4000` para `/api` — en desarrollo escribimos `axios.get('/api/turnos')` y Vite hace el redirect, evitando CORS y hardcodeo del host.
-- **Capa de API separada** (`src/api/`): cada entidad tiene su archivo con funciones que retornan promesas. Las vistas no saben de axios ni de headers.
-- **Interceptores de axios** en `http.js`: el de request agrega `Authorization: Bearer <token>` automáticamente si hay token en `localStorage`; el de response borra el token si recibe `401` (token vencido).
-- **AuthContext con rehidratación**: al montar la app, si hay token en `localStorage`, llama a `GET /api/auth/yo` para traer los datos del usuario. Si el token es inválido, el interceptor lo borra y el usuario queda en `null`.
-- **ProtectedRoute con roles opcionales**: si no hay sesión redirige a `/login` guardando la ruta de origen en `location.state.from` para volver después. Si hay sesión pero el rol no está en la lista permitida, redirige a `/`.
-- **Layouts compartidos vía `<Outlet />`** de react-router-dom v6. Las rutas autenticadas se agrupan en una ruta padre con `LayoutAutenticado` y el contenido específico se renderiza en el Outlet.
-- **Validación manual con `useState`** según pide la consigna (sin librerías tipo react-hook-form). Cada formulario tiene función `validar()` que retorna un mapa de errores por campo.
-- **`runValidators: true` en updates** de Mongoose — por default solo corre validadores al crear; el flag los activa también en `findByIdAndUpdate`.
-
-### Diseño neo-brutalista
-
-- **Inspirado en el faro de peluquería** (barber pole): rojo y azul vienen de la tradición medieval (sangrías), donde rojo = sangre arterial, azul = venosa, blanco = vendaje.
-- **Solo 5 colores** para mantener la disciplina visual.
-- **Sombra "bruta"**: `box-shadow: 6px 6px 0 0 #0A0A0A`. Sin blur, offset entero. Al hover se achica a `2px 2px` y el elemento se desplaza `4px,4px` → efecto "presionar".
-- **Cada página tiene un layout distinto** para evitar repetición:
-  - Servicios → grid de cards con rotación al hover
-  - Empleados → cards "sticker" con rotación determinística por índice
-  - Clientes → lista vertical con franja lateral coloreada por inicial
-  - Turnos → agrupado por día con encabezado tipográfico grande
-  - Usuarios → tabla brutalista en desktop, cards en mobile
-  - Landing → secciones con fondos alternantes (crema/negro/crema/negro)
-
-### Responsive
-
-- **Desktop (≥1024px)**: nav horizontal en el header.
-- **Mobile (<1024px)**: el nav baja al pie en un `BottomNav` sticky con 4 items principales por rol; admin tiene un 5to "Más" que abre un sheet con los items restantes. El header queda solo con logo + botón Salir.
-- Tablas se convierten en cards en mobile (caso Usuarios) para evitar scroll horizontal.
-- Tipografías y paddings escalan con `md:` / `lg:` para mantener legibilidad.
+### Observabilidad (`/api/salud`)
+- `GET /api/salud` — Healthcheck activo con estado de Mongoose y uptime.
 
 ---
 
-## Limitaciones conscientes
+## 👨‍💻 Autor
 
-Estas son cosas que **no** hicimos a propósito para acotar el alcance del parcial. Son trade-offs documentados, no olvidos.
-
-- **No hay tests automatizados** — la consigna no los pide y el tiempo se invirtió en cobertura funcional.
-- **No hay CI/CD, Docker ni deploy** — fuera del alcance del parcial.
-- **No hay refresh tokens** — el JWT simple con expiración de 7 días alcanza para el caso de uso.
-- **El perfil es read-only** — para cambiar la contraseña hay que ir por el endpoint admin-only `PUT /api/usuarios/:id` o desde la página `/usuarios` (admin).
-- **El empleado ve todos los turnos**, no solo los suyos asignados. En una versión más madura se filtraría también para el rol empleado.
-- **La paginación es cliente-side** (`usePaginacion` hace el slice en el front). Para datasets muy grandes habría que mover la lógica al backend con `skip`/`limit` y devolver metadata de total.
-
----
-
-## Autor
-
-**Mateo Gabús** — `mateogabus@gmail.com`
-Aplicaciones Híbridas · Da Vinci · 2026
+**Mateo Gabús**  
+*Parcial 2 — Aplicaciones Híbridas — Escuela Da Vinci (2026)*  
+Repositorio: [https://github.com/MateoGs013/barberpole.git](https://github.com/MateoGs013/barberpole.git)

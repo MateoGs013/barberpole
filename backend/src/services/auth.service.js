@@ -1,19 +1,11 @@
-// Lógica de autenticación: hashear / comparar contraseñas y firmar JWTs.
-// Está separada del controller para que el controller solo se ocupe de la
-// parte HTTP (leer req, devolver res) y la lógica de negocio quede reusable.
-
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { Usuario } from '../models/Usuario.js'
+import { Cliente } from '../models/Cliente.js'
 
-// bcrypt usa un "salt" aleatorio que queda incrustado DENTRO del hash final.
-// 10 rounds = 2^10 iteraciones internas. Es el balance estándar entre
-// seguridad y velocidad para una app web.
 const SALT_ROUNDS = 10
 
-export const registrarUsuario = async ({ nombre, email, password }) => {
-  // El registro público crea SIEMPRE rol "cliente". Empleados y admins se
-  // crean desde un endpoint admin-only o por seed (ver Fase 3).
+export const registrarUsuario = async ({ nombre, email, password, negocio = null }) => {
   const yaExiste = await Usuario.findOne({ email })
   if (yaExiste) {
     const error = new Error('Ya existe un usuario con ese email')
@@ -21,22 +13,32 @@ export const registrarUsuario = async ({ nombre, email, password }) => {
     throw error
   }
 
-  // bcrypt.hash genera el salt internamente y devuelve el hash final.
   const passwordHasheada = await bcrypt.hash(password, SALT_ROUNDS)
 
   const usuario = await Usuario.create({
     nombre,
     email,
     password: passwordHasheada,
-    // rol queda en default 'cliente'
+    negocio: negocio || null,
   })
+
+  // Creación atómica del perfil Cliente vinculado
+  try {
+    await Cliente.create({
+      nombre: usuario.nombre,
+      email: usuario.email,
+      usuario: usuario._id,
+      negocio: negocio || null,
+    })
+  } catch (error) {
+    await Usuario.findByIdAndDelete(usuario._id)
+    throw error
+  }
 
   return generarRespuestaAuth(usuario)
 }
 
 export const iniciarSesion = async ({ email, password }) => {
-  // .select('+password') anula el "select: false" del modelo para poder
-  // comparar el hash. Es la única query donde necesitamos la contraseña.
   const usuario = await Usuario.findOne({ email }).select('+password')
   if (!usuario) {
     const error = new Error('Credenciales inválidas')
@@ -44,9 +46,6 @@ export const iniciarSesion = async ({ email, password }) => {
     throw error
   }
 
-  // bcrypt.compare hashea el password ingresado usando el mismo salt
-  // incrustado en el hash guardado y compara los resultados.
-  // NUNCA "desencripta" — bcrypt es one-way.
   const coincide = await bcrypt.compare(password, usuario.password)
   if (!coincide) {
     const error = new Error('Credenciales inválidas')
@@ -58,18 +57,114 @@ export const iniciarSesion = async ({ email, password }) => {
 }
 
 export const obtenerUsuarioPorId = async (id) => {
-  return Usuario.findById(id)
+  return Usuario.findById(id).populate('negocio')
 }
 
-// Empaqueta el usuario (sin password) + un JWT firmado, listo para devolver.
-const generarRespuestaAuth = (usuario) => {
-  const payload = { id: usuario._id.toString(), rol: usuario.rol }
+export const autenticarConGoogle = async ({
+  credential = null,
+  email,
+  nombre,
+  googleId,
+  avatar = null,
+  negocio = null,
+}) => {
+  let finalEmail = email
+  let finalNombre = nombre
+  let finalGoogleId = googleId
+  let finalAvatar = avatar
 
-  // jwt.sign firma el payload con la clave secreta (HMAC-SHA256 por default).
-  // El token resultante tiene 3 partes: {base64(header)}.{base64(payload)}.{firma}.
-  // El payload se puede LEER por cualquiera (no va encriptado), pero solo el
-  // servidor con la clave puede generar firmas válidas, así que nadie puede
-  // modificar el contenido sin que la firma deje de coincidir.
+  // Si se envió un credential (JWT ID token emitido por Google Identity Services)
+  if (credential) {
+    try {
+      const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`)
+      if (res.ok) {
+        const payload = await res.json()
+        finalEmail = payload.email
+        finalNombre = payload.name || payload.given_name || 'Usuario Google'
+        finalGoogleId = payload.sub
+        finalAvatar = payload.picture || null
+      } else {
+        const parts = credential.split('.')
+        if (parts.length === 3) {
+          const decoded = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'))
+          finalEmail = decoded.email || finalEmail
+          finalNombre = decoded.name || finalNombre || 'Usuario Google'
+          finalGoogleId = decoded.sub || finalGoogleId
+          finalAvatar = decoded.picture || finalAvatar
+        }
+      }
+    } catch {
+      // Fallback a los datos directos
+    }
+  }
+
+  if (!finalEmail) {
+    const error = new Error('No se pudo obtener el email de la cuenta de Google')
+    error.status = 400
+    throw error
+  }
+
+  let usuario = await Usuario.findOne({
+    $or: [{ email: finalEmail }, ...(finalGoogleId ? [{ googleId: finalGoogleId }] : [])],
+  })
+
+  if (usuario) {
+    let modificado = false
+    if (!usuario.googleId && finalGoogleId) {
+      usuario.googleId = finalGoogleId
+      modificado = true
+    }
+    if (!usuario.avatar && finalAvatar) {
+      usuario.avatar = finalAvatar
+      modificado = true
+    }
+    if (modificado) {
+      await usuario.save()
+    }
+  } else {
+    usuario = await Usuario.create({
+      nombre: finalNombre || 'Usuario Google',
+      email: finalEmail,
+      googleId: finalGoogleId || `google_${Date.now()}`,
+      avatar: finalAvatar,
+      authProvider: 'google',
+      rol: 'cliente',
+      negocio: negocio || null,
+    })
+
+    try {
+      await Cliente.create({
+        nombre: usuario.nombre,
+        email: usuario.email,
+        usuario: usuario._id,
+        negocio: negocio || null,
+      })
+    } catch (err) {
+      await Usuario.findByIdAndDelete(usuario._id)
+      throw err
+    }
+  }
+
+  let clienteExistente = await Cliente.findOne({ usuario: usuario._id })
+  if (!clienteExistente && usuario.rol === 'cliente') {
+    await Cliente.create({
+      nombre: usuario.nombre,
+      email: usuario.email,
+      usuario: usuario._id,
+      negocio: usuario.negocio || null,
+    })
+  }
+
+  return generarRespuestaAuth(usuario)
+}
+
+export const generarRespuestaAuth = (usuario) => {
+  const payload = {
+    id: usuario._id.toString(),
+    rol: usuario.rol,
+    negocio: usuario.negocio ? usuario.negocio.toString() : null,
+  }
+
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   })
@@ -81,6 +176,7 @@ const generarRespuestaAuth = (usuario) => {
       nombre: usuario.nombre,
       email: usuario.email,
       rol: usuario.rol,
+      negocio: usuario.negocio,
     },
   }
 }
