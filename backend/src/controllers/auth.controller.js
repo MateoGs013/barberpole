@@ -5,6 +5,7 @@ import {
   registrarUsuario,
   iniciarSesion,
   obtenerUsuarioPorId,
+  autenticarConGoogle,
 } from '../services/auth.service.js'
 import { Cliente } from '../models/Cliente.js'
 import { Usuario } from '../models/Usuario.js'
@@ -21,6 +22,15 @@ export const registrar = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const data = await iniciarSesion(req.body)
+    res.json(data)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const loginGoogle = async (req, res, next) => {
+  try {
+    const data = await autenticarConGoogle(req.body)
     res.json(data)
   } catch (error) {
     next(error)

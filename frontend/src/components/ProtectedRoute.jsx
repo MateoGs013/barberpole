@@ -1,10 +1,4 @@
-// Wrapper para rutas privadas.
-// - Si todavía está cargando la sesión, muestra un placeholder (evita
-//   redirigir a /login en lo que rehidrata el usuario al recargar).
-// - Si no hay usuario, redirige a /login y guarda la ruta de origen en
-//   location.state para volver después del login.
-// - Si se pasan "roles", también valida que el usuario tenga uno de esos.
-
+// Wrapper para rutas privadas con soporte multi-rol y superadmin universal.
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 
@@ -24,7 +18,8 @@ export function ProtectedRoute({ children, roles = null }) {
     return <Navigate to="/login" replace state={{ from: location }} />
   }
 
-  if (roles && !roles.includes(usuario.rol)) {
+  // Superadmin tiene acceso a todas las rutas de gestión
+  if (roles && usuario.rol !== 'superadmin' && !roles.includes(usuario.rol)) {
     return <Navigate to="/" replace />
   }
 

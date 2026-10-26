@@ -1,44 +1,57 @@
-// Bottom navigation tipo "tab bar" para mobile.
-// Se oculta en desktop (lg+) — ahí usamos el nav horizontal del header.
-//
-// La estructura cambia según el rol:
-// - Cliente / Empleado: 4 items fijos.
-// - Admin: 4 items principales + botón "Más" que abre un sheet con el resto.
-
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { Modal } from './Modal.jsx'
+import {
+  LayoutDashboard,
+  Calendar,
+  Scissors,
+  Users,
+  User,
+  PlusCircle,
+  MoreHorizontal,
+  LogOut,
+  UserCheck,
+  Shield,
+} from 'lucide-react'
 
-// Items siempre visibles en el bottom nav, en orden.
+const ICONOS = {
+  '/dashboard': LayoutDashboard,
+  '/turnos': Calendar,
+  '/servicios': Scissors,
+  '/clientes': Users,
+  '/empleados': UserCheck,
+  '/usuarios': Shield,
+  '/reservar': PlusCircle,
+  '/perfil': User,
+}
+
 const ITEMS_VISIBLES = {
   admin: [
-    { to: '/dashboard', label: 'Inicio', icono: '◆' },
-    { to: '/turnos', label: 'Turnos', icono: '✂' },
-    { to: '/servicios', label: 'Catálogo', icono: '⚙' },
-    { to: '/clientes', label: 'Clientes', icono: '◊' },
+    { to: '/dashboard', label: 'Inicio' },
+    { to: '/turnos', label: 'Turnos' },
+    { to: '/servicios', label: 'Catálogo' },
+    { to: '/clientes', label: 'Clientes' },
   ],
   empleado: [
-    { to: '/dashboard', label: 'Inicio', icono: '◆' },
-    { to: '/turnos', label: 'Turnos', icono: '✂' },
-    { to: '/clientes', label: 'Clientes', icono: '◊' },
-    { to: '/perfil', label: 'Perfil', icono: '◉' },
+    { to: '/dashboard', label: 'Inicio' },
+    { to: '/turnos', label: 'Turnos' },
+    { to: '/clientes', label: 'Clientes' },
+    { to: '/perfil', label: 'Perfil' },
   ],
   cliente: [
-    { to: '/dashboard', label: 'Inicio', icono: '◆' },
-    { to: '/reservar', label: 'Reservar', icono: '+' },
-    { to: '/turnos', label: 'Mis turnos', icono: '✂' },
-    { to: '/perfil', label: 'Perfil', icono: '◉' },
+    { to: '/dashboard', label: 'Inicio' },
+    { to: '/reservar', label: 'Reservar' },
+    { to: '/turnos', label: 'Mis turnos' },
+    { to: '/perfil', label: 'Perfil' },
   ],
 }
 
-// Items extras que se muestran en el sheet "Más" para roles que tienen
-// más de 4 secciones. Para empleado/cliente no hay extras.
 const ITEMS_EXTRA = {
   admin: [
-    { to: '/empleados', label: 'Empleados', icono: '★' },
-    { to: '/usuarios', label: 'Usuarios', icono: '⊕' },
-    { to: '/perfil', label: 'Perfil', icono: '◉' },
+    { to: '/empleados', label: 'Empleados' },
+    { to: '/usuarios', label: 'Usuarios' },
+    { to: '/perfil', label: 'Perfil' },
   ],
   empleado: [],
   cliente: [],
@@ -69,36 +82,39 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-crema border-t-3 border-negro">
-        <ul className={`grid ${columnas}`}>
-          {principales.map((item) => (
-            <li key={item.to}>
-              <NavLink
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex flex-col items-center justify-center gap-1 py-2 px-1 text-center transition-colors ${
-                    isActive ? 'bg-negro text-white' : 'text-negro hover:bg-white'
-                  }`
-                }
-              >
-                <span className="font-display font-bold text-2xl leading-none">
-                  {item.icono}
-                </span>
-                <span className="font-mono text-[9px] uppercase tracking-tight leading-none">
-                  {item.label}
-                </span>
-              </NavLink>
-            </li>
-          ))}
+      <nav className="lg:hidden fixed bottom-3 inset-x-3 z-40 bg-zinc-950/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.8)] px-2 py-1">
+        <ul className={`grid ${columnas} items-center`}>
+          {principales.map((item) => {
+            const Icono = ICONOS[item.to] || Calendar
+            return (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl text-center transition-all ${
+                      isActive
+                        ? 'text-white bg-white/10 font-medium'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                    }`
+                  }
+                >
+                  <Icono className="w-4 h-4" />
+                  <span className="font-mono text-[9px] uppercase tracking-wider leading-none">
+                    {item.label}
+                  </span>
+                </NavLink>
+              </li>
+            )
+          })}
           {tieneMas && (
             <li>
               <button
                 type="button"
                 onClick={() => setMasAbierto(true)}
-                className="w-full h-full flex flex-col items-center justify-center gap-1 py-2 px-1 text-center hover:bg-white"
+                className="w-full h-full flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl text-center text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
               >
-                <span className="font-display font-bold text-2xl leading-none">≡</span>
-                <span className="font-mono text-[9px] uppercase tracking-tight leading-none">
+                <MoreHorizontal className="w-4 h-4" />
+                <span className="font-mono text-[9px] uppercase tracking-wider leading-none">
                   Más
                 </span>
               </button>
@@ -107,29 +123,31 @@ export function BottomNav() {
         </ul>
       </nav>
 
-      {/* Sheet "Más" — modal estándar pero con look de drawer en mobile. */}
-      <Modal abierto={masAbierto} onCerrar={() => setMasAbierto(false)} titulo="Más">
+      {/* Modal Más */}
+      <Modal abierto={masAbierto} onCerrar={() => setMasAbierto(false)} titulo="Navegación extendida">
         <ul className="space-y-2">
-          {extras.map((item) => (
-            <li key={item.to}>
-              <button
-                onClick={() => irY(item.to)}
-                className="w-full text-left border-3 border-negro bg-white shadow-bruta px-4 py-3 flex items-center gap-3 hover:shadow-bruta-sm hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-              >
-                <span className="font-display font-bold text-2xl leading-none">
-                  {item.icono}
-                </span>
-                <span className="font-display font-bold uppercase tracking-tight">
-                  {item.label}
-                </span>
-              </button>
-            </li>
-          ))}
-          <li className="pt-2 border-t-2 border-negro">
+          {extras.map((item) => {
+            const Icono = ICONOS[item.to] || Calendar
+            return (
+              <li key={item.to}>
+                <button
+                  onClick={() => irY(item.to)}
+                  className="w-full text-left rounded-xl border border-white/10 bg-zinc-900/50 hover:bg-zinc-850 hover:border-white/20 px-4 py-3 flex items-center gap-3 transition-all text-zinc-200"
+                >
+                  <Icono className="w-5 h-5 text-zinc-400" />
+                  <span className="font-mono text-xs uppercase tracking-wider">
+                    {item.label}
+                  </span>
+                </button>
+              </li>
+            )
+          })}
+          <li className="pt-3 border-t border-white/10">
             <button
               onClick={onLogout}
               className="btn btn-peligro w-full justify-center"
             >
+              <LogOut className="w-4 h-4 mr-1" />
               Cerrar sesión
             </button>
           </li>

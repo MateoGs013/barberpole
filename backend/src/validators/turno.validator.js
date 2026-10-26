@@ -8,7 +8,13 @@ export const reglasCrear = [
   body('servicio').isMongoId().withMessage('Servicio inválido'),
   body('fechaHora')
     .isISO8601().withMessage('La fechaHora debe ser una fecha ISO 8601 válida (ej: 2026-06-01T15:30:00Z)')
-    .toDate(),
+    .toDate()
+    .custom((value) => {
+      if (new Date(value).getTime() < Date.now()) {
+        throw new Error('No se pueden reservar turnos en el pasado')
+      }
+      return true
+    }),
   body('estado')
     .optional()
     .isIn(['pendiente', 'confirmado', 'completado', 'cancelado'])

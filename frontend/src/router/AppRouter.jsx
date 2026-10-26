@@ -4,6 +4,7 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { ProtectedRoute } from '../components/ProtectedRoute.jsx'
 import { LayoutAutenticado } from '../layouts/LayoutAutenticado.jsx'
+import { CommandPalette } from '../components/CommandPalette.jsx'
 import Login from '../pages/Login.jsx'
 import Registro from '../pages/Registro.jsx'
 import Servicios from '../pages/Servicios.jsx'
@@ -15,42 +16,27 @@ import Dashboard from '../pages/Dashboard.jsx'
 import Perfil from '../pages/Perfil.jsx'
 import Usuarios from '../pages/Usuarios.jsx'
 import Reservar from '../pages/Reservar.jsx'
+import OnboardingNegocio from '../pages/OnboardingNegocio.jsx'
+import PortalNegocio from '../pages/PortalNegocio.jsx'
+import ConfiguracionNegocio from '../pages/ConfiguracionNegocio.jsx'
+import Superadmin from '../pages/Superadmin.jsx'
 import NotFound from '../pages/NotFound.jsx'
-
-const Placeholder = ({ titulo, descripcion }) => (
-  <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 p-8 text-center">
-    <span className="badge badge-pendiente">EN CONSTRUCCION</span>
-    <h1 className="text-6xl md:text-8xl font-display font-bold uppercase tracking-tighter">
-      {titulo}
-    </h1>
-    {descripcion && (
-      <p className="font-mono text-sm uppercase tracking-tight max-w-md">{descripcion}</p>
-    )}
-    <Link
-      to="/dashboard"
-      className="font-mono text-xs uppercase underline decoration-2 underline-offset-4 hover:text-azul-faro mt-4"
-    >
-      ← Volver al dashboard
-    </Link>
-  </div>
-)
 
 export function AppRouter() {
   return (
     <BrowserRouter
       future={{
-        // Opt-in temprano a los cambios de React Router v7 para silenciar las
-        // advertencias de "Future Flag Warning" en consola. Son cambios chicos
-        // de comportamiento interno que no afectan a esta app.
         v7_startTransition: true,
         v7_relativeSplatPath: true,
       }}
     >
+      <CommandPalette />
       <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
+        <Route path="/onboarding" element={<OnboardingNegocio />} />
 
         {/* Rutas protegidas — comparten el LayoutAutenticado */}
         <Route
@@ -76,10 +62,10 @@ export function AppRouter() {
           <Route path="/reservar" element={<Reservar />} />
         </Route>
 
-        {/* Solo admin */}
+        {/* Admin y Superadmin */}
         <Route
           element={
-            <ProtectedRoute roles={['admin']}>
+            <ProtectedRoute roles={['admin', 'superadmin']}>
               <LayoutAutenticado />
             </ProtectedRoute>
           }
@@ -87,18 +73,33 @@ export function AppRouter() {
           <Route path="/servicios" element={<Servicios />} />
           <Route path="/empleados" element={<Empleados />} />
           <Route path="/usuarios" element={<Usuarios />} />
+          <Route path="/configuracion" element={<ConfiguracionNegocio />} />
         </Route>
 
-        {/* Admin o empleado */}
+        {/* Exclusivo Superadmin */}
         <Route
           element={
-            <ProtectedRoute roles={['admin', 'empleado']}>
+            <ProtectedRoute roles={['superadmin']}>
+              <LayoutAutenticado />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/superadmin" element={<Superadmin />} />
+        </Route>
+
+        {/* Admin, Empleado o Superadmin */}
+        <Route
+          element={
+            <ProtectedRoute roles={['admin', 'empleado', 'superadmin']}>
               <LayoutAutenticado />
             </ProtectedRoute>
           }
         >
           <Route path="/clientes" element={<Clientes />} />
         </Route>
+
+        {/* Dynamic Tenant Portal: /:slug */}
+        <Route path="/:slug" element={<PortalNegocio />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

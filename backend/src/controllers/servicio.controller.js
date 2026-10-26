@@ -1,11 +1,10 @@
-// Controller HTTP de Servicios. Delega toda la lógica al service.
-
 import * as servicioService from '../services/servicio.service.js'
 
 export const listar = async (req, res, next) => {
   try {
     const soloActivos = req.query.activos === 'true'
-    const servicios = await servicioService.listarServicios({ soloActivos })
+    const negocioId = req.negocioId || req.query.negocioId
+    const servicios = await servicioService.listarServicios({ soloActivos, negocioId })
     res.json(servicios)
   } catch (error) {
     next(error)
@@ -23,7 +22,10 @@ export const obtener = async (req, res, next) => {
 
 export const crear = async (req, res, next) => {
   try {
-    const servicio = await servicioService.crearServicio(req.body)
+    const servicio = await servicioService.crearServicio({
+      ...req.body,
+      negocio: req.body.negocio || req.negocioId,
+    })
     res.status(201).json(servicio)
   } catch (error) {
     next(error)

@@ -1,11 +1,8 @@
-// Lógica de negocio de Servicios.
-// El service encapsula las queries a la DB para que los controllers solo
-// manejen HTTP y la lógica sea reutilizable / testeable.
-
 import { Servicio } from '../models/Servicio.js'
 
-export const listarServicios = async ({ soloActivos = false } = {}) => {
+export const listarServicios = async ({ soloActivos = false, negocioId } = {}) => {
   const filtro = soloActivos ? { activo: true } : {}
+  if (negocioId) filtro.negocio = negocioId
   return Servicio.find(filtro).sort({ createdAt: -1 })
 }
 
@@ -20,8 +17,6 @@ export const crearServicio = async (datos) => {
 }
 
 export const actualizarServicio = async (id, datos) => {
-  // runValidators: true hace que los validadores del schema (min, max, etc)
-  // corran también en los update — por default Mongoose solo los corre al crear.
   const servicio = await Servicio.findByIdAndUpdate(id, datos, {
     new: true,
     runValidators: true,

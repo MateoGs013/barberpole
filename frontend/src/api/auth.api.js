@@ -16,6 +16,12 @@ export const loginAPI = async ({ email, password }) => {
   return data
 }
 
+export const loginGoogleAPI = async (datosGoogle) => {
+  const { data } = await http.post('/auth/google', datosGoogle)
+  guardarToken(data.token)
+  return data
+}
+
 export const yoAPI = async () => {
   const { data } = await http.get('/auth/yo')
   return data

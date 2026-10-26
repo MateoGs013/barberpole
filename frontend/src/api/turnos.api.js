@@ -14,3 +14,6 @@ export const actualizarTurnoAPI = async (id, datos) =>
 
 export const eliminarTurnoAPI = async (id) =>
   (await http.delete(`/turnos/${id}`)).data
+
+export const cancelarTurnoAPI = async (id) =>
+  (await http.patch(`/turnos/${id}/cancelar`)).data

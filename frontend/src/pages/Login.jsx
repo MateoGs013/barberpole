@@ -1,13 +1,10 @@
-// Página de Login.
-// Layout split asimétrico: izquierda decorativa (barber pole sobre negro),
-// derecha formulario sobre crema. En mobile el split se colapsa y muestra
-// solo el formulario.
-
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
-import { BarberPole } from '../components/BarberPole.jsx'
+import { ThemeToggle } from '../components/ThemeToggle.jsx'
+import { GoogleLoginButton } from '../components/GoogleLoginButton.jsx'
+import { ArrowLeft } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -20,92 +17,110 @@ export default function Login() {
   const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
-  // Si el usuario intentó entrar a una ruta protegida sin sesión, lo mandamos
-  // a esa ruta después del login. Si no, default a /dashboard.
-  const destino = location.state?.from?.pathname || '/dashboard'
 
-  // Validación manual con useState — la consigna del parcial pide que el
-  // frontend también valide, sin librerías como react-hook-form.
+  const searchParams = new URLSearchParams(location.search)
+  const esModoDemo = searchParams.get('demo') === 'true' || searchParams.get('demo') === '1'
+
+  const redirigirA = location.state?.from?.pathname || '/dashboard'
+
   const validar = () => {
-    const errs = {}
-    if (!email.trim()) errs.email = 'Ingresá tu email'
-    else if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Formato de email inválido'
-    if (!password) errs.password = 'Ingresá tu contraseña'
-    return errs
+    const err = {}
+    if (!email.trim()) {
+      err.email = 'Ingresá tu email'
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      err.email = 'Formato de email inválido'
+    }
+    if (!password) {
+      err.password = 'Ingresá una contraseña'
+    }
+    setErrores(err)
+    return Object.keys(err).length === 0
   }
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setErrorGlobal('')
-    const errs = validar()
-    setErrores(errs)
-    if (Object.keys(errs).length > 0) return
+
+    if (!validar()) return
 
     setEnviando(true)
     try {
-      const usuario = await login({ email: email.trim(), password })
-      const primerNombre = usuario.nombre?.split(' ')[0] || ''
-      toast.exito(`Hola de nuevo, ${primerNombre}`)
-      navigate(destino, { replace: true })
+      await login({ email, password })
+      toast.exito('Sesión iniciada correctamente')
+      navigate(redirigirA, { replace: true })
     } catch (err) {
-      setErrorGlobal(err.response?.data?.error || 'No pudimos iniciar la sesión')
+      const msg = err.response?.data?.error || 'Credenciales inválidas'
+      setErrorGlobal(msg)
+      toast.error(msg)
     } finally {
       setEnviando(false)
     }
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-[1.1fr_1fr]">
-      {/* Lado decorativo — solo desktop */}
-      <div className="hidden lg:flex relative bg-negro overflow-hidden items-center justify-center p-12">
-        <BarberPole className="w-56 h-96 z-10" />
-        <div className="absolute top-12 left-12 right-12">
-          <p className="font-mono text-xs uppercase text-white/60 tracking-tight">
-            [Sistema · v1.0]
-          </p>
+    <div className="min-h-screen w-full bg-black text-white flex flex-col justify-between p-6 sm:p-10 md:p-16 lg:p-20 selection:bg-white selection:text-black">
+      {/* Header Editorial B&W */}
+      <header className="w-full border-b border-white/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-neutral-400">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Volver al inicio</span>
+        </Link>
+
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <span className="hidden sm:inline text-white font-medium">BARBERPOLE — STUDIO</span>
         </div>
-        <div className="absolute bottom-12 left-12 right-12">
-          <h2 className="font-display font-bold text-white text-5xl xl:text-7xl uppercase leading-none tracking-tighter">
-            Peluquería
+      </header>
+
+      {/* Main Grid Editorial */}
+      <main className="w-full my-auto py-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        {/* Columna Izquierda: Identidad Tipográfica Monumental */}
+        <div className="lg:col-span-6 space-y-6">
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
+            — ACCESO AL SISTEMA
+          </p>
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+            INICIAR
             <br />
-            <span className="text-rojo-faro">SaaS</span>
-          </h2>
-          <p className="font-mono text-xs text-white/60 mt-4 uppercase tracking-tight">
-            Gestión de turnos · servicios · clientes
+            SESIÓN.
+          </h1>
+          <p className="font-sans text-sm text-neutral-400 max-w-md font-light leading-relaxed">
+            Plataforma despojada de fricción para salones y barberías. Ingresá con Google o tus credenciales de acceso directo.
           </p>
-        </div>
-      </div>
 
-      {/* Lado formulario */}
-      <div className="flex items-center justify-center p-8 lg:p-16">
-        <div className="w-full max-w-md space-y-8">
-          <Link
-            to="/"
-            className="font-mono text-xs uppercase inline-block hover:text-rojo-faro tracking-tight"
-          >
-            ← Volver al inicio
-          </Link>
-
-          <div>
-            <h1 className="text-5xl md:text-6xl font-display font-bold uppercase tracking-tighter leading-none">
-              Hola de
-              <br />
-              nuevo.
-            </h1>
-            <p className="font-mono text-sm uppercase mt-4 tracking-tight">
-              Ingresá para gestionar la peluquería
-            </p>
+          <div className="hidden lg:block pt-8 border-t border-white/10 space-y-3 font-mono text-xs text-neutral-500 uppercase tracking-wider">
+            <div>01 — AUTENTICACIÓN GOOGLE 1-CLICK</div>
+            <div>02 — CONTROL DE CONCURRENCIA ATÓMICO</div>
+            <div>03 — SINCRONIZACIÓN GOOGLE CALENDAR</div>
           </div>
+        </div>
 
+        {/* Columna Derecha: Formulario Profesional */}
+        <div className="lg:col-span-6 max-w-lg w-full space-y-8 lg:ml-auto">
           {errorGlobal && (
-            <div className="border-3 border-negro bg-rojo-faro text-white px-4 py-3 font-mono text-sm uppercase">
+            <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase tracking-wide">
               {errorGlobal}
             </div>
           )}
 
-          <form onSubmit={onSubmit} className="space-y-5" noValidate>
+          {/* Botón Principal Google */}
+          <div className="space-y-4">
+            <GoogleLoginButton onSuccess={() => navigate(redirigirA, { replace: true })} />
+            <div className="flex items-center gap-3">
+              <span className="h-px bg-white/10 flex-1" />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+                O CON EMAIL DIRECTO
+              </span>
+              <span className="h-px bg-white/10 flex-1" />
+            </div>
+          </div>
+
+          <form onSubmit={onSubmit} className="space-y-6" noValidate>
             <div>
-              <label className="label" htmlFor="email">
+              <label htmlFor="email" className="label">
                 Email
               </label>
               <input
@@ -118,14 +133,14 @@ export default function Login() {
                 autoComplete="email"
               />
               {errores.email && (
-                <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">
+                <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
                   {errores.email}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="label" htmlFor="password">
+              <label htmlFor="password" className="label">
                 Contraseña
               </label>
               <input
@@ -138,28 +153,98 @@ export default function Login() {
                 autoComplete="current-password"
               />
               {errores.password && (
-                <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">
+                <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
                   {errores.password}
                 </p>
               )}
             </div>
 
-            <button type="submit" disabled={enviando} className="btn btn-primario w-full">
-              {enviando ? 'Entrando...' : 'Iniciar sesión'}
+            <button
+              type="submit"
+              disabled={enviando}
+              className="btn btn-primario w-full !py-4"
+            >
+              {enviando ? 'Ingresando...' : 'Iniciar sesión ↗'}
             </button>
           </form>
 
-          <p className="font-mono text-sm uppercase text-center tracking-tight">
-            ¿No tenés cuenta?{' '}
+          {/* Modo Evaluación / Demo (Visible únicamente bajo parámetro ?demo=true) */}
+          {esModoDemo && (
+            <div className="pt-8 border-t border-white/10 space-y-3">
+              <div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+                <span>MODO EVALUACIÓN DEMO</span>
+                <span>?DEMO=TRUE</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('superadmin@barberpole.test')
+                    setPassword('superadmin123')
+                    setErrores({})
+                  }}
+                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-emerald-400 hover:border-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-colors cursor-pointer text-center truncate"
+                  title="Superadmin: superadmin@barberpole.test"
+                >
+                  SUPERADMIN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('admin@peluqueria.com')
+                    setPassword('admin123')
+                    setErrores({})
+                  }}
+                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-neutral-300 hover:border-white hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-center truncate"
+                  title="Admin: admin@peluqueria.com"
+                >
+                  ADMIN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('barbero@peluqueria.com')
+                    setPassword('barbero123')
+                    setErrores({})
+                  }}
+                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-neutral-300 hover:border-white hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-center truncate"
+                  title="Barbero: barbero@peluqueria.com"
+                >
+                  BARBERO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('cliente@peluqueria.com')
+                    setPassword('cliente123')
+                    setErrores({})
+                  }}
+                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-neutral-300 hover:border-white hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-center truncate"
+                  title="Cliente: cliente@peluqueria.com"
+                >
+                  CLIENTE
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="pt-6 border-t border-white/10 flex items-center justify-between font-mono text-xs">
+            <span className="text-neutral-500">¿No tenés cuenta?</span>
             <Link
               to="/registro"
-              className="underline decoration-2 underline-offset-4 hover:text-rojo-faro font-bold"
+              className="text-white hover:underline uppercase tracking-wider font-medium"
             >
-              Registrate
+              Registrate ↗
             </Link>
-          </p>
+          </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer Objetivo B&W */}
+      <footer className="w-full border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-neutral-500 uppercase tracking-widest gap-4">
+        <span>BARBERPOLE — SISTEMA EDITORIAL</span>
+        <span>MODO ZEN & HIPERFOCO PERMANENTE</span>
+      </footer>
     </div>
   )
 }

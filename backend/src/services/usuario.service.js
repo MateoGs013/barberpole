@@ -7,7 +7,28 @@ import { Usuario } from '../models/Usuario.js'
 
 const SALT_ROUNDS = 10
 
-export const listarUsuarios = async () => {
+export const listarUsuarios = async ({ page, limit } = {}) => {
+  if (page) {
+    const pagina = Math.max(1, parseInt(page, 10) || 1)
+    const limite = Math.max(1, Math.min(100, parseInt(limit, 10) || 10))
+    const skip = (pagina - 1) * limite
+
+    const [total, datos] = await Promise.all([
+      Usuario.countDocuments(),
+      Usuario.find().sort({ createdAt: -1 }).skip(skip).limit(limite),
+    ])
+
+    return {
+      datos,
+      paginacion: {
+        total,
+        pagina,
+        limite,
+        totalPaginas: Math.max(1, Math.ceil(total / limite)),
+      },
+    }
+  }
+
   return Usuario.find().sort({ createdAt: -1 })
 }
 

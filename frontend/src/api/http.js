@@ -28,11 +28,22 @@ http.interceptors.request.use((config) => {
   return config
 })
 
+let callbackNoAutorizado = null
+export const setearCallbackNoAutorizado = (fn) => {
+  callbackNoAutorizado = fn
+}
+
 http.interceptors.response.use(
   (resp) => resp,
   (error) => {
     if (error.response?.status === 401) {
       borrarToken()
+      if (typeof callbackNoAutorizado === 'function') {
+        callbackNoAutorizado()
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:desautorizado'))
+      }
     }
     return Promise.reject(error)
   }

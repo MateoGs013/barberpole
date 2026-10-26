@@ -1,18 +1,17 @@
-// Página para que un cliente logueado reserve su propio turno.
-// Layout tipo "wizard visual" en una sola pantalla: tres secciones (servicio,
-// profesional, fecha) y un resumen sticky abajo con el botón de confirmar.
-//
-// El backend valida en POST /api/turnos que el cliente sea el del usuario
-// logueado; acá pasamos el clienteId desde useAuth().miCliente.
-
-import { useState } from 'react'
+// Flujo de reservas en Modo Zen & Hiperfoco Permanente (B&W)
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
 import { listarServiciosAPI } from '../api/servicios.api.js'
-import { listarEmpleadosAPI } from '../api/empleados.api.js'
+import { listarEmpleadosAPI, obtenerDisponibilidadAPI } from '../api/empleados.api.js'
 import { crearTurnoAPI } from '../api/turnos.api.js'
+import { TactileSlot } from '../components/TactileSlot.jsx'
+import { MatrixCalendar } from '../components/MatrixCalendar.jsx'
+import { BoardingPassTicket } from '../components/BoardingPassTicket.jsx'
+import { ThemeToggle } from '../components/ThemeToggle.jsx'
+import { soundManager } from '../utils/sound.js'
 
 export default function Reservar() {
   const { miCliente } = useAuth()
@@ -26,24 +25,79 @@ export default function Reservar() {
   const [empleadoId, setEmpleadoId] = useState('')
   const [fecha, setFecha] = useState('')
   const [hora, setHora] = useState('')
+  const [slotSeleccionado, setSlotSeleccionado] = useState(null)
+  const [slots, setSlots] = useState([])
+  const [cargandoSlots, setCargandoSlots] = useState(false)
+  const [errorSlots, setErrorSlots] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [errorGlobal, setErrorGlobal] = useState('')
+  const [turnoConfirmado, setTurnoConfirmado] = useState(null)
 
   const servicioElegido = servicios?.find((s) => s._id === servicioId)
   const empleadoElegido = empleados?.find((e) => e._id === empleadoId)
 
-  const sePuedeReservar = servicioId && empleadoId && fecha && hora && miCliente?._id
+  // Carga de slots en tiempo real vía Slot Engine
+  useEffect(() => {
+    if (!empleadoId || !fecha || !servicioId) {
+      setSlots([])
+      setSlotSeleccionado(null)
+      return
+    }
+
+    let cancelado = false
+    const cargarDisponibilidad = async () => {
+      setCargandoSlots(true)
+      setErrorSlots('')
+      try {
+        const res = await obtenerDisponibilidadAPI(empleadoId, {
+          fecha,
+          servicioId,
+        })
+        if (!cancelado) {
+          setSlots(res.slots || [])
+        }
+      } catch (err) {
+        if (!cancelado) {
+          setErrorSlots('No pudimos calcular los horarios para este día')
+        }
+      } finally {
+        if (!cancelado) setCargandoSlots(false)
+      }
+    }
+
+    cargarDisponibilidad()
+    return () => {
+      cancelado = true
+    }
+  }, [empleadoId, fecha, servicioId])
+
+  // Deseleccionar slot si cambia el servicio o el profesional
+  const seleccionarServicio = (id) => {
+    setServicioId(id)
+    setHora('')
+    setSlotSeleccionado(null)
+  }
+
+  const seleccionarEmpleado = (id) => {
+    setEmpleadoId(id)
+    setHora('')
+    setSlotSeleccionado(null)
+  }
+
+  const sePuedeReservar = Boolean(
+    servicioId && empleadoId && fecha && hora && slotSeleccionado && !enviando
+  )
 
   const onConfirmar = async () => {
     setErrorGlobal('')
     if (!miCliente?._id) {
-      setErrorGlobal('No pudimos cargar tu perfil de cliente. Refrescá la página.')
+      setErrorGlobal('No encontramos tu perfil de cliente. Volvé a iniciar sesión.')
       return
     }
 
-    // Combinamos fecha (YYYY-MM-DD) + hora (HH:MM) en un Date local y lo
-    // convertimos a ISO UTC para mandarlo al backend.
-    const fechaHoraLocal = new Date(`${fecha}T${hora}:00`)
+    const fechaHoraIso =
+      slotSeleccionado?.fechaHora || new Date(`${fecha}T${hora}:00`).toISOString()
+    const fechaHoraLocal = new Date(fechaHoraIso)
     if (isNaN(fechaHoraLocal.getTime())) {
       setErrorGlobal('Fecha u hora inválidas')
       return
@@ -55,14 +109,18 @@ export default function Reservar() {
 
     setEnviando(true)
     try {
-      await crearTurnoAPI({
+      const res = await crearTurnoAPI({
         cliente: miCliente._id,
         empleado: empleadoId,
         servicio: servicioId,
-        fechaHora: fechaHoraLocal.toISOString(),
+        fechaHora: fechaHoraIso,
       })
+      soundManager.playSuccess()
       toast.exito('Turno reservado — te esperamos')
-      navigate('/turnos')
+      setTurnoConfirmado({
+        ...res,
+        fechaHora: fechaHoraIso,
+      })
     } catch (e) {
       setErrorGlobal(e.response?.data?.error || 'No pudimos reservar el turno')
     } finally {
@@ -72,164 +130,271 @@ export default function Reservar() {
 
   const hoy = new Date().toISOString().slice(0, 10)
 
-  return (
-    <div className="p-4 lg:p-8 max-w-5xl mx-auto pb-32">
-      <div className="mb-10">
-        <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">Nuevo</p>
-        <h1 className="text-5xl md:text-7xl font-display font-bold uppercase tracking-tighter leading-none">
-          Turno.
-        </h1>
-        <p className="font-mono text-sm uppercase mt-3 tracking-tight text-negro/70">
-          Elegí servicio, profesional y horario.
-        </p>
-      </div>
-
-      {/* PASO 1: Servicio */}
-      <Seccion numero="01" titulo="Elegí el servicio">
-        {!servicios && <p className="font-mono">Cargando...</p>}
-        {servicios && servicios.length === 0 && (
-          <p className="font-mono text-sm uppercase">No hay servicios disponibles</p>
-        )}
-        {servicios && servicios.length > 0 && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {servicios.filter((s) => s.activo).map((s) => (
-              <Seleccionable
-                key={s._id}
-                seleccionado={s._id === servicioId}
-                onClick={() => setServicioId(s._id)}
-                color="azul"
-              >
-                <h3 className="font-display font-bold text-xl uppercase tracking-tight leading-tight line-clamp-2 break-words">
-                  {s.nombre}
-                </h3>
-                {s.descripcion && (
-                  <p className="font-sans text-xs mt-1 opacity-80 line-clamp-2">{s.descripcion}</p>
-                )}
-                <div className="flex items-end justify-between mt-3 pt-3 border-t-2 border-current">
-                  <p className="font-display font-bold text-xl">${s.precio}</p>
-                  <p className="font-mono text-[10px] uppercase">{s.duracionMinutos}min</p>
-                </div>
-              </Seleccionable>
-            ))}
+  // Vista de Sincronización Post-Confirmación Automática
+  if (turnoConfirmado) {
+    return (
+      <div className="min-h-screen w-full bg-black text-white p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-between selection:bg-white selection:text-black">
+        <header className="w-full border-b border-white/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-widest text-emerald-400 mb-2">
+              ● RESERVA REGISTRADA CON ÉXITO
+            </p>
+            <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase">
+              TURNO ASEGURADO.
+            </h1>
           </div>
-        )}
-      </Seccion>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <button
+              onClick={() => {
+                setTurnoConfirmado(null)
+                setServicioId('')
+                setEmpleadoId('')
+                setFecha('')
+                setHora('')
+                setSlotSeleccionado(null)
+              }}
+              className="btn btn-secundario text-xs"
+            >
+              ← Reservar otro turno
+            </button>
+          </div>
+        </header>
 
-      {/* PASO 2: Profesional */}
-      <Seccion numero="02" titulo="Elegí el profesional">
-        {!empleados && <p className="font-mono">Cargando...</p>}
-        {empleados && empleados.filter((e) => e.activo).length === 0 && (
-          <p className="font-mono text-sm uppercase">No hay profesionales disponibles</p>
-        )}
-        {empleados && empleados.filter((e) => e.activo).length > 0 && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {empleados.filter((e) => e.activo).map((e) => (
-              <Seleccionable
-                key={e._id}
-                seleccionado={e._id === empleadoId}
-                onClick={() => setEmpleadoId(e._id)}
-                color="rojo"
-              >
-                <h3 className="font-display font-bold text-xl uppercase tracking-tight leading-tight line-clamp-2 break-words">
-                  {e.nombre}
-                </h3>
-                <p className="font-mono text-xs uppercase mt-1 opacity-80 line-clamp-2">
-                  {e.especialidad}
+        <main className="w-full my-auto py-12 flex items-center justify-center">
+          <BoardingPassTicket
+            confirmado={true}
+            negocioNombre="Studio Palermo — Barber & Hair"
+            negocioDireccion="Palermo Soho, CABA"
+            servicio={servicioElegido}
+            empleado={empleadoElegido}
+            fecha={fecha}
+            hora={hora}
+            slot={slotSeleccionado}
+            codigoTurno={`BP-${Date.now().toString().slice(-4)}`}
+            fechaHoraIso={turnoConfirmado.fechaHora}
+            onVerMisTurnos={() => navigate('/turnos')}
+          />
+        </main>
+
+        <footer className="w-full border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-neutral-500 uppercase tracking-widest gap-4">
+          <span>BARBERPOLE — SINCRONIZACIÓN AUTOMÁTICA ACTIVA</span>
+          <span>GOOGLE CALENDAR · ICS · WHATSAPP</span>
+        </footer>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-black text-white p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-between selection:bg-white selection:text-black">
+      {/* Header Objetivo Full Width */}
+      <header className="w-full border-b border-white/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-2">
+            — MODO HIPERFOCO PERMANENTE
+          </p>
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase">
+            NUEVO TURNO
+          </h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <div className="font-mono text-xs text-neutral-400 uppercase tracking-widest hidden sm:block">
+            SISTEMA DE EMISIÓN DIRECTA
+          </div>
+        </div>
+      </header>
+
+      {/* Main Grid Editorial Full Width */}
+      <main className="w-full my-auto py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        
+        {/* COLUMNA 1: Servicios */}
+        <section className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
+          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/10">
+            <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+              01 — ELEGÍ EL SERVICIO
+            </h2>
+            <span className="font-mono text-[10px] uppercase text-neutral-500">
+              {servicioId ? 'SELECCIONADO' : '1 REQUERIDO'}
+            </span>
+          </div>
+
+          <div className="divide-y divide-white/10">
+            {servicios?.map((s) => {
+              const seleccionado = s._id === servicioId
+              return (
+                <button
+                  key={s._id}
+                  type="button"
+                  onClick={() => seleccionarServicio(s._id)}
+                  className={`w-full py-4 text-left transition-colors flex items-center justify-between group cursor-pointer ${
+                    seleccionado ? 'text-white' : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  <div className="min-w-0 pr-4">
+                    <p className={`font-mono text-sm uppercase tracking-tight ${seleccionado ? 'font-bold text-white' : ''}`}>
+                      {s.nombre}
+                    </p>
+                    <p className="font-mono text-[11px] text-neutral-500 mt-1 uppercase">
+                      {s.duracionMinutos} MIN
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-mono text-sm font-medium">
+                      ${s.precio?.toLocaleString('es-AR')}
+                    </p>
+                    {seleccionado && (
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-white mt-1 block">
+                        [ACTIVO]
+                      </span>
+                    )}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* COLUMNA 2: Profesionales */}
+        <section className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
+          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/10">
+            <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+              02 — ELEGÍ EL PROFESIONAL
+            </h2>
+            <span className="font-mono text-[10px] uppercase text-neutral-500">
+              {empleadoId ? 'SELECCIONADO' : '1 REQUERIDO'}
+            </span>
+          </div>
+
+          <div className="divide-y divide-white/10">
+            {empleados?.map((e) => {
+              const seleccionado = e._id === empleadoId
+              return (
+                <button
+                  key={e._id}
+                  type="button"
+                  onClick={() => seleccionarEmpleado(e._id)}
+                  className={`w-full py-4 text-left transition-colors flex items-center justify-between group cursor-pointer ${
+                    seleccionado ? 'text-white' : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  <div className="min-w-0 pr-4">
+                    <p className={`font-mono text-sm uppercase tracking-tight ${seleccionado ? 'font-bold text-white' : ''}`}>
+                      {e.nombre}
+                    </p>
+                    <p className="font-mono text-[11px] text-neutral-500 mt-1 uppercase">
+                      {e.especialidad}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className={`font-mono text-[11px] uppercase tracking-wider ${
+                      seleccionado ? 'text-white font-bold' : 'text-neutral-500 group-hover:text-white'
+                    }`}>
+                      {seleccionado ? '[ELEGIDO]' : 'ELEGIR'}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* COLUMNA 3: Matriz de Calendario & Horarios */}
+        <section className="lg:col-span-4">
+          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/10">
+            <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+              03 — ELEGÍ DÍA Y HORARIO
+            </h2>
+            <span className="font-mono text-[10px] uppercase text-neutral-500">
+              {fecha && hora ? `${hora} HS` : 'FECHA PENDIENTE'}
+            </span>
+          </div>
+
+          <div className="space-y-6">
+            {/* Matriz interactiva de calendario */}
+            <MatrixCalendar
+              fechaSeleccionada={fecha}
+              onSeleccionarFecha={(f) => {
+                setFecha(f)
+                setHora('')
+                setSlotSeleccionado(null)
+              }}
+              minFecha={hoy}
+            />
+
+            {/* Selector de horario en grilla monocromática */}
+            <div className="pt-4 border-t border-white/10">
+              <label className="block font-mono text-[11px] uppercase tracking-widest text-neutral-400 mb-3">
+                HORARIOS DISPONIBLES
+              </label>
+
+              {!fecha ? (
+                <p className="font-mono text-xs text-neutral-600 uppercase tracking-wider py-4">
+                  Seleccioná un día en el calendario superior
                 </p>
-              </Seleccionable>
-            ))}
+              ) : cargandoSlots ? (
+                <p className="font-mono text-xs text-neutral-500 uppercase tracking-widest animate-pulse py-4">
+                  Calculando disponibilidad en vivo...
+                </p>
+              ) : errorSlots ? (
+                <p className="font-mono text-xs text-rose-400 uppercase py-2">
+                  {errorSlots}
+                </p>
+              ) : slots.length === 0 ? (
+                <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider py-4">
+                  No hay horarios disponibles para esta combinación
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {slots.map((s) => (
+                    <TactileSlot
+                      key={s.hora}
+                      hora={s.hora}
+                      horaFin={s.horaFin}
+                      disponible={s.disponible}
+                      motivo={s.motivo}
+                      seleccionado={hora === s.hora}
+                      onClick={() => {
+                        setHora(s.hora)
+                        setSlotSeleccionado(s)
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </Seccion>
+        </section>
 
-      {/* PASO 3: Fecha y hora */}
-      <Seccion numero="03" titulo="Elegí fecha y hora">
-        <div className="grid sm:grid-cols-2 gap-4 max-w-xl">
-          <div>
-            <label className="label" htmlFor="fecha">Día</label>
-            <input
-              id="fecha"
-              type="date"
-              className="input"
-              value={fecha}
-              min={hoy}
-              onChange={(e) => setFecha(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="hora">Hora</label>
-            <input
-              id="hora"
-              type="time"
-              step="600"
-              className="input"
-              value={hora}
-              onChange={(e) => setHora(e.target.value)}
-            />
-          </div>
-        </div>
-      </Seccion>
+      </main>
 
-      {/* Resumen sticky abajo */}
-      <div className="fixed bottom-0 left-0 right-0 bg-crema border-t-3 border-negro z-30 px-4 py-4 lg:py-5">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-          <div className="flex-1 min-w-0">
-            {errorGlobal ? (
-              <p className="font-mono text-xs uppercase text-rojo-faro">{errorGlobal}</p>
-            ) : (
-              <p className="font-mono text-xs uppercase tracking-tight line-clamp-2 break-words">
-                <span className="text-negro/60">Resumen:</span>{' '}
-                <span className="font-bold">
-                  {servicioElegido?.nombre || '— servicio —'} ·{' '}
-                  {empleadoElegido?.nombre || '— profesional —'} ·{' '}
-                  {fecha && hora ? `${fecha} ${hora}` : '— día y hora —'}
-                </span>
-              </p>
-            )}
-          </div>
-          <button
-            onClick={onConfirmar}
-            disabled={!sePuedeReservar || enviando}
-            className="btn btn-primario"
-          >
-            {enviando ? 'Reservando...' : 'Confirmar reserva'}
-          </button>
+      {/* Footer Fijo Objetivo con Confirmar Reserva */}
+      <footer className="w-full border-t border-white/10 pt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-6">
+        <div>
+          {errorGlobal ? (
+            <p className="font-mono text-xs text-rose-400 uppercase">{errorGlobal}</p>
+          ) : (
+            <div className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+              <span>RESUMEN:</span>{' '}
+              <span className="text-white font-medium">
+                {servicioElegido?.nombre || '— SERVICIO —'} ·{' '}
+                {empleadoElegido?.nombre || '— PROFESIONAL —'} ·{' '}
+                {fecha && hora ? `${fecha} ${hora} HS` : '— DÍA Y HORA —'}
+              </span>
+            </div>
+          )}
         </div>
-      </div>
+
+        <button
+          type="button"
+          onClick={onConfirmar}
+          disabled={!sePuedeReservar || enviando}
+          className="px-10 py-5 bg-white text-black hover:bg-neutral-200 font-mono text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-3 shrink-0"
+        >
+          <span>{enviando ? 'Confirmando...' : 'Confirmar Reserva'}</span>
+          <span>↗</span>
+        </button>
+      </footer>
     </div>
-  )
-}
-
-function Seccion({ numero, titulo, children }) {
-  return (
-    <section className="mb-10">
-      <div className="flex items-center gap-3 mb-4">
-        <span className="bg-negro text-white font-display font-bold px-3 py-1 text-lg">
-          {numero}
-        </span>
-        <h2 className="font-display font-bold text-2xl md:text-3xl uppercase tracking-tighter">
-          {titulo}
-        </h2>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-// Card seleccionable con dos estados visuales muy contrastantes.
-function Seleccionable({ seleccionado, onClick, color = 'azul', children }) {
-  const colorActivo = color === 'rojo' ? 'bg-rojo-faro text-white' : 'bg-azul-faro text-white'
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`text-left border-3 border-negro p-5 transition-all duration-100 ${
-        seleccionado
-          ? `${colorActivo} shadow-bruta-lg translate-x-[-3px] translate-y-[-3px]`
-          : 'bg-white text-negro shadow-bruta hover:shadow-bruta-sm hover:translate-x-[2px] hover:translate-y-[2px]'
-      }`}
-    >
-      {children}
-    </button>
   )
 }

@@ -1,13 +1,13 @@
-// Página de Empleados.
-// Layout "stickers": cada card tiene una pequeña rotación + offset determinístico
-// según su _id, así parece pegado a una pared. Al hover se endereza.
-
 import { useState } from 'react'
 import {
   listarEmpleadosAPI,
   crearEmpleadoAPI,
   actualizarEmpleadoAPI,
   eliminarEmpleadoAPI,
+  conectarGoogleCalendarAPI,
+  desconectarGoogleCalendarAPI,
+  bloquearHorarioGoogleAPI,
+  desbloquearHorarioGoogleAPI,
 } from '../api/empleados.api.js'
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
@@ -23,11 +23,12 @@ export default function Empleados() {
   const { datos: empleados, cargando, error, recargar } = useFetch(() =>
     listarEmpleadosAPI()
   )
-  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(empleados, 12)
+  const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(empleados, 15)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
   const [pidiendoEliminar, setPidiendoEliminar] = useState(null)
+  const [empleadoCalendar, setEmpleadoCalendar] = useState(null)
 
   const abrirNuevo = () => {
     setEditando(null)
@@ -56,50 +57,49 @@ export default function Empleados() {
   }
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+    <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase text-negro/60 tracking-tight">
-            Equipo
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+            — EQUIPO & PROFESIONALES
           </p>
-          <h1 className="text-5xl md:text-7xl font-display font-bold uppercase tracking-tighter leading-none">
-            Empleados.
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+            EMPLEADOS.
           </h1>
         </div>
-        <button onClick={abrirNuevo} className="btn btn-aceptar">
+        <button onClick={abrirNuevo} className="btn btn-primario self-start sm:self-auto">
           + Nuevo empleado
         </button>
       </div>
 
-      {cargando && <p className="font-mono uppercase">Cargando...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando...</p>}
       {error && (
-        <div className="card !p-4 bg-rojo-faro text-white font-mono uppercase">
+        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar empleados
         </div>
       )}
 
       {empleados && empleados.length === 0 && (
-        <div className="card text-center">
-          <p className="font-display text-2xl uppercase mb-2">No hay empleados cargados</p>
-          <p className="font-mono text-sm">Apretá "+ Nuevo empleado" para empezar</p>
+        <div className="py-12 border border-white/10 text-center">
+          <p className="font-mono text-sm uppercase text-neutral-400">No hay empleados cargados</p>
         </div>
       )}
 
       {empleados && empleados.length > 0 && (
-        <>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 py-4">
-            {pagina.map((emp, i) => (
-              <CardEmpleado
+        <div className="space-y-6">
+          <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+            {pagina.map((emp) => (
+              <FilaEmpleado
                 key={emp._id}
                 empleado={emp}
-                indice={i}
                 onEditar={() => abrirEditar(emp)}
                 onEliminar={() => setPidiendoEliminar(emp)}
+                onGestionarCalendar={() => setEmpleadoCalendar(emp)}
               />
             ))}
-          </div>
+          </ul>
           <Paginacion pagina={nPagina} totalPaginas={totalPaginas} onCambiar={setPagina} />
-        </>
+        </div>
       )}
 
       <Modal
@@ -128,52 +128,75 @@ export default function Empleados() {
         textoConfirmar="Eliminar"
         peligro
       />
+
+      {empleadoCalendar && (
+        <ModalGoogleCalendar
+          empleado={empleadoCalendar}
+          onCerrar={() => setEmpleadoCalendar(null)}
+          onActualizado={() => {
+            recargar()
+          }}
+        />
+      )}
     </div>
   )
 }
 
-// Determinista por índice — no random, así no se mueve en cada render.
-const ROTACIONES = ['-rotate-2', '-rotate-1', 'rotate-1', 'rotate-2']
-const COLORES_FRANJA = ['bg-rojo-faro', 'bg-azul-faro', 'bg-negro', 'bg-azul-faro', 'bg-rojo-faro']
-
-function CardEmpleado({ empleado, indice, onEditar, onEliminar }) {
-  const rotacion = ROTACIONES[indice % ROTACIONES.length]
-  const colorFranja = COLORES_FRANJA[indice % COLORES_FRANJA.length]
+function FilaEmpleado({ empleado, onEditar, onEliminar, onGestionarCalendar }) {
   return (
-    <article
-      className={`card !p-0 ${rotacion} hover:rotate-0 hover:scale-[1.02] transition-transform duration-150`}
-    >
-      <div className={`${colorFranja} px-5 py-3 border-b-3 border-negro`}>
-        <p className="font-mono text-xs uppercase text-white/80 tracking-tight">
-          {empleado.activo ? 'Activo' : 'Inactivo'}
-        </p>
-        <p className="font-display font-bold text-white text-xl uppercase tracking-tighter leading-tight line-clamp-2 break-words">
+    <li className="py-4 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-2 mb-1">
+          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-white truncate">
+            {empleado.nombre}
+          </h3>
+          <span className={`badge ${empleado.activo ? 'badge-confirmado' : 'badge-cancelado'}`}>
+            {empleado.activo ? 'Activo' : 'Inactivo'}
+          </span>
+          {empleado.googleSyncActivo ? (
+            <span className="badge badge-confirmado flex items-center gap-1.5" title={`Google Calendar: ${empleado.googleCalendarId}`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Google Calendar
+            </span>
+          ) : (
+            <span className="badge badge-pendiente !text-neutral-500 !border-neutral-700">
+              Sin Calendar
+            </span>
+          )}
+          {empleado.usuario && (
+            <span className="badge badge-confirmado">Cuenta vinculada</span>
+          )}
+        </div>
+        <p className="font-mono text-xs uppercase tracking-wider text-neutral-400">
           {empleado.especialidad}
         </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 font-mono text-xs text-neutral-500">
+          {empleado.email && <span>{empleado.email}</span>}
+          {empleado.telefono && <span>· {empleado.telefono}</span>}
+          {empleado.googleSyncActivo && (
+            <span>· {empleado.eventosGoogle?.length || 0} bloqueos activos</span>
+          )}
+        </div>
       </div>
-      <div className="p-5 space-y-2">
-        <h3 className="font-display font-bold text-2xl uppercase tracking-tight leading-tight line-clamp-2 break-words">
-          {empleado.nombre}
-        </h3>
-        {empleado.email && (
-          <p className="font-mono text-xs truncate">{empleado.email}</p>
-        )}
-        {empleado.telefono && (
-          <p className="font-mono text-xs truncate">{empleado.telefono}</p>
-        )}
-        {empleado.usuario && (
-          <span className="badge badge-confirmado mt-2 inline-block">Tiene cuenta</span>
-        )}
-      </div>
-      <div className="flex gap-2 p-4 pt-0">
-        <button onClick={onEditar} className="btn btn-secundario !px-3 !py-2 text-xs flex-1">
+      <div className="flex flex-wrap gap-2 shrink-0 items-center">
+        <button
+          onClick={onGestionarCalendar}
+          className="btn btn-secundario !px-3 !py-1.5 text-xs flex items-center gap-1.5"
+          title="Gestionar sincronización de Google Calendar"
+        >
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
+          </svg>
+          <span>Google Sync</span>
+        </button>
+        <button onClick={onEditar} className="btn btn-secundario !px-3 !py-1.5 text-xs">
           Editar
         </button>
-        <button onClick={onEliminar} className="btn btn-peligro !px-3 !py-2 text-xs">
+        <button onClick={onEliminar} className="btn btn-peligro !px-3 !py-1.5 text-xs">
           Eliminar
         </button>
       </div>
-    </article>
+    </li>
   )
 }
 
@@ -182,9 +205,6 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
   const { usuario } = useAuth()
   const esAdmin = usuario?.rol === 'admin'
 
-  // Solo el admin puede ver la lista de usuarios y vincular. El endpoint
-  // /api/usuarios es admin-only, así que si es empleado le mandamos un
-  // promise vacío para no disparar un 403.
   const { datos: todosUsuarios } = useFetch(
     () => (esAdmin ? listarUsuariosAPI() : Promise.resolve([])),
     [esAdmin]
@@ -239,7 +259,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       {errorGlobal && (
-        <div className="border-3 border-negro bg-rojo-faro text-white px-4 py-3 font-mono text-sm uppercase">
+        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           {errorGlobal}
         </div>
       )}
@@ -247,7 +267,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
       <div>
         <label className="label" htmlFor="nombre">Nombre</label>
         <input id="nombre" type="text" className="input" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-        {errores.nombre && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.nombre}</p>}
+        {errores.nombre && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.nombre}</p>}
       </div>
 
       <div>
@@ -256,11 +276,11 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
           id="especialidad"
           type="text"
           className="input"
-          placeholder="Ej: Coloración, Corte caballero, Barbería..."
+          placeholder="Ej: Cortes de autor, Navaja, Colorimetría..."
           value={especialidad}
           onChange={(e) => setEspecialidad(e.target.value)}
         />
-        {errores.especialidad && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.especialidad}</p>}
+        {errores.especialidad && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.especialidad}</p>}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
@@ -271,14 +291,14 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
         <div>
           <label className="label" htmlFor="email">Email</label>
           <input id="email" type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
-          {errores.email && <p className="font-mono text-xs text-rojo-faro mt-2 uppercase">{errores.email}</p>}
+          {errores.email && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.email}</p>}
         </div>
       </div>
 
       {esAdmin && (
         <div>
           <label className="label" htmlFor="usuarioVinc">
-            Cuenta vinculada <span className="text-negro/60 normal-case font-mono text-[10px]">(opcional — permite que el empleado se loguee)</span>
+            Cuenta vinculada <span className="text-neutral-500 normal-case font-mono text-[10px]">(opcional)</span>
           </label>
           <select
             id="usuarioVinc"
@@ -293,25 +313,20 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
               </option>
             ))}
           </select>
-          {usuariosCandidatos.length === 0 && (
-            <p className="font-mono text-xs text-negro/60 mt-2">
-              No hay usuarios con rol "empleado" disponibles. Crealos desde /usuarios.
-            </p>
-          )}
         </div>
       )}
 
-      <label className="flex items-center gap-3 cursor-pointer">
+      <label className="flex items-center gap-3 cursor-pointer pt-2">
         <input
           type="checkbox"
           checked={activo}
           onChange={(e) => setActivo(e.target.checked)}
-          className="w-5 h-5 border-3 border-negro accent-azul-faro"
+          className="w-4 h-4 rounded-none accent-white cursor-pointer"
         />
-        <span className="font-mono text-sm uppercase tracking-tight">Empleado activo</span>
+        <span className="font-mono text-xs uppercase tracking-wider text-neutral-300">Empleado activo</span>
       </label>
 
-      <div className="flex gap-3 pt-4 border-t-2 border-negro">
+      <div className="flex gap-3 pt-6 border-t border-white/10">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
           Cancelar
         </button>
@@ -320,5 +335,275 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
         </button>
       </div>
     </form>
+  )
+}
+
+function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
+  const toast = useToast()
+  const [empActual, setEmpActual] = useState(empleado)
+  const [emailSync, setEmailSync] = useState(empleado.googleCalendarId || empleado.email || '')
+  const [cargando, setCargando] = useState(false)
+  const [errorLocal, setErrorLocal] = useState('')
+
+  // Formulario de bloqueo de horario
+  const [tituloBloqueo, setTituloBloqueo] = useState('')
+  const [inicioBloqueo, setInicioBloqueo] = useState('')
+  const [finBloqueo, setFinBloqueo] = useState('')
+
+  const conectar = async (e) => {
+    e?.preventDefault()
+    setCargando(true)
+    setErrorLocal('')
+    try {
+      const actualizado = await conectarGoogleCalendarAPI(empActual._id, {
+        email: emailSync.trim() || empActual.email,
+      })
+      setEmpActual(actualizado)
+      onActualizado()
+      toast.exito('Google Calendar vinculado correctamente')
+    } catch (err) {
+      setErrorLocal(err.response?.data?.error || 'Error al conectar Google Calendar')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  const desconectar = async () => {
+    setCargando(true)
+    setErrorLocal('')
+    try {
+      const actualizado = await desconectarGoogleCalendarAPI(empActual._id)
+      setEmpActual(actualizado)
+      onActualizado()
+      toast.exito('Google Calendar desvinculado')
+    } catch (err) {
+      setErrorLocal(err.response?.data?.error || 'Error al desvincular Google Calendar')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  const registrarBloqueo = async (e) => {
+    e.preventDefault()
+    if (!inicioBloqueo || !finBloqueo) {
+      setErrorLocal('Indicá fecha y hora de inicio y fin para el bloqueo')
+      return
+    }
+    setCargando(true)
+    setErrorLocal('')
+    try {
+      const actualizado = await bloquearHorarioGoogleAPI(empActual._id, {
+        titulo: tituloBloqueo.trim() || 'Bloqueo Google Calendar',
+        inicio: new Date(inicioBloqueo).toISOString(),
+        fin: new Date(finBloqueo).toISOString(),
+      })
+      setEmpActual(actualizado)
+      setTituloBloqueo('')
+      setInicioBloqueo('')
+      setFinBloqueo('')
+      onActualizado()
+      toast.exito('Horario bloqueado en Google Calendar')
+    } catch (err) {
+      setErrorLocal(err.response?.data?.error || 'Error al registrar bloqueo')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  const eliminarBloqueo = async (eventId) => {
+    setCargando(true)
+    setErrorLocal('')
+    try {
+      const actualizado = await desbloquearHorarioGoogleAPI(empActual._id, eventId)
+      setEmpActual(actualizado)
+      onActualizado()
+      toast.exito('Bloqueo eliminado de Google Calendar')
+    } catch (err) {
+      setErrorLocal(err.response?.data?.error || 'Error al eliminar bloqueo')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  return (
+    <Modal abierto={true} onCerrar={onCerrar} titulo={`GOOGLE CALENDAR — ${empActual.nombre}`}>
+      <div className="space-y-6">
+        <p className="font-mono text-xs uppercase text-neutral-400 leading-relaxed">
+          Sincronización bidireccional: bloquea horarios personales en Google Calendar y
+          automáticamente inhabilita los turnos en el motor de reservas.
+        </p>
+
+        {errorLocal && (
+          <div className="p-3 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+            {errorLocal}
+          </div>
+        )}
+
+        {/* Estado y Conexión */}
+        <div className="p-4 border border-white/10 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-mono text-[10px] uppercase text-neutral-500 tracking-wider">
+                ESTADO DE SINCRONIZACIÓN
+              </p>
+              <p className="font-mono text-sm text-white font-medium uppercase mt-0.5">
+                {empActual.googleSyncActivo ? '● CONECTADO Y SINCRONIZANDO' : '○ DESCONECTADO'}
+              </p>
+            </div>
+            {empActual.googleSyncActivo && (
+              <a
+                href="https://calendar.google.com/calendar/u/0/r"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secundario !px-3 !py-1 text-xs font-mono uppercase"
+              >
+                Abrir Calendar ↗
+              </a>
+            )}
+          </div>
+
+          {!empActual.googleSyncActivo ? (
+            <div className="space-y-3 pt-2">
+              <div>
+                <label className="label" htmlFor="emailSync">
+                  Email de cuenta Google Calendar
+                </label>
+                <input
+                  id="emailSync"
+                  type="email"
+                  className="input"
+                  placeholder="barbero@gmail.com"
+                  value={emailSync}
+                  onChange={(e) => setEmailSync(e.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={conectar}
+                disabled={cargando}
+                className="btn btn-primario w-full text-xs font-mono uppercase"
+              >
+                {cargando ? 'Vinculando...' : 'Vincular cuenta de Google'}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between pt-2 border-t border-white/5">
+              <span className="font-mono text-xs text-neutral-400">
+                Cuenta: <strong className="text-white">{empActual.googleCalendarId}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={desconectar}
+                disabled={cargando}
+                className="btn btn-peligro !px-3 !py-1 text-xs font-mono uppercase"
+              >
+                {cargando ? 'Desvinculando...' : 'Desvincular'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Lista de bloqueos actuales */}
+        {empActual.googleSyncActivo && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-mono text-xs uppercase tracking-widest text-neutral-300">
+                — BLOQUEOS EXTERNOS ({empActual.eventosGoogle?.length || 0})
+              </h4>
+            </div>
+
+            {empActual.eventosGoogle && empActual.eventosGoogle.length > 0 ? (
+              <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+                {empActual.eventosGoogle.map((ev) => (
+                  <li
+                    key={ev._id || ev.googleEventId}
+                    className="py-3 flex items-center justify-between gap-4 font-mono text-xs"
+                  >
+                    <div>
+                      <p className="text-white font-medium uppercase">{ev.titulo}</p>
+                      <p className="text-neutral-500 text-[11px] mt-0.5">
+                        {new Date(ev.inicio).toLocaleString('es-AR', {
+                          dateStyle: 'short',
+                          timeStyle: 'short',
+                        })}{' '}
+                        —{' '}
+                        {new Date(ev.fin).toLocaleTimeString('es-AR', {
+                          timeStyle: 'short',
+                        })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => eliminarBloqueo(ev._id || ev.googleEventId)}
+                      disabled={cargando}
+                      className="btn btn-peligro !px-2.5 !py-1 text-[11px] font-mono uppercase"
+                    >
+                      Desbloquear
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="font-mono text-xs text-neutral-500 py-3 border-t border-b border-white/10 uppercase">
+                No hay bloqueos activos registrados.
+              </p>
+            )}
+
+            {/* Formulario para registrar bloqueo */}
+            <form onSubmit={registrarBloqueo} className="p-4 border border-white/10 space-y-3">
+              <p className="font-mono text-xs uppercase text-white font-medium">
+                + Bloquear nuevo horario personal
+              </p>
+              <div>
+                <label className="label" htmlFor="tituloBloqueo">Motivo o Evento</label>
+                <input
+                  id="tituloBloqueo"
+                  type="text"
+                  placeholder="Ej: Trámite médico, Almuerzo personal..."
+                  className="input !py-1.5 text-xs"
+                  value={tituloBloqueo}
+                  onChange={(e) => setTituloBloqueo(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label" htmlFor="inicioBloqueo">Inicio</label>
+                  <input
+                    id="inicioBloqueo"
+                    type="datetime-local"
+                    className="input !py-1.5 text-xs"
+                    value={inicioBloqueo}
+                    onChange={(e) => setInicioBloqueo(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="label" htmlFor="finBloqueo">Fin</label>
+                  <input
+                    id="finBloqueo"
+                    type="datetime-local"
+                    className="input !py-1.5 text-xs"
+                    value={finBloqueo}
+                    onChange={(e) => setFinBloqueo(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={cargando}
+                className="btn btn-primario w-full text-xs font-mono uppercase !py-2"
+              >
+                {cargando ? 'Registrando...' : 'Bloquear horario en calendar'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        <div className="pt-4 border-t border-white/10 flex justify-end">
+          <button type="button" onClick={onCerrar} className="btn btn-secundario text-xs font-mono uppercase">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </Modal>
   )
 }

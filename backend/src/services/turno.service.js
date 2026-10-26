@@ -1,36 +1,84 @@
-// Lógica de negocio de Turnos.
-// Lo más importante de este service es validar que un empleado no tenga
-// dos turnos cuyos horarios se superpongan.
-
 import { Turno } from '../models/Turno.js'
 import { Cliente } from '../models/Cliente.js'
 import { Empleado } from '../models/Empleado.js'
 import { Servicio } from '../models/Servicio.js'
 
-// Estructura de populate reusable: trae solo los campos que el frontend
-// necesita mostrar, no los documentos completos.
 const POBLAR = [
   { path: 'cliente', select: 'nombre email telefono' },
   { path: 'empleado', select: 'nombre especialidad' },
   { path: 'servicio', select: 'nombre precio duracionMinutos' },
+  { path: 'negocio', select: 'nombre slug' },
 ]
+
+const locksPorEmpleado = new Map()
+
+const conBloqueoEmpleado = async (empleadoId, accion) => {
+  const clave = String(empleadoId)
+  const lockAnterior = locksPorEmpleado.get(clave) || Promise.resolve()
+
+  let resolverLock
+  const nuevoLock = new Promise((resolve) => {
+    resolverLock = resolve
+  })
+  locksPorEmpleado.set(clave, nuevoLock)
+
+  try {
+    await lockAnterior
+    return await accion()
+  } finally {
+    resolverLock()
+    if (locksPorEmpleado.get(clave) === nuevoLock) {
+      locksPorEmpleado.delete(clave)
+    }
+  }
+}
 
 export const listarTurnos = async ({
   clienteId,
   empleadoId,
+  negocioId,
   estado,
   desde,
   hasta,
+  page,
+  limit,
 } = {}) => {
   const filtro = {}
   if (clienteId) filtro.cliente = clienteId
   if (empleadoId) filtro.empleado = empleadoId
+  if (negocioId) filtro.negocio = negocioId
   if (estado) filtro.estado = estado
   if (desde || hasta) {
     filtro.fechaHora = {}
     if (desde) filtro.fechaHora.$gte = new Date(desde)
     if (hasta) filtro.fechaHora.$lte = new Date(hasta)
   }
+
+  if (page) {
+    const pagina = Math.max(1, parseInt(page, 10) || 1)
+    const limite = Math.max(1, Math.min(100, parseInt(limit, 10) || 10))
+    const skip = (pagina - 1) * limite
+
+    const [total, datos] = await Promise.all([
+      Turno.countDocuments(filtro),
+      Turno.find(filtro)
+        .populate(POBLAR)
+        .sort({ fechaHora: 1 })
+        .skip(skip)
+        .limit(limite),
+    ])
+
+    return {
+      datos,
+      paginacion: {
+        total,
+        pagina,
+        limite,
+        totalPaginas: Math.max(1, Math.ceil(total / limite)),
+      },
+    }
+  }
+
   return Turno.find(filtro).populate(POBLAR).sort({ fechaHora: 1 })
 }
 
@@ -41,8 +89,6 @@ export const obtenerTurno = async (id) => {
 }
 
 export const crearTurno = async (datos) => {
-  // 1) Verificamos que las 3 entidades referenciadas existan.
-  // Lo hacemos en paralelo con Promise.all porque son queries independientes.
   const [cliente, empleado, servicio] = await Promise.all([
     Cliente.findById(datos.cliente),
     Empleado.findById(datos.empleado),
@@ -52,53 +98,136 @@ export const crearTurno = async (datos) => {
   if (!empleado) throw conError('Empleado no encontrado', 404)
   if (!servicio) throw conError('Servicio no encontrado', 404)
 
-  // 2) Calculamos el rango horario [inicio, fin] del turno que se quiere crear.
-  // El fin = inicio + duración del servicio.
   const inicio = new Date(datos.fechaHora)
-  const fin = new Date(inicio.getTime() + servicio.duracionMinutos * 60_000)
-
-  // 3) Verificamos que el empleado no tenga otro turno solapado.
-  if (await hayTurnoSuperpuesto({ empleadoId: datos.empleado, inicio, fin })) {
-    throw conError('El empleado ya tiene un turno en ese horario', 409)
+  if (isNaN(inicio.getTime())) {
+    throw conError('Fecha u hora inválida', 400)
+  }
+  if (inicio.getTime() < Date.now()) {
+    throw conError('No se pueden reservar turnos en el pasado', 400)
   }
 
-  const turno = await Turno.create(datos)
+  const duracionMinutos = datos.duracionMinutos || servicio.duracionMinutos
+  const precioCobrado = datos.precioCobrado != null ? datos.precioCobrado : servicio.precio
+  const fin = new Date(inicio.getTime() + duracionMinutos * 60_000)
+  const negocio = datos.negocio || servicio.negocio || empleado.negocio || null
+
+  return conBloqueoEmpleado(datos.empleado, async () => {
+    if (await hayTurnoSuperpuesto({ empleadoId: datos.empleado, inicio, fin })) {
+      throw conError('El empleado ya tiene un turno en ese horario', 409)
+    }
+
+    const payload = {
+      ...datos,
+      negocio,
+      duracionMinutos,
+      precioCobrado,
+      fechaHoraFin: fin,
+      googleCalendarEventId: empleado.googleSyncActivo
+        ? `gcal_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
+        : null,
+    }
+
+    const turno = await Turno.create(payload)
+    return Turno.findById(turno._id).populate(POBLAR)
+  })
+}
+
+export const cancelarTurno = async (id, { usuarioId, rol } = {}) => {
+  const turno = await Turno.findById(id).populate('cliente')
+  if (!turno) throw conError('Turno no encontrado', 404)
+
+  if (turno.estado === 'cancelado') {
+    throw conError('El turno ya se encuentra cancelado', 400)
+  }
+  if (turno.estado === 'completado') {
+    throw conError('No se puede cancelar un turno ya completado', 400)
+  }
+
+  if (rol === 'cliente') {
+    if (!usuarioId || !turno.cliente?.usuario || String(turno.cliente.usuario) !== String(usuarioId)) {
+      throw conError('No podés cancelar turnos de otros clientes', 403)
+    }
+
+    let HORAS_MINIMAS = 2
+    if (turno.negocio) {
+      const { Negocio } = await import('../models/Negocio.js')
+      const negDoc = await Negocio.findById(turno.negocio)
+      if (negDoc?.configuracion?.cancelacionMinimaHoras != null) {
+        HORAS_MINIMAS = negDoc.configuracion.cancelacionMinimaHoras
+      }
+    }
+    const tiempoLimite = Date.now() + HORAS_MINIMAS * 60 * 60 * 1000
+    if (new Date(turno.fechaHora).getTime() < tiempoLimite) {
+      throw conError(
+        `Las cancelaciones deben realizarse con al menos ${HORAS_MINIMAS} horas de anticipación`,
+        400
+      )
+    }
+  }
+
+  turno.estado = 'cancelado'
+  await turno.save()
   return Turno.findById(turno._id).populate(POBLAR)
 }
 
 export const actualizarTurno = async (id, datos) => {
-  // Si están cambiando fecha, empleado o servicio, hay que re-chequear
-  // superposición. Si solo cambian estado/notas, no hace falta.
-  if (datos.fechaHora || datos.empleado || datos.servicio) {
-    const actual = await Turno.findById(id).populate('servicio', 'duracionMinutos')
-    if (!actual) throw conError('Turno no encontrado', 404)
+  const turnoActual = await Turno.findById(id)
+  if (!turnoActual) throw conError('Turno no encontrado', 404)
 
-    const empleadoId = datos.empleado || actual.empleado
-    const servicioId = datos.servicio || actual.servicio._id
-    const fechaHora = datos.fechaHora ? new Date(datos.fechaHora) : actual.fechaHora
+  const empleadoId = datos.empleado || turnoActual.empleado
+  const servicioId = datos.servicio || turnoActual.servicio
+  const inicio = datos.fechaHora ? new Date(datos.fechaHora) : turnoActual.fechaHora
 
-    const servicio = await Servicio.findById(servicioId)
-    if (!servicio) throw conError('Servicio no encontrado', 404)
+  let duracionMinutos = turnoActual.duracionMinutos
+  let precioCobrado = turnoActual.precioCobrado
 
-    const fin = new Date(fechaHora.getTime() + servicio.duracionMinutos * 60_000)
-
-    // excluirId: no chequear contra el mismo turno que estamos actualizando.
-    if (await hayTurnoSuperpuesto({
-      empleadoId,
-      inicio: fechaHora,
-      fin,
-      excluirId: id,
-    })) {
-      throw conError('El empleado ya tiene un turno en ese horario', 409)
-    }
+  if (datos.servicio && String(datos.servicio) !== String(turnoActual.servicio)) {
+    const nuevoServicio = await Servicio.findById(datos.servicio)
+    if (!nuevoServicio) throw conError('Servicio no encontrado', 404)
+    duracionMinutos = datos.duracionMinutos || nuevoServicio.duracionMinutos
+    precioCobrado = datos.precioCobrado != null ? datos.precioCobrado : nuevoServicio.precio
+  } else {
+    if (datos.duracionMinutos != null) duracionMinutos = datos.duracionMinutos
+    if (datos.precioCobrado != null) precioCobrado = datos.precioCobrado
   }
 
-  const turno = await Turno.findByIdAndUpdate(id, datos, {
-    new: true,
-    runValidators: true,
-  }).populate(POBLAR)
+  const fin = new Date(new Date(inicio).getTime() + duracionMinutos * 60_000)
+
+  return conBloqueoEmpleado(empleadoId, async () => {
+    const hayConflicto = await hayTurnoSuperpuesto({
+      empleadoId,
+      inicio,
+      fin,
+      turnoIdIgnorado: id,
+    })
+
+    if (hayConflicto) {
+      throw conError('El empleado ya tiene un turno en ese horario', 409)
+    }
+
+    const payload = {
+      ...datos,
+      duracionMinutos,
+      precioCobrado,
+      fechaHoraFin: fin,
+    }
+
+    const actualizado = await Turno.findByIdAndUpdate(id, payload, {
+      new: true,
+      runValidators: true,
+    }).populate(POBLAR)
+
+    return actualizado
+  })
+}
+
+export const cambiarEstadoTurno = async (id, nuevoEstado) => {
+  const turno = await Turno.findById(id)
   if (!turno) throw conError('Turno no encontrado', 404)
-  return turno
+
+  turno.estado = nuevoEstado
+  await turno.save()
+  return Turno.findById(id).populate(POBLAR)
 }
 
 export const eliminarTurno = async (id) => {
@@ -107,44 +236,53 @@ export const eliminarTurno = async (id) => {
   return turno
 }
 
-// Detecta si el empleado ya tiene un turno activo (no cancelado) cuyo
-// rango [t.inicio, t.fin] se superpone con el rango [inicio, fin] pedido.
-//
-// REGLA MATEMÁTICA: dos rangos [a1, a2] y [b1, b2] se SUPERPONEN cuando
-// a1 < b2  Y  b1 < a2. Si alguna desigualdad no se cumple, uno termina
-// antes que el otro empiece y NO hay solapamiento.
-//
-// Para no traer todos los turnos del empleado, primero filtramos en Mongo
-// los que tienen fechaHora < fin (descartan los que empiezan después del
-// nuestro). Después, en código, calculamos su fin y aplicamos la regla.
-const hayTurnoSuperpuesto = async ({
+export const hayTurnoSuperpuesto = async ({
   empleadoId,
   inicio,
   fin,
-  excluirId = null,
+  turnoIdIgnorado = null,
 }) => {
-  const filtroBase = {
+  const fechaInicio = new Date(inicio)
+  const fechaFin = new Date(fin)
+
+  // Chequeo de colisión con eventos externos de Google Calendar del barbero
+  const empleadoDoc = await Empleado.findById(empleadoId)
+  if (empleadoDoc?.googleSyncActivo && empleadoDoc.eventosGoogle?.length) {
+    const hayConflictoGoogle = empleadoDoc.eventosGoogle.some((ev) => {
+      const evInicio = new Date(ev.inicio)
+      const evFin = new Date(ev.fin)
+      return fechaInicio < evFin && evInicio < fechaFin
+    })
+    if (hayConflictoGoogle) return true
+  }
+
+  const filtro = {
     empleado: empleadoId,
     estado: { $ne: 'cancelado' },
-    fechaHora: { $lt: fin },
+    fechaHora: { $lt: fechaFin },
+    $or: [
+      { fechaHoraFin: { $gt: fechaInicio } },
+      { fechaHoraFin: { $exists: false } },
+    ],
   }
-  if (excluirId) filtroBase._id = { $ne: excluirId }
 
-  const candidatos = await Turno.find(filtroBase).populate('servicio', 'duracionMinutos')
-
-  for (const t of candidatos) {
-    const tInicio = t.fechaHora
-    const duracion = t.servicio?.duracionMinutos || 0
-    const tFin = new Date(tInicio.getTime() + duracion * 60_000)
-    // tFin > inicio => el turno existente termina DESPUÉS del que queremos
-    // crear empiece => hay superposición.
-    if (tFin > inicio) return true
+  if (turnoIdIgnorado) {
+    filtro._id = { $ne: turnoIdIgnorado }
   }
-  return false
+
+  const candidatos = await Turno.find(filtro).populate('servicio')
+
+  return candidatos.some((t) => {
+    const tInicio = new Date(t.fechaHora)
+    const tFin = t.fechaHoraFin
+      ? new Date(t.fechaHoraFin)
+      : new Date(tInicio.getTime() + (t.duracionMinutos || t.servicio?.duracionMinutos || 30) * 60_000)
+    return fechaInicio < tFin && tInicio < fechaFin
+  })
 }
 
 const conError = (mensaje, status) => {
-  const error = new Error(mensaje)
-  error.status = status
-  return error
+  const err = new Error(mensaje)
+  err.status = status
+  return err
 }

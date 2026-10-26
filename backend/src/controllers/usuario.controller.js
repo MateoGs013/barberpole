@@ -4,7 +4,10 @@ import * as usuarioService from '../services/usuario.service.js'
 
 export const listar = async (req, res, next) => {
   try {
-    const usuarios = await usuarioService.listarUsuarios()
+    const usuarios = await usuarioService.listarUsuarios({
+      page: req.query.page,
+      limit: req.query.limit,
+    })
     res.json(usuarios)
   } catch (error) {
     next(error)

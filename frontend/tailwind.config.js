@@ -4,8 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        negro: '#0A0A0A',
-        crema: '#F8F6F2',
+        fondo: '#050505',
+        superficie: '#0c0c0e',
+        elevado: '#141417',
+        negro: '#050505',
+        crema: '#050505', // compat
         'rojo-faro': '#E60026',
         'azul-faro': '#0044CC',
       },
@@ -14,25 +17,24 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
-      // Sombras "bruta": offset duro, blur 0. Es el sello visual del neo-brutalismo.
       boxShadow: {
-        bruta: '6px 6px 0 0 #0A0A0A',
-        'bruta-sm': '2px 2px 0 0 #0A0A0A',
-        'bruta-lg': '10px 10px 0 0 #0A0A0A',
-        'bruta-rojo': '6px 6px 0 0 #E60026',
-        'bruta-azul': '6px 6px 0 0 #0044CC',
+        bruta: '0 0 0 1px rgba(255, 255, 255, 0.1)',
+        'bruta-sm': '0 0 0 1px rgba(255, 255, 255, 0.15)',
+        'bruta-lg': '0 0 30px -5px rgba(255, 255, 255, 0.08)',
+        glow: '0 0 25px -4px rgba(255, 255, 255, 0.18)',
+        island: '0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12)',
       },
       borderWidth: {
-        3: '3px',
-      },
-      keyframes: {
-        deslizar: {
-          '0%': { transform: 'translateX(110%)', opacity: '0' },
-          '100%': { transform: 'translateX(0)', opacity: '1' },
-        },
+        3: '1px', // suaviza bordes anteriores a 1px fino
       },
       animation: {
-        deslizar: 'deslizar 0.25s cubic-bezier(0.2, 0.9, 0.3, 1)',
+        'pulse-subtle': 'pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        pulseSubtle: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.4' },
+        },
       },
     },
   },
