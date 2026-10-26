@@ -28,6 +28,13 @@ const formatearHora = (fecha) =>
     hour12: false,
   }).format(fecha)
 
+const CLASES_BADGE_ESTADO = {
+  pendiente: 'badge-pendiente',
+  confirmado: 'badge-confirmado',
+  completado: 'badge-completado',
+  cancelado: 'badge-cancelado',
+}
+
 const proximosTurnos = (turnos, cantidad = 5) => {
   if (!turnos) return []
   const ahora = Date.now()
@@ -235,7 +242,7 @@ export default function Dashboard() {
                   <span className="font-mono text-xs text-zinc-400">
                     {formatearHora(new Date(t.fechaHora))}
                   </span>
-                  <span className="badge badge-confirmado">
+                  <span className={`badge ${CLASES_BADGE_ESTADO[t.estado] || 'badge-confirmado'}`}>
                     {t.estado}
                   </span>
                 </div>
