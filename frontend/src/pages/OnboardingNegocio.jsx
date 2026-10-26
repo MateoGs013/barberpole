@@ -14,6 +14,8 @@ import {
   CreditCard,
   Check,
   CheckCircle2,
+  User,
+  ShieldCheck,
 } from 'lucide-react'
 
 const slugificar = (texto) =>
@@ -25,11 +27,22 @@ const slugificar = (texto) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
+const RUBROS = [
+  { id: 'barberia', label: 'Barbería & Pelo' },
+  { id: 'estetica', label: 'Estética & Uñas' },
+  { id: 'salud', label: 'Salud & Terapia' },
+  { id: 'servicios', label: 'Servicios Técnicos' },
+  { id: 'otro', label: 'Otro Rubro' },
+]
+
 export default function OnboardingNegocio() {
   const [paso, setPaso] = useState(1)
+  const [modalidad, setModalidad] = useState('local')
+  const [rubro, setRubro] = useState('barberia')
   const [nombreNegocio, setNombreNegocio] = useState('')
   const [slug, setSlug] = useState('')
   const [direccion, setDireccion] = useState('')
+  const [direccionPrivada, setDireccionPrivada] = useState(false)
   const [telefono, setTelefono] = useState('')
   const [nombreOwner, setNombreOwner] = useState('')
   const [email, setEmail] = useState('')
@@ -54,10 +67,10 @@ export default function OnboardingNegocio() {
 
   const validarPaso1 = () => {
     const errs = {}
-    if (!nombreNegocio.trim()) errs.nombreNegocio = 'Ingresá el nombre del salón'
-    if (!slug.trim()) errs.slug = 'El slug es obligatorio'
+    if (!nombreNegocio.trim()) errs.nombreNegocio = 'Ingresá el nombre del negocio o estudio'
+    if (!slug.trim()) errs.slug = 'El identificador único (slug) es obligatorio'
     else if (!/^[a-z0-9-]+$/.test(slug))
-      errs.slug = 'Solo minúsculas, números y guiones'
+      errs.slug = 'Solo letras minúsculas, números y guiones'
     return errs
   }
 
@@ -100,16 +113,18 @@ export default function OnboardingNegocio() {
         email,
         password,
         direccion,
+        direccionPrivada: modalidad === 'particular' ? direccionPrivada : false,
         telefono,
         plan,
+        rubro,
+        modalidad,
       })
 
-      // Guardar sesión y redirigir
       localStorage.setItem('token', res.token)
-      toast.exito(`¡Salón ${res.negocio.nombre} creado con éxito!`)
+      toast.exito(`¡${res.negocio.nombre} creado con éxito!`)
       window.location.href = '/dashboard'
     } catch (err) {
-      setErrorGlobal(err.response?.data?.error || 'No pudimos crear el salón')
+      setErrorGlobal(err.response?.data?.error || 'No pudimos crear el negocio')
     } finally {
       setEnviando(false)
     }
@@ -122,7 +137,7 @@ export default function OnboardingNegocio() {
         <Link to="/" className="flex items-center gap-2 group">
           <span className="w-1.5 h-1.5 rounded-full bg-white" />
           <span className="font-mono text-xs uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
-            BarberPole <span className="text-zinc-600">—</span> SaaS Onboarding
+            BarberPole <span className="text-zinc-600">—</span> Plataforma de Turnos
           </span>
         </Link>
         <div className="flex items-center gap-4">
@@ -131,12 +146,12 @@ export default function OnboardingNegocio() {
             to="/login"
             className="font-mono text-xs uppercase text-zinc-400 hover:text-white transition-colors"
           >
-            ¿Ya tenés salón? Iniciar sesión →
+            ¿Ya tenés cuenta? Ingresar →
           </Link>
         </div>
       </header>
 
-      {/* Wizard Card Central */}
+      {/* Wizard Central */}
       <main className="max-w-xl mx-auto w-full my-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -144,8 +159,8 @@ export default function OnboardingNegocio() {
               Paso {paso} de 3
             </span>
             <h1 className="text-3xl font-display font-bold text-white tracking-tight mt-1">
-              {paso === 1 && 'Configurá tu Salón'}
-              {paso === 2 && 'Cuenta de Administrador'}
+              {paso === 1 && 'Identidad & Modalidad'}
+              {paso === 2 && 'Cuenta de Acceso'}
               {paso === 3 && 'Elegí tu Plan'}
             </h1>
           </div>
@@ -173,25 +188,85 @@ export default function OnboardingNegocio() {
 
         <div className="border border-white/10 p-6 sm:p-8">
           <AnimatePresence mode="wait">
-            {/* PASO 1: DATOS DEL SALÓN */}
+            {/* PASO 1: MODALIDAD, RUBRO Y DATOS */}
             {paso === 1 && (
               <motion.div
                 key="paso1"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-4"
+                className="space-y-6"
               >
+                {/* Selector Modalidad: Local vs Particular */}
+                <div>
+                  <label className="label">Modalidad de Atención *</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setModalidad('local')}
+                      className={`py-3 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
+                        modalidad === 'local'
+                          ? 'border-white bg-white text-black font-semibold'
+                          : 'border-white/20 text-neutral-400 hover:border-white/50 hover:text-white'
+                      }`}
+                    >
+                      Local / Salón
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setModalidad('particular')}
+                      className={`py-3 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
+                        modalidad === 'particular'
+                          ? 'border-white bg-white text-black font-semibold'
+                          : 'border-white/20 text-neutral-400 hover:border-white/50 hover:text-white'
+                      }`}
+                    >
+                      Particular / Estudio
+                    </button>
+                  </div>
+                  <p className="font-mono text-[10px] text-neutral-500 mt-2 uppercase tracking-wide">
+                    {modalidad === 'local'
+                      ? 'Local comercial a la calle o establecimiento con equipo.'
+                      : 'Atención individual independiente (en casa o estudio privado).'}
+                  </p>
+                </div>
+
+                {/* Selector Rubro */}
+                <div>
+                  <label className="label">Rubro o Especialidad *</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {RUBROS.map((r) => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => setRubro(r.id)}
+                        className={`py-2.5 px-2 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer truncate ${
+                          rubro === r.id
+                            ? 'border-white bg-white text-black font-semibold'
+                            : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
+                        }`}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Nombre Comercial */}
                 <div>
                   <label className="label" htmlFor="nombreNegocio">
-                    Nombre comercial del salón *
+                    Nombre del negocio, salón o profesional *
                   </label>
                   <input
                     id="nombreNegocio"
                     type="text"
                     value={nombreNegocio}
                     onChange={handleNombreNegocioChange}
-                    placeholder="Ej. Barbería La Nave"
+                    placeholder={
+                      modalidad === 'particular'
+                        ? 'Ej. Rodrigo Díaz — Estilista / Dra. Gómez'
+                        : 'Ej. Studio Palermo / Barbería La Nave'
+                    }
                     className="input"
                     autoFocus
                   />
@@ -202,9 +277,10 @@ export default function OnboardingNegocio() {
                   )}
                 </div>
 
+                {/* Slug */}
                 <div>
                   <label className="label" htmlFor="slug">
-                    Link público único para tu bio de Instagram *
+                    Enlace público para tu agenda (WhatsApp / Instagram) *
                   </label>
                   <div className="flex items-center rounded-lg border border-white/10 bg-zinc-950/80 px-3 py-2 text-sm font-mono text-zinc-400">
                     <span className="text-zinc-600 select-none">barberpole.app/</span>
@@ -213,7 +289,7 @@ export default function OnboardingNegocio() {
                       type="text"
                       value={slug}
                       onChange={(e) => setSlug(slugificar(e.target.value))}
-                      placeholder="mi-salon"
+                      placeholder="tu-estudio"
                       className="bg-transparent text-white font-medium focus:outline-none flex-1 ml-1"
                     />
                   </div>
@@ -224,23 +300,24 @@ export default function OnboardingNegocio() {
                   )}
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                {/* Ubicación y Teléfono */}
+                <div className="grid sm:grid-cols-2 gap-3 pt-1">
                   <div>
                     <label className="label" htmlFor="direccion">
-                      Dirección (opcional)
+                      {modalidad === 'particular' ? 'Zona o Localidad' : 'Dirección'}
                     </label>
                     <input
                       id="direccion"
                       type="text"
                       value={direccion}
                       onChange={(e) => setDireccion(e.target.value)}
-                      placeholder="Ej. Av. Corrientes 1234"
+                      placeholder={modalidad === 'particular' ? 'Ej. Palermo Soho / Domicilio' : 'Ej. Av. Corrientes 1234'}
                       className="input"
                     />
                   </div>
                   <div>
                     <label className="label" htmlFor="telefono">
-                      WhatsApp del salón (opcional)
+                      WhatsApp de contacto
                     </label>
                     <input
                       id="telefono"
@@ -253,17 +330,36 @@ export default function OnboardingNegocio() {
                   </div>
                 </div>
 
+                {/* Si es particular, opción de dirección privada */}
+                {modalidad === 'particular' && (
+                  <div className="flex items-center gap-3 pt-2">
+                    <input
+                      id="direccionPrivada"
+                      type="checkbox"
+                      checked={direccionPrivada}
+                      onChange={(e) => setDireccionPrivada(e.target.checked)}
+                      className="w-4 h-4 accent-white rounded cursor-pointer"
+                    />
+                    <label
+                      htmlFor="direccionPrivada"
+                      className="font-mono text-xs text-neutral-300 uppercase cursor-pointer select-none"
+                    >
+                      Dirección privada (se envía al cliente tras reservar)
+                    </label>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={siguiente}
                   className="btn btn-primario w-full mt-6 !py-3"
                 >
-                  Continuar a datos del dueño →
+                  Continuar a datos de acceso →
                 </button>
               </motion.div>
             )}
 
-            {/* PASO 2: CREDENCIALES DEL OWNER */}
+            {/* PASO 2: CREDENCIALES DEL RESPONSABLE */}
             {paso === 2 && (
               <motion.div
                 key="paso2"
@@ -294,14 +390,14 @@ export default function OnboardingNegocio() {
 
                 <div>
                   <label className="label" htmlFor="email">
-                    Tu email para iniciar sesión *
+                    Email de acceso *
                   </label>
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="dueno@mibarberia.com"
+                    placeholder="vos@tudominio.com"
                     className="input"
                   />
                   {errores.email && (
@@ -367,7 +463,7 @@ export default function OnboardingNegocio() {
                     </div>
                     <p className="font-mono text-2xl font-bold text-white">$0</p>
                     <p className="font-sans text-xs text-zinc-400 mt-2 leading-relaxed">
-                      Hasta 50 turnos/mes, 1 sillón, link público activo.
+                      Hasta 50 turnos/mes, 1 profesional, link público activo. Ideal para particulares.
                     </p>
                   </div>
 
@@ -390,7 +486,7 @@ export default function OnboardingNegocio() {
                     </div>
                     <p className="font-mono text-2xl font-bold text-white">$29 / mes</p>
                     <p className="font-sans text-xs text-zinc-400 mt-2 leading-relaxed">
-                      Turnos ilimitados, profesionales ilimitados, telemetría y métricas de ingresos.
+                      Turnos ilimitados, profesionales ilimitados, telemetría y Google Calendar sync.
                     </p>
                   </div>
                 </div>
@@ -398,11 +494,10 @@ export default function OnboardingNegocio() {
                 <div className="p-4 rounded-xl bg-zinc-950 border border-white/10 text-xs font-mono text-zinc-400 mt-4">
                   <div className="flex items-center gap-2 text-white font-semibold mb-1">
                     <Sparkles className="w-4 h-4 text-emerald-400" />
-                    <span>Tu salón arrancará listo para usar:</span>
+                    <span>Tu agenda arrancará lista para recibir reservas:</span>
                   </div>
                   <p>
-                    Crearemos automáticamente 2 servicios de cortesía y tu perfil de barbero
-                    principal para que tu link empiece a recibir reservas hoy mismo.
+                    Crearemos automáticamente 2 servicios de cortesía adaptados a tu rubro ({RUBROS.find(r => r.id === rubro)?.label}) y tu perfil profesional para recibir reservas de inmediato.
                   </p>
                 </div>
 
@@ -416,7 +511,7 @@ export default function OnboardingNegocio() {
                     disabled={enviando}
                     className="btn btn-primario flex-1 !py-3"
                   >
-                    {enviando ? 'Creando salón...' : 'Finalizar y Abrir Salón'}
+                    {enviando ? 'Configurando...' : 'Finalizar y Abrir Agenda'}
                   </button>
                 </div>
               </motion.div>
@@ -427,7 +522,7 @@ export default function OnboardingNegocio() {
 
       {/* Footer */}
       <footer className="max-w-4xl mx-auto w-full pt-6 border-t border-white/10 text-center font-mono text-xs text-zinc-600">
-        BarberPole SaaS Engine · Multi-Tenant Architecture 2026
+        BarberPole Multi-Tenant Platform · Motor Universal de Turnos 2026
       </footer>
     </div>
   )

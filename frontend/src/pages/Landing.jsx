@@ -32,12 +32,12 @@ function HeaderEditorial({ usuario }) {
         <Link to="/" className="text-white font-medium text-sm tracking-tight">
           BARBERPOLE
         </Link>
-        <span className="hidden md:inline text-neutral-600">— SISTEMA DE TURNOS</span>
+        <span className="hidden md:inline text-neutral-600">— MOTOR UNIVERSAL DE TURNOS</span>
       </div>
 
       <nav className="hidden lg:flex items-center gap-8 text-neutral-400">
         <a href="#salones" className="hover:text-white transition-colors">
-          01 — SALONES ↘
+          01 — ESPACIOS ↘
         </a>
         <a href="#capacidades" className="hover:text-white transition-colors">
           02 — CAPACIDADES ↘
@@ -69,7 +69,7 @@ function HeaderEditorial({ usuario }) {
               INGRESAR
             </Link>
             <Link to="/onboarding" className="px-4 py-2 bg-white text-black font-semibold hover:bg-neutral-200 transition-colors">
-              CREAR SALÓN ↗
+              CREAR ESPACIO ↗
             </Link>
           </div>
         )}
@@ -83,7 +83,7 @@ function HeroEditorial() {
     <section className="w-full border-b border-white/10 px-6 sm:px-12 md:px-16 py-24 sm:py-32 lg:py-40">
       <div className="max-w-6xl">
         <div className="text-xs font-mono uppercase tracking-widest text-neutral-500 mb-6">
-          — SISTEMA DE GESTIÓN & TURNOS DIRECTOS
+          — MOTOR UNIVERSAL DE TURNOS & GESTIÓN DIRECTA
         </div>
 
         <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-mono font-medium tracking-tighter text-white leading-[0.92] uppercase">
@@ -93,10 +93,10 @@ function HeroEditorial() {
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm md:text-base font-light text-neutral-400 max-w-3xl leading-relaxed">
           <p>
-            Plataforma despojada de fricción para salones y barberías. Eliminá los mensajes manuales de WhatsApp y permití que tus clientes aseguren su turno en 30 segundos.
+            Plataforma despojada de fricción para salones, estudios y profesionales independientes. Eliminá los mensajes manuales de WhatsApp y permití que tus clientes aseguren su turno en 30 segundos.
           </p>
           <p>
-            Cero comisiones por corte, portal público independiente por salón y bloqueo de turnos en tiempo real sin riesgo de duplicaciones.
+            Cero comisiones intermedias, enlace público propio para compartir y bloqueo atómico de horarios en tiempo real con sincronización a Google Calendar.
           </p>
         </div>
 
@@ -105,14 +105,14 @@ function HeroEditorial() {
             to="/onboarding"
             className="px-8 py-4 bg-white text-black font-semibold hover:bg-neutral-200 transition-colors flex items-center gap-3"
           >
-            <span>Crear salón</span>
+            <span>Crear espacio o agenda</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           <a
             href="#salones"
             className="px-8 py-4 border border-white/20 text-white hover:border-white hover:bg-white hover:text-black transition-colors"
           >
-            Ver salones activos ↘
+            Ver espacios activos ↘
           </a>
         </div>
       </div>
@@ -151,26 +151,26 @@ function ShowcaseSalones() {
             01 — DIRECTORIO
           </span>
           <h2 className="text-3xl sm:text-4xl font-mono font-medium text-white tracking-tight mt-1 uppercase">
-            Salones activos
+            Espacios y profesionales activos
           </h2>
         </div>
         <p className="font-mono text-xs uppercase text-neutral-500 max-w-sm">
-          Cada salón opera con su enlace independiente y disponibilidad en vivo.
+          Cada negocio o particular opera con su enlace independiente y disponibilidad en vivo.
         </p>
       </div>
 
       {cargando ? (
         <div className="py-12 text-center font-mono text-xs text-neutral-500 uppercase tracking-widest">
-          Cargando directorio de salones...
+          Cargando directorio de espacios...
         </div>
       ) : salones.length === 0 ? (
         <div className="py-16 text-center space-y-4 font-mono text-xs text-neutral-500 uppercase tracking-wider border border-white/10">
-          <p>No hay salones registrados en la plataforma actualmente.</p>
+          <p>No hay espacios registrados en la plataforma actualmente.</p>
           <Link
             to="/onboarding"
             className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black font-semibold hover:bg-neutral-200 transition-colors"
           >
-            <span>Crear el primer salón</span>
+            <span>Crear el primer espacio</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -183,9 +183,17 @@ function ShowcaseSalones() {
             >
               <div className="max-w-xl">
                 <div className="flex items-center gap-3 text-xs font-mono text-neutral-500 mb-2 uppercase">
-                  <span className="text-white">EN VIVO</span>
+                  <span className="text-white">
+                    {s.modalidad === 'particular' ? 'ESTUDIO PRIVADO' : 'LOCAL COMERCIAL'}
+                  </span>
                   <span>·</span>
                   <span>barberpole.app/{s.slug}</span>
+                  {s.rubro && (
+                    <>
+                      <span>·</span>
+                      <span className="text-neutral-400">{s.rubro}</span>
+                    </>
+                  )}
                 </div>
                 <h3 className="font-mono text-2xl text-white font-medium tracking-tight">
                   {s.nombre}
@@ -198,12 +206,16 @@ function ShowcaseSalones() {
               </div>
 
               <div className="flex flex-col md:items-end gap-2 shrink-0 font-mono text-xs uppercase">
-                <span className="text-neutral-500">{s.direccion || 'Sede Central'}</span>
+                <span className="text-neutral-500">
+                  {s.configuracion?.direccionPrivada
+                    ? 'Dirección confidencial'
+                    : s.direccion || 'Buenos Aires'}
+                </span>
                 <Link
                   to={`/${s.slug}`}
                   className="text-white hover:underline flex items-center gap-2 mt-2"
                 >
-                  <span>Abrir portal del salón</span>
+                  <span>Abrir portal de reservas</span>
                   <span>↘</span>
                 </Link>
               </div>
@@ -286,11 +298,11 @@ function PricingEditorial() {
       nombre: 'PLAN FREE',
       precio: '$0',
       periodo: 'PARA SIEMPRE',
-      desc: 'Para profesionales independientes que buscan simplificar su agenda.',
+      desc: 'Para profesionales particulares e independientes que gestionan su propia agenda.',
       items: [
         'Hasta 50 turnos por mes',
-        '1 Sillón / Profesional',
-        'Link público personalizado',
+        '1 Profesional / Agenda única',
+        'Enlace público para WhatsApp / Instagram',
         'Catálogo de servicios ilimitado',
       ],
       cta: 'Empezar gratis',
@@ -300,15 +312,15 @@ function PricingEditorial() {
       nombre: 'PLAN PRO',
       precio: '$29',
       periodo: 'POR MES',
-      desc: 'Para salones consolidados con múltiples profesionales.',
+      desc: 'Para salones, estudios y locales consolidados con equipo de profesionales.',
       items: [
         'Turnos ilimitados',
         'Profesionales ilimitados',
+        'Sincronización Google Calendar 2-Way',
         'Métricas de facturación en tiempo real',
         'Avisos por WhatsApp',
-        'Soporte directo',
       ],
-      cta: 'Crear salón Pro',
+      cta: 'Crear espacio Pro',
       destacado: true,
     },
     {
@@ -391,7 +403,7 @@ function FooterEditorial() {
   return (
     <footer className="w-full px-6 sm:px-12 md:px-16 py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-xs font-mono uppercase tracking-widest text-neutral-500">
       <div>
-        <span>BARBERPOLE — SISTEMA EDITORIAL</span>
+        <span>BARBERPOLE — MOTOR UNIVERSAL DE TURNOS</span>
         <span className="mx-3 text-neutral-700">·</span>
         <span>MODO ZEN & HIPERFOCO</span>
       </div>

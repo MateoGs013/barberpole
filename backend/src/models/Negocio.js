@@ -21,6 +21,7 @@ const configuracionSchema = new mongoose.Schema(
     },
     notificacionesWhatsapp: { type: Boolean, default: true },
     permitirCancelacionCliente: { type: Boolean, default: true },
+    direccionPrivada: { type: Boolean, default: false },
     instagram: { type: String, trim: true, default: '' },
     mensajeBienvenida: { type: String, trim: true, default: '' },
     recordatorioHoras: { type: Number, default: 24, min: 1 },
@@ -42,6 +43,16 @@ const negocioSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       match: [/^[a-z0-9-]+$/, 'El slug solo puede contener letras minúsculas, números y guiones'],
+    },
+    rubro: {
+      type: String,
+      enum: ['barberia', 'estetica', 'salud', 'servicios', 'otro'],
+      default: 'barberia',
+    },
+    modalidad: {
+      type: String,
+      enum: ['local', 'particular'],
+      default: 'local',
     },
     descripcion: {
       type: String,

@@ -13,13 +13,24 @@ const DIAS_SEMANA = [
   { id: 0, label: 'Domingo', corto: 'DOM' },
 ]
 
+const RUBROS = [
+  { id: 'barberia', label: 'Barbería & Pelo' },
+  { id: 'estetica', label: 'Estética & Uñas' },
+  { id: 'salud', label: 'Salud & Terapia' },
+  { id: 'servicios', label: 'Servicios Técnicos' },
+  { id: 'otro', label: 'Otro Rubro' },
+]
+
 export default function ConfiguracionNegocio() {
   const toast = useToast()
   const { datos: negocio, cargando, error, recargar } = useFetch(() => obtenerMiNegocioAPI())
 
   const [nombre, setNombre] = useState('')
+  const [rubro, setRubro] = useState('barberia')
+  const [modalidad, setModalidad] = useState('local')
   const [descripcion, setDescripcion] = useState('')
   const [direccion, setDireccion] = useState('')
+  const [direccionPrivada, setDireccionPrivada] = useState(false)
   const [telefono, setTelefono] = useState('')
 
   // Configuración operativa
@@ -40,6 +51,8 @@ export default function ConfiguracionNegocio() {
   useEffect(() => {
     if (negocio) {
       setNombre(negocio.nombre || '')
+      if (negocio.rubro) setRubro(negocio.rubro)
+      if (negocio.modalidad) setModalidad(negocio.modalidad)
       setDescripcion(negocio.descripcion || '')
       setDireccion(negocio.direccion || '')
       setTelefono(negocio.telefono || '')
@@ -54,6 +67,7 @@ export default function ConfiguracionNegocio() {
       if (cfg.anticipacionMaximaDias != null) setAnticipacionMaximaDias(cfg.anticipacionMaximaDias)
       if (cfg.cancelacionMinimaHoras != null) setCancelacionMinimaHoras(cfg.cancelacionMinimaHoras)
       if (cfg.notificacionesWhatsapp != null) setNotificacionesWhatsapp(cfg.notificacionesWhatsapp)
+      if (cfg.direccionPrivada != null) setDireccionPrivada(cfg.direccionPrivada)
       if (cfg.instagram) setInstagram(cfg.instagram)
     }
   }, [negocio])
@@ -78,6 +92,8 @@ export default function ConfiguracionNegocio() {
     try {
       const payload = {
         nombre: nombre.trim(),
+        rubro,
+        modalidad,
         descripcion: descripcion.trim(),
         direccion: direccion.trim(),
         telefono: telefono.trim(),
@@ -92,13 +108,14 @@ export default function ConfiguracionNegocio() {
           cancelacionMinimaHoras: Number(cancelacionMinimaHoras),
           politicaPago: 'efectivo',
           notificacionesWhatsapp,
+          direccionPrivada: modalidad === 'particular' ? direccionPrivada : false,
           instagram: instagram.trim(),
         },
       }
 
       await actualizarMiNegocioAPI(payload)
       recargar()
-      toast.exito('Configuración del salón actualizada')
+      toast.exito('Configuración del negocio actualizada')
     } catch (err) {
       setErrorGlobal(err.response?.data?.error || 'No se pudo guardar la configuración')
     } finally {
@@ -122,7 +139,7 @@ export default function ConfiguracionNegocio() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
-            — PARÁMETROS OPERATIVOS & POLÍTICAS
+            — PARÁMETROS OPERATIVOS & MODALIDAD
           </p>
           <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
             CONFIGURACIÓN.
@@ -147,14 +164,60 @@ export default function ConfiguracionNegocio() {
       )}
 
       <form onSubmit={onSubmit} className="space-y-10">
-        {/* SECCIÓN 1: Identidad del Salón */}
+        {/* SECCIÓN 1: Identidad, Rubro & Modalidad */}
         <section className="space-y-4">
           <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 pb-2 border-b border-white/10">
-            01 — IDENTIDAD & CONTACTO
+            01 — MODALIDAD & IDENTIDAD
           </h2>
+
+          <div className="grid sm:grid-cols-2 gap-4 pb-2">
+            <div>
+              <label className="label">Modalidad de Atención</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setModalidad('local')}
+                  className={`py-2.5 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
+                    modalidad === 'local'
+                      ? 'border-white bg-white text-black font-semibold'
+                      : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
+                  }`}
+                >
+                  Local / Salón
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalidad('particular')}
+                  className={`py-2.5 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
+                    modalidad === 'particular'
+                      ? 'border-white bg-white text-black font-semibold'
+                      : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
+                  }`}
+                >
+                  Particular / Estudio
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="label">Rubro Principal</label>
+              <select
+                className="input"
+                value={rubro}
+                onChange={(e) => setRubro(e.target.value)}
+              >
+                {RUBROS.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
-              <label className="label" htmlFor="nombre">Nombre del Salón</label>
+              <label className="label" htmlFor="nombre">Nombre Comercial</label>
               <input
                 id="nombre"
                 type="text"
@@ -191,23 +254,41 @@ export default function ConfiguracionNegocio() {
                 id="instagram"
                 type="text"
                 className="input"
-                placeholder="@tu_barberia"
+                placeholder="@tu_espacio"
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
               />
             </div>
           </div>
+
           <div>
-            <label className="label" htmlFor="direccion">Dirección Física</label>
+            <label className="label" htmlFor="direccion">
+              {modalidad === 'particular' ? 'Zona o Dirección' : 'Dirección Física'}
+            </label>
             <input
               id="direccion"
               type="text"
               className="input"
-              placeholder="Ej: Av. Santa Fe 3400, Palermo"
+              placeholder={modalidad === 'particular' ? 'Ej: Palermo Soho / Domicilio privado' : 'Ej: Av. Santa Fe 3400, CABA'}
               value={direccion}
               onChange={(e) => setDireccion(e.target.value)}
             />
           </div>
+
+          {modalidad === 'particular' && (
+            <div className="flex items-center gap-3 pt-1">
+              <input
+                id="privada"
+                type="checkbox"
+                checked={direccionPrivada}
+                onChange={(e) => setDireccionPrivada(e.target.checked)}
+                className="w-4 h-4 accent-white rounded cursor-pointer"
+              />
+              <label htmlFor="privada" className="font-mono text-xs uppercase text-neutral-300 cursor-pointer select-none">
+                Dirección privada (no se muestra públicamente, solo se envía tras reservar)
+              </label>
+            </div>
+          )}
         </section>
 
         {/* SECCIÓN 2: Jornada y Horarios */}
@@ -226,7 +307,7 @@ export default function ConfiguracionNegocio() {
                     key={dia.id}
                     type="button"
                     onClick={() => toggleDia(dia.id)}
-                    className={`px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors border ${
+                    className={`px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors border cursor-pointer ${
                       activo
                         ? 'bg-white text-black border-white font-medium'
                         : 'bg-transparent text-neutral-500 border-white/10 hover:border-white/30 hover:text-white'
@@ -262,11 +343,8 @@ export default function ConfiguracionNegocio() {
                 required
               />
             </div>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-6 pt-2">
             <div>
-              <label className="label" htmlFor="intervalo">Intervalo de Slots (Minutos)</label>
+              <label className="label" htmlFor="intervalo">Intervalo de Slots</label>
               <select
                 id="intervalo"
                 className="input"
@@ -277,21 +355,21 @@ export default function ConfiguracionNegocio() {
                 <option value={20}>20 minutos</option>
                 <option value={30}>30 minutos (Estándar)</option>
                 <option value={45}>45 minutos</option>
-                <option value={60}>60 minutos</option>
+                <option value={60}>60 minutos (1 hora)</option>
               </select>
             </div>
             <div>
-              <label className="label" htmlFor="buffer">Buffer entre Turnos (Limpieza/Espera)</label>
+              <label className="label" htmlFor="buffer">Buffer entre Turnos</label>
               <select
                 id="buffer"
                 className="input"
                 value={bufferMinutos}
                 onChange={(e) => setBufferMinutos(Number(e.target.value))}
               >
-                <option value={0}>0 minutos (Inmediato)</option>
-                <option value={5}>5 minutos</option>
-                <option value={10}>10 minutos</option>
-                <option value={15}>15 minutos</option>
+                <option value={0}>Sin buffer (inmediato)</option>
+                <option value={5}>5 minutos de descanso / sanitización</option>
+                <option value={10}>10 minutos de descanso / sanitización</option>
+                <option value={15}>15 minutos de descanso / sanitización</option>
               </select>
             </div>
           </div>
@@ -367,10 +445,10 @@ export default function ConfiguracionNegocio() {
 
             <div className="p-3 border border-white/10 bg-white/[0.01]">
               <p className="font-mono text-[11px] uppercase tracking-wider text-neutral-400">
-                POLÍTICA DE PAGO: <strong className="text-white">EFECTIVO EN EL LOCAL</strong>
+                POLÍTICA DE PAGO: <strong className="text-white">EFECTIVO / ACORDAR CON EL PROFESIONAL</strong>
               </p>
               <p className="font-mono text-[10px] text-neutral-500 mt-1">
-                Los clientes no abonan seña ni tarjeta online; abonan en mano en el mostrador tras recibir el servicio.
+                Cero comisiones ni pasarelas obligatorias; cobro directo acordado con el cliente al momento de brindar el servicio.
               </p>
             </div>
           </div>
@@ -381,7 +459,7 @@ export default function ConfiguracionNegocio() {
           <button
             type="submit"
             disabled={guardando}
-            className="btn btn-primario px-8 py-3 text-xs font-mono uppercase"
+            className="btn btn-primario px-8 py-3 text-xs font-mono uppercase cursor-pointer"
           >
             {guardando ? 'Guardando...' : 'Guardar Parámetros'}
           </button>

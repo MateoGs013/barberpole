@@ -13,7 +13,11 @@ export const onboarding = async (req, res, next) => {
       passwordAdmin,
       telefono,
       direccion,
+      descripcion,
       plan,
+      rubro,
+      modalidad,
+      direccionPrivada,
     } = req.body
 
     const finalNombreOwner = nombreOwner || nombreAdmin
@@ -32,7 +36,11 @@ export const onboarding = async (req, res, next) => {
       password: finalPassword,
       telefono,
       direccion,
+      descripcion,
       plan,
+      rubro,
+      modalidad,
+      direccionPrivada,
     })
     res.status(201).json(resultado)
   } catch (error) {

@@ -47,7 +47,7 @@ export default function PortalNegocio() {
         if (!cancelado) setSalonData(data)
       } catch (err) {
         if (!cancelado)
-          setErrorSalon(err.response?.data?.error || 'No pudimos encontrar este salón')
+          setErrorSalon(err.response?.data?.error || 'No pudimos encontrar este salón o estudio')
       } finally {
         if (!cancelado) setCargandoSalon(false)
       }
@@ -61,6 +61,16 @@ export default function PortalNegocio() {
   const negocio = salonData?.negocio
   const servicios = salonData?.servicios || []
   const empleados = salonData?.empleados || []
+
+  const esParticularOUnipersonal =
+    empleados.length === 1 || negocio?.modalidad === 'particular'
+
+  // Auto-asignar profesional si es particular o hay uno solo
+  useEffect(() => {
+    if (esParticularOUnipersonal && empleados.length === 1 && !empleadoId) {
+      setEmpleadoId(empleados[0]._id)
+    }
+  }, [esParticularOUnipersonal, empleados, empleadoId])
 
   const servicioElegido = servicios.find((s) => s._id === servicioId)
   const empleadoElegido = empleados.find((e) => e._id === empleadoId)
@@ -109,14 +119,19 @@ export default function PortalNegocio() {
     return () => {
       cancelado = true
     }
-  }, [empleadoId, fecha, servicioId])
+  }, [empleadoId, fecha, servicioId, hora])
 
   const sePuedeReservar = servicioId && empleadoId && fecha && hora
 
   const seleccionarServicio = (id) => {
     soundManager.playPop()
     setServicioId(id)
-    setPaso(2)
+    if (esParticularOUnipersonal) {
+      if (empleados[0]) setEmpleadoId(empleados[0]._id)
+      setPaso(3) // Salto directo a Fecha & Hora
+    } else {
+      setPaso(2)
+    }
   }
 
   const seleccionarEmpleado = (id) => {
@@ -173,7 +188,7 @@ export default function PortalNegocio() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
         <div className="font-mono text-xs text-neutral-500 uppercase tracking-widest animate-pulse">
-          Cargando salón...
+          Cargando agenda...
         </div>
       </div>
     )
@@ -184,9 +199,9 @@ export default function PortalNegocio() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
         <div className="text-center max-w-md border border-white/10 p-10">
           <p className="font-mono text-5xl font-light text-white">404</p>
-          <h1 className="font-mono text-lg text-white uppercase mt-4">Salón no encontrado</h1>
+          <h1 className="font-mono text-lg text-white uppercase mt-4">Espacio no encontrado</h1>
           <p className="font-mono text-xs text-neutral-500 mt-2 uppercase">
-            El link no existe o fue dado de baja.
+            El enlace no existe o fue dado de baja.
           </p>
           <Link to="/" className="btn btn-primario mt-8 inline-block">
             Volver al inicio
@@ -201,8 +216,19 @@ export default function PortalNegocio() {
       {/* Header Objetivo B&W */}
       <header className="w-full border-b border-white/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-neutral-400">
         <div className="flex items-center gap-4">
-          <h1 className="text-white font-medium text-sm tracking-tight">{negocio.nombre}</h1>
-          <span className="hidden sm:inline text-neutral-600">— {negocio.direccion || 'BUENOS AIRES'}</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-white font-medium text-sm tracking-tight">{negocio.nombre}</h1>
+              {negocio.modalidad === 'particular' && (
+                <span className="text-[10px] px-1.5 py-0.5 border border-white/20 text-neutral-300 font-mono">
+                  ESTUDIO PRIVADO
+                </span>
+              )}
+            </div>
+            <span className="text-neutral-500 text-xs font-mono">
+              {negocio.direccion || 'BUENOS AIRES'}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -219,9 +245,10 @@ export default function PortalNegocio() {
         </div>
       </header>
 
-      {/* Stepper Objetivo con Flechas ↘ */}
+      {/* Stepper Objetivo con Guiones Editoriales */}
       <div className="w-full border-b border-white/10 py-4 my-6">
-        <div className="flex items-center gap-4 sm:gap-8 font-mono text-xs overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-4 sm:gap-6 font-mono text-xs overflow-x-auto scrollbar-none">
+          {/* Paso 1: Servicio */}
           <button
             type="button"
             onClick={() => setPaso(1)}
@@ -236,25 +263,31 @@ export default function PortalNegocio() {
             {servicioId && <Check className="w-3 h-3 text-white" />}
           </button>
 
-          <span className="text-neutral-700">/</span>
+          <span className="text-neutral-700">—</span>
 
-          <button
-            type="button"
-            onClick={() => servicioId && setPaso(2)}
-            disabled={!servicioId}
-            className={`flex items-center gap-2 shrink-0 transition-colors ${
-              !servicioId ? 'text-neutral-700 cursor-not-allowed' : paso === 2 ? 'text-white font-semibold cursor-pointer' : empleadoId ? 'text-neutral-400 hover:text-white cursor-pointer' : 'text-neutral-600 cursor-pointer'
-            }`}
-          >
-            <span className={`px-1.5 py-0.5 text-[10px] ${paso === 2 ? 'bg-white text-black' : 'border border-white/20'}`}>
-              02
-            </span>
-            <span>PROFESIONAL ↘</span>
-            {empleadoId && <Check className="w-3 h-3 text-white" />}
-          </button>
+          {/* Paso 2: Profesional (Oculto o simplificado si es particular/unipersonal) */}
+          {!esParticularOUnipersonal && (
+            <>
+              <button
+                type="button"
+                onClick={() => servicioId && setPaso(2)}
+                disabled={!servicioId}
+                className={`flex items-center gap-2 shrink-0 transition-colors ${
+                  !servicioId ? 'text-neutral-700 cursor-not-allowed' : paso === 2 ? 'text-white font-semibold cursor-pointer' : empleadoId ? 'text-neutral-400 hover:text-white cursor-pointer' : 'text-neutral-600 cursor-pointer'
+                }`}
+              >
+                <span className={`px-1.5 py-0.5 text-[10px] ${paso === 2 ? 'bg-white text-black' : 'border border-white/20'}`}>
+                  02
+                </span>
+                <span>PROFESIONAL ↘</span>
+                {empleadoId && <Check className="w-3 h-3 text-white" />}
+              </button>
 
-          <span className="text-neutral-700">/</span>
+              <span className="text-neutral-700">—</span>
+            </>
+          )}
 
+          {/* Paso 3: Fecha y Hora */}
           <button
             type="button"
             onClick={() => servicioId && empleadoId && setPaso(3)}
@@ -264,14 +297,15 @@ export default function PortalNegocio() {
             }`}
           >
             <span className={`px-1.5 py-0.5 text-[10px] ${paso === 3 ? 'bg-white text-black' : 'border border-white/20'}`}>
-              03
+              {esParticularOUnipersonal ? '02' : '03'}
             </span>
             <span>FECHA Y HORA ↘</span>
             {hora && <Check className="w-3 h-3 text-white" />}
           </button>
 
-          <span className="text-neutral-700">/</span>
+          <span className="text-neutral-700">—</span>
 
+          {/* Paso 4: Ticket */}
           <button
             type="button"
             onClick={() => sePuedeReservar && setPaso(4)}
@@ -281,9 +315,9 @@ export default function PortalNegocio() {
             }`}
           >
             <span className={`px-1.5 py-0.5 text-[10px] ${paso === 4 ? 'bg-white text-black' : 'border border-white/20'}`}>
-              04
+              {esParticularOUnipersonal ? '03' : '04'}
             </span>
-            <span>TICKET ↘</span>
+            <span>COMPROBANTE ↘</span>
           </button>
         </div>
       </div>
@@ -317,7 +351,7 @@ export default function PortalNegocio() {
 
               {servicios.length === 0 ? (
                 <p className="font-mono text-xs text-neutral-500 uppercase">
-                  No hay servicios registrados en este salón.
+                  No hay servicios registrados en este momento.
                 </p>
               ) : (
                 <div className="divide-y divide-white/10 border-b border-white/10">
@@ -364,8 +398,8 @@ export default function PortalNegocio() {
             </motion.div>
           )}
 
-          {/* PASO 2: PROFESIONAL */}
-          {paso === 2 && (
+          {/* PASO 2: PROFESIONAL (Solo visible en local con múltiples profesionales) */}
+          {paso === 2 && !esParticularOUnipersonal && (
             <motion.div
               key="paso-2"
               initial={{ opacity: 0, y: 6 }}
@@ -453,11 +487,11 @@ export default function PortalNegocio() {
                 <div>
                   <button
                     type="button"
-                    onClick={() => setPaso(2)}
+                    onClick={() => setPaso(esParticularOUnipersonal ? 1 : 2)}
                     className="font-mono text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
                   >
                     <ArrowLeft className="w-3 h-3" />
-                    <span>Volver a profesionales</span>
+                    <span>{esParticularOUnipersonal ? 'Volver a servicios' : 'Volver a profesionales'}</span>
                   </button>
                   <h2 className="font-mono font-medium text-2xl text-white uppercase">
                     Elegí día y horario
@@ -465,8 +499,12 @@ export default function PortalNegocio() {
                 </div>
                 <div className="text-right font-mono text-xs text-neutral-400 hidden sm:block uppercase">
                   <span>{servicioElegido?.nombre}</span>
-                  <span className="text-neutral-600"> / </span>
-                  <span>{empleadoElegido?.nombre}</span>
+                  {empleadoElegido && (
+                    <>
+                      <span className="text-neutral-600"> — </span>
+                      <span>{empleadoElegido.nombre}</span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -531,7 +569,7 @@ export default function PortalNegocio() {
                           <button
                             type="button"
                             onClick={() => setPaso(4)}
-                            className="px-6 py-3 bg-white text-black font-mono text-xs font-semibold uppercase tracking-wider hover:bg-neutral-200 transition-colors"
+                            className="px-6 py-3 bg-white text-black font-mono text-xs font-semibold uppercase tracking-wider hover:bg-neutral-200 transition-colors cursor-pointer"
                           >
                             Ver Comprobante ↘
                           </button>
@@ -569,7 +607,7 @@ export default function PortalNegocio() {
                   </h2>
                 </div>
                 <span className="font-mono text-xs text-neutral-400 uppercase tracking-widest">
-                  ETAPA FINAL — 04
+                  ETAPA FINAL
                 </span>
               </div>
 

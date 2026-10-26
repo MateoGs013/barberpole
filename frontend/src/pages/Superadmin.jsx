@@ -12,6 +12,14 @@ import { Modal } from '../components/Modal.jsx'
 import { ModalConfirmacion } from '../components/ModalConfirmacion.jsx'
 import { PlusCircle, Search, ShieldCheck, Building2, Calendar, Users, Sliders } from 'lucide-react'
 
+const RUBROS = [
+  { id: 'barberia', label: 'Barbería & Pelo' },
+  { id: 'estetica', label: 'Estética & Uñas' },
+  { id: 'salud', label: 'Salud & Terapia' },
+  { id: 'servicios', label: 'Servicios Técnicos' },
+  { id: 'otro', label: 'Otro Rubro' },
+]
+
 export default function Superadmin() {
   const toast = useToast()
   const { datos: salones, cargando, error, recargar } = useFetch(() =>
@@ -94,10 +102,10 @@ export default function Superadmin() {
         </div>
         <button
           onClick={() => setModalNuevo(true)}
-          className="btn btn-primario self-start sm:self-auto flex items-center gap-2"
+          className="btn btn-primario self-start sm:self-auto flex items-center gap-2 cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Crear Salón de Cero</span>
+          <span>Crear Espacio de Cero</span>
         </button>
       </div>
 
@@ -105,7 +113,7 @@ export default function Superadmin() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div className="p-5 border border-white/10 bg-white/[0.01]">
           <div className="flex items-center justify-between text-neutral-500 mb-2">
-            <span className="font-mono text-xs uppercase tracking-wider">Salones Totales</span>
+            <span className="font-mono text-xs uppercase tracking-wider">Espacios Totales</span>
             <Building2 className="w-4 h-4 text-neutral-400" />
           </div>
           <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
@@ -115,7 +123,7 @@ export default function Superadmin() {
 
         <div className="p-5 border border-white/10 bg-white/[0.01]">
           <div className="flex items-center justify-between text-neutral-500 mb-2">
-            <span className="font-mono text-xs uppercase tracking-wider">Salones Activos</span>
+            <span className="font-mono text-xs uppercase tracking-wider">Espacios Activos</span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
           <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
@@ -135,7 +143,7 @@ export default function Superadmin() {
 
         <div className="p-5 border border-white/10 bg-white/[0.01]">
           <div className="flex items-center justify-between text-neutral-500 mb-2">
-            <span className="font-mono text-xs uppercase tracking-wider">Barberos Registrados</span>
+            <span className="font-mono text-xs uppercase tracking-wider">Profesionales</span>
             <Users className="w-4 h-4 text-neutral-400" />
           </div>
           <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
@@ -148,7 +156,7 @@ export default function Superadmin() {
       <div className="p-4 border border-white/10 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="label" htmlFor="busqueda">Buscar Salón o Dueño</label>
+            <label className="label" htmlFor="busqueda">Buscar Negocio o Responsable</label>
             <div className="relative">
               <input
                 id="busqueda"
@@ -194,16 +202,16 @@ export default function Superadmin() {
       </div>
 
       {/* Lista Tabular Editorial */}
-      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando salones...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando espacios...</p>}
       {error && (
         <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
-          Error al cargar salones multi-tenant
+          Error al cargar negocios multi-tenant
         </div>
       )}
 
       {salonesFiltrados && salonesFiltrados.length === 0 && !cargando && (
         <div className="py-12 border border-white/10 text-center font-mono text-xs uppercase text-neutral-500">
-          No se encontraron salones con los criterios seleccionados
+          No se encontraron negocios con los criterios seleccionados
         </div>
       )}
 
@@ -228,7 +236,7 @@ export default function Superadmin() {
           onCreado={() => {
             setModalNuevo(false)
             recargar()
-            toast.exito('Salón creado y configurado con éxito')
+            toast.exito('Negocio creado y configurado con éxito')
           }}
         />
       )}
@@ -241,7 +249,7 @@ export default function Superadmin() {
           onActualizado={() => {
             setEditandoSalon(null)
             recargar()
-            toast.exito('Salón actualizado correctamente')
+            toast.exito('Negocio actualizado correctamente')
           }}
         />
       )}
@@ -251,9 +259,9 @@ export default function Superadmin() {
         abierto={!!pidiendoEliminar}
         onCerrar={() => setPidiendoEliminar(null)}
         onConfirmar={confirmarEliminar}
-        titulo="Eliminar salón definitivamente"
+        titulo="Eliminar espacio definitivamente"
         mensaje={`¿Estás seguro de que querés eliminar "${pidiendoEliminar?.nombre}" (${pidiendoEliminar?.slug})? Esta acción eliminará el tenant de la plataforma.`}
-        textoConfirmar="Eliminar salón"
+        textoConfirmar="Eliminar definitivamente"
         peligro
       />
     </div>
@@ -279,10 +287,16 @@ function FilaSuperadmin({ salon, onEditar, onToggleEstado, onEliminar }) {
           <span className="badge !border-white/20 text-neutral-300 uppercase">
             PLAN {salon.plan}
           </span>
+          <span className="badge !border-white/20 text-neutral-300 uppercase">
+            {salon.modalidad === 'particular' ? 'Estudio' : 'Salón'}
+          </span>
+          <span className="badge !border-white/20 text-neutral-400 uppercase">
+            {salon.rubro || 'barberia'}
+          </span>
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-400">
-          <span>Dueño: <strong className="text-white">{salon.owner?.nombre || '—'}</strong> ({salon.owner?.email || '—'})</span>
+          <span>Responsable: <strong className="text-white">{salon.owner?.nombre || '—'}</strong> ({salon.owner?.email || '—'})</span>
           {salon.telefono && <span>· Tel: {salon.telefono}</span>}
           {salon.direccion && <span>· Dir: {salon.direccion}</span>}
         </div>
@@ -302,19 +316,19 @@ function FilaSuperadmin({ salon, onEditar, onToggleEstado, onEliminar }) {
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-secundario !px-3 !py-1.5 text-xs font-mono uppercase"
-          title="Ver portal público de reservas del salón"
+          title="Ver portal público de reservas"
         >
           Portal ↗
         </a>
         <button
           onClick={onEditar}
-          className="btn btn-secundario !px-3 !py-1.5 text-xs font-mono uppercase"
+          className="btn btn-secundario !px-3 !py-1.5 text-xs font-mono uppercase cursor-pointer"
         >
           Configurar
         </button>
         <button
           onClick={onToggleEstado}
-          className={`btn !px-3 !py-1.5 text-xs font-mono uppercase ${
+          className={`btn !px-3 !py-1.5 text-xs font-mono uppercase cursor-pointer ${
             salon.activo ? 'btn-peligro' : 'btn-primario'
           }`}
         >
@@ -322,8 +336,8 @@ function FilaSuperadmin({ salon, onEditar, onToggleEstado, onEliminar }) {
         </button>
         <button
           onClick={onEliminar}
-          className="btn btn-peligro !px-3 !py-1.5 text-xs font-mono uppercase"
-          title="Eliminar salón definitivamente"
+          className="btn btn-peligro !px-3 !py-1.5 text-xs font-mono uppercase cursor-pointer"
+          title="Eliminar definitivamente"
         >
           Eliminar
         </button>
@@ -335,6 +349,8 @@ function FilaSuperadmin({ salon, onEditar, onToggleEstado, onEliminar }) {
 function ModalCrearSalon({ onCerrar, onCreado }) {
   const [nombre, setNombre] = useState('')
   const [slug, setSlug] = useState('')
+  const [rubro, setRubro] = useState('barberia')
+  const [modalidad, setModalidad] = useState('local')
   const [plan, setPlan] = useState('pro')
   const [nombreOwner, setNombreOwner] = useState('')
   const [emailOwner, setEmailOwner] = useState('')
@@ -367,6 +383,8 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
       await crearNegocioSuperadminAPI({
         nombre: nombre.trim(),
         slug: slug.trim().toLowerCase(),
+        rubro,
+        modalidad,
         plan,
         nombreOwner: nombreOwner.trim() || nombre.trim(),
         emailOwner: emailOwner.trim().toLowerCase(),
@@ -382,14 +400,14 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
       })
       onCreado()
     } catch (err) {
-      setErrorLocal(err.response?.data?.error || 'Error al crear salón')
+      setErrorLocal(err.response?.data?.error || 'Error al crear negocio')
     } finally {
       setCargando(false)
     }
   }
 
   return (
-    <Modal abierto={true} onCerrar={onCerrar} titulo="CREAR SALÓN DESDE CERO">
+    <Modal abierto={true} onCerrar={onCerrar} titulo="CREAR NEGOCIO O ESTUDIO">
       <form onSubmit={onSubmit} className="space-y-6">
         {errorLocal && (
           <div className="p-3 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
@@ -400,16 +418,45 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
         {/* Identidad */}
         <div className="space-y-4">
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
-            — 01. IDENTIDAD DEL SALÓN
+            — 01. IDENTIDAD & MODALIDAD
           </p>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="label" htmlFor="crearNombre">Nombre del Salón</label>
+              <label className="label">Modalidad</label>
+              <select
+                className="input"
+                value={modalidad}
+                onChange={(e) => setModalidad(e.target.value)}
+              >
+                <option value="local">Local Comercial / Salón</option>
+                <option value="particular">Particular / Estudio</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Rubro</label>
+              <select
+                className="input"
+                value={rubro}
+                onChange={(e) => setRubro(e.target.value)}
+              >
+                {RUBROS.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label" htmlFor="crearNombre">Nombre Comercial</label>
               <input
                 id="crearNombre"
                 type="text"
                 className="input"
-                placeholder="Ej: Palermo Barber Club"
+                placeholder="Ej: Studio Palermo / Dra. Gómez"
                 value={nombre}
                 onChange={(e) => handleNombreChange(e.target.value)}
                 required
@@ -421,7 +468,7 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
                 id="crearSlug"
                 type="text"
                 className="input"
-                placeholder="ej: palermo-barber-club"
+                placeholder="ej: studio-palermo"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                 required
@@ -436,9 +483,9 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
               value={plan}
               onChange={(e) => setPlan(e.target.value)}
             >
-              <option value="free">Free — Plan Básico</option>
-              <option value="pro">Pro — Multi-Barbero</option>
-              <option value="enterprise">Enterprise — Red de Franquicias</option>
+              <option value="free">Free — Plan Básico (1 profesional)</option>
+              <option value="pro">Pro — Multi-Profesional</option>
+              <option value="enterprise">Enterprise — Red de Sucursales</option>
             </select>
           </div>
         </div>
@@ -446,16 +493,16 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
         {/* Dueño / Administrador */}
         <div className="space-y-4 pt-4 border-t border-white/10">
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
-            — 02. CUENTA DEL DUEÑO
+            — 02. RESPONSABLE DE LA CUENTA
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="label" htmlFor="crearOwnerNombre">Nombre del Dueño</label>
+              <label className="label" htmlFor="crearOwnerNombre">Nombre del Responsable</label>
               <input
                 id="crearOwnerNombre"
                 type="text"
                 className="input"
-                placeholder="Ej: Mateo Gabús"
+                placeholder="Ej: Rodrigo Díaz"
                 value={nombreOwner}
                 onChange={(e) => setNombreOwner(e.target.value)}
               />
@@ -466,7 +513,7 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
                 id="crearOwnerEmail"
                 type="email"
                 className="input"
-                placeholder="dueño@salondemo.com"
+                placeholder="contacto@estudio.com"
                 value={emailOwner}
                 onChange={(e) => setEmailOwner(e.target.value)}
                 required
@@ -533,8 +580,8 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
           <button type="button" onClick={onCerrar} className="btn btn-secundario flex-1">
             Cancelar
           </button>
-          <button type="submit" disabled={cargando} className="btn btn-primario flex-1">
-            {cargando ? 'Creando Salón...' : 'Crear Salón'}
+          <button type="submit" disabled={cargando} className="btn btn-primario flex-1 cursor-pointer">
+            {cargando ? 'Creando...' : 'Crear Espacio'}
           </button>
         </div>
       </form>
@@ -545,6 +592,8 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
 function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
   const [nombre, setNombre] = useState(salon.nombre || '')
   const [slug, setSlug] = useState(salon.slug || '')
+  const [rubro, setRubro] = useState(salon.rubro || 'barberia')
+  const [modalidad, setModalidad] = useState(salon.modalidad || 'local')
   const [plan, setPlan] = useState(salon.plan || 'free')
   const [direccion, setDireccion] = useState(salon.direccion || '')
   const [telefono, setTelefono] = useState(salon.telefono || '')
@@ -568,6 +617,8 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
       await actualizarNegocioSuperadminAPI(salon._id, {
         nombre: nombre.trim(),
         slug: slug.trim().toLowerCase(),
+        rubro,
+        modalidad,
         plan,
         direccion: direccion.trim(),
         telefono: telefono.trim(),
@@ -582,14 +633,14 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
       })
       onActualizado()
     } catch (err) {
-      setErrorLocal(err.response?.data?.error || 'Error al actualizar salón')
+      setErrorLocal(err.response?.data?.error || 'Error al actualizar negocio')
     } finally {
       setCargando(false)
     }
   }
 
   return (
-    <Modal abierto={true} onCerrar={onCerrar} titulo={`CONFIGURAR SALÓN — ${salon.nombre}`}>
+    <Modal abierto={true} onCerrar={onCerrar} titulo={`CONFIGURAR — ${salon.nombre}`}>
       <form onSubmit={onSubmit} className="space-y-6">
         {errorLocal && (
           <div className="p-3 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
@@ -600,7 +651,35 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
         <div className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="label" htmlFor="editNombre">Nombre del Salón</label>
+              <label className="label">Modalidad</label>
+              <select
+                className="input"
+                value={modalidad}
+                onChange={(e) => setModalidad(e.target.value)}
+              >
+                <option value="local">Local Comercial</option>
+                <option value="particular">Particular / Estudio</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Rubro</label>
+              <select
+                className="input"
+                value={rubro}
+                onChange={(e) => setRubro(e.target.value)}
+              >
+                {RUBROS.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label" htmlFor="editNombre">Nombre Comercial</label>
               <input
                 id="editNombre"
                 type="text"
@@ -648,7 +727,7 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
               />
             </div>
             <div>
-              <label className="label" htmlFor="editDir">Dirección</label>
+              <label className="label" htmlFor="editDir">Dirección o Zona</label>
               <input
                 id="editDir"
                 type="text"
@@ -720,8 +799,8 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
           <button type="button" onClick={onCerrar} className="btn btn-secundario flex-1">
             Cancelar
           </button>
-          <button type="submit" disabled={cargando} className="btn btn-primario flex-1">
-            {cargando ? 'Guardando...' : 'Actualizar Salón'}
+          <button type="submit" disabled={cargando} className="btn btn-primario flex-1 cursor-pointer">
+            {cargando ? 'Guardando...' : 'Actualizar Espacio'}
           </button>
         </div>
       </form>

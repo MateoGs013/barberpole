@@ -28,26 +28,38 @@ const renderOnboarding = () => {
   )
 }
 
-describe('OnboardingNegocio SaaS Flow', () => {
-  it('renderiza el paso 1 de identidad y auto-genera el slug de reserva en vivo', () => {
+describe('OnboardingNegocio SaaS Flow — Universal', () => {
+  it('renderiza el paso 1 de identidad con selección de modalidad y auto-genera el slug en vivo', () => {
     renderOnboarding()
 
-    expect(screen.getByText(/configurá tu salón/i)).toBeInTheDocument()
-    const inputNombre = screen.getByPlaceholderText(/ej\. barbería la nave/i)
+    expect(screen.getByText(/identidad & modalidad/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /local \/ salón/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /particular \/ estudio/i })).toBeInTheDocument()
+
+    const inputNombre = screen.getByLabelText(/nombre del negocio, salón o profesional/i)
     expect(inputNombre).toBeInTheDocument()
 
     fireEvent.change(inputNombre, { target: { value: 'La Nave Barber' } })
 
-    const inputSlug = screen.getByPlaceholderText(/mi-salon/i)
+    const inputSlug = screen.getByPlaceholderText(/tu-estudio/i)
     expect(inputSlug.value).toBe('la-nave-barber')
+  })
+
+  it('permite alternar a modalidad particular y muestra opción de dirección privada', () => {
+    renderOnboarding()
+
+    const btnParticular = screen.getByRole('button', { name: /particular \/ estudio/i })
+    fireEvent.click(btnParticular)
+
+    expect(screen.getByLabelText(/dirección privada/i)).toBeInTheDocument()
   })
 
   it('valida campos obligatorios antes de avanzar al paso 2', () => {
     renderOnboarding()
 
-    const btnContinuar = screen.getByRole('button', { name: /continuar a datos del dueño/i })
+    const btnContinuar = screen.getByRole('button', { name: /continuar a datos de acceso/i })
     fireEvent.click(btnContinuar)
 
-    expect(screen.getByText(/ingresá el nombre del salón/i)).toBeInTheDocument()
+    expect(screen.getByText(/ingresá el nombre del negocio o estudio/i)).toBeInTheDocument()
   })
 })
