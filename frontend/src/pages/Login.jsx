@@ -18,9 +18,6 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const searchParams = new URLSearchParams(location.search)
-  const esModoDemo = searchParams.get('demo') === 'true' || searchParams.get('demo') === '1'
-
   const redirigirA = location.state?.from?.pathname || '/dashboard'
 
   const validar = () => {
@@ -167,66 +164,6 @@ export default function Login() {
               {enviando ? 'Ingresando...' : 'Iniciar sesión ↗'}
             </button>
           </form>
-
-          {/* Modo Evaluación / Demo (Visible únicamente bajo parámetro ?demo=true) */}
-          {esModoDemo && (
-            <div className="pt-8 border-t border-white/10 space-y-3">
-              <div className="flex items-baseline justify-between font-mono text-[10px] uppercase tracking-widest text-neutral-500">
-                <span>MODO EVALUACIÓN DEMO</span>
-                <span>?DEMO=TRUE</span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('superadmin@barberpole.test')
-                    setPassword('superadmin123')
-                    setErrores({})
-                  }}
-                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-emerald-400 hover:border-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-colors cursor-pointer text-center truncate"
-                  title="Superadmin: superadmin@barberpole.test"
-                >
-                  SUPERADMIN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('admin@peluqueria.com')
-                    setPassword('admin123')
-                    setErrores({})
-                  }}
-                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-neutral-300 hover:border-white hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-center truncate"
-                  title="Admin: admin@peluqueria.com"
-                >
-                  ADMIN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('barbero@peluqueria.com')
-                    setPassword('barbero123')
-                    setErrores({})
-                  }}
-                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-neutral-300 hover:border-white hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-center truncate"
-                  title="Barbero: barbero@peluqueria.com"
-                >
-                  BARBERO
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail('cliente@peluqueria.com')
-                    setPassword('cliente123')
-                    setErrores({})
-                  }}
-                  className="py-2.5 px-2 border border-white/20 font-mono text-xs uppercase tracking-wider text-neutral-300 hover:border-white hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-center truncate"
-                  title="Cliente: cliente@peluqueria.com"
-                >
-                  CLIENTE
-                </button>
-              </div>
-            </div>
-          )}
 
           <div className="pt-6 border-t border-white/10 flex items-center justify-between font-mono text-xs">
             <span className="text-neutral-500">¿No tenés cuenta?</span>

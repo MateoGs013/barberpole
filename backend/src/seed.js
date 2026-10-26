@@ -1,13 +1,6 @@
-// Script de seed: crea un usuario admin inicial si no existe.
-// Se ejecuta con `npm run seed` desde la carpeta backend.
-//
-// Después de correrlo, se puede loguear con:
-//   email:    admin@peluqueria.com
-//   password: admin123
-//
-// En producción esto NO se haría así (un admin con password fijo). Acá es un
-// atajo para el parcial: necesitamos un admin para gestionar empleados y
-// crear más usuarios, y el endpoint de registro público solo crea clientes.
+// Script de inicialización para producción / despliegue.
+// Crea el usuario Superadmin y Admin iniciales a partir de variables de entorno.
+// Ejecutar con `npm run seed` en el entorno donde se realice el deploy.
 
 import 'dotenv/config'
 import bcrypt from 'bcryptjs'
@@ -15,24 +8,49 @@ import { conectarDB } from './config/db.js'
 import { Usuario } from './models/Usuario.js'
 import mongoose from 'mongoose'
 
-const ADMIN_EMAIL = 'admin@peluqueria.com'
-const ADMIN_PASSWORD = 'admin123'
+const SUPERADMIN_EMAIL = process.env.INITIAL_SUPERADMIN_EMAIL
+const SUPERADMIN_PASSWORD = process.env.INITIAL_SUPERADMIN_PASSWORD
+
+const ADMIN_EMAIL = process.env.INITIAL_ADMIN_EMAIL
+const ADMIN_PASSWORD = process.env.INITIAL_ADMIN_PASSWORD
 
 const seed = async () => {
   await conectarDB()
 
-  const yaExiste = await Usuario.findOne({ email: ADMIN_EMAIL })
-  if (yaExiste) {
-    console.log(`El admin ${ADMIN_EMAIL} ya existe, no hago nada.`)
+  if (SUPERADMIN_EMAIL && SUPERADMIN_PASSWORD) {
+    const yaExiste = await Usuario.findOne({ email: SUPERADMIN_EMAIL.toLowerCase().trim() })
+    if (yaExiste) {
+      console.log(`El superadmin ${SUPERADMIN_EMAIL} ya existe, omitiendo creación.`)
+    } else {
+      const passwordHasheada = await bcrypt.hash(SUPERADMIN_PASSWORD, 10)
+      await Usuario.create({
+        nombre: 'Super Administrador (Platform)',
+        email: SUPERADMIN_EMAIL.toLowerCase().trim(),
+        password: passwordHasheada,
+        rol: 'superadmin',
+      })
+      console.log(`✓ Superadmin creado exitosamente: ${SUPERADMIN_EMAIL}`)
+    }
   } else {
-    const passwordHasheada = await bcrypt.hash(ADMIN_PASSWORD, 10)
-    await Usuario.create({
-      nombre: 'Administrador',
-      email: ADMIN_EMAIL,
-      password: passwordHasheada,
-      rol: 'admin',
-    })
-    console.log(`Admin creado: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`)
+    console.log('ℹ INITIAL_SUPERADMIN_EMAIL o INITIAL_SUPERADMIN_PASSWORD no definidas en el entorno.')
+  }
+
+  if (ADMIN_EMAIL && ADMIN_PASSWORD) {
+    const yaExiste = await Usuario.findOne({ email: ADMIN_EMAIL.toLowerCase().trim() })
+    if (yaExiste) {
+      console.log(`El admin ${ADMIN_EMAIL} ya existe, omitiendo creación.`)
+    } else {
+      const passwordHasheada = await bcrypt.hash(ADMIN_PASSWORD, 10)
+      await Usuario.create({
+        nombre: 'Administrador Principal',
+        email: ADMIN_EMAIL.toLowerCase().trim(),
+        password: passwordHasheada,
+        rol: 'admin',
+      })
+      console.log(`✓ Admin creado exitosamente: ${ADMIN_EMAIL}`)
+    }
+  } else {
+    console.log('ℹ INITIAL_ADMIN_EMAIL o INITIAL_ADMIN_PASSWORD no definidas en el entorno.')
   }
 
   await mongoose.disconnect()

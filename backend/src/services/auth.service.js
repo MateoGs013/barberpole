@@ -84,6 +84,11 @@ export const autenticarConGoogle = async ({
         finalGoogleId = payload.sub
         finalAvatar = payload.picture || null
       } else {
+        if (process.env.NODE_ENV === 'production') {
+          const error = new Error('Token de Google inválido')
+          error.status = 401
+          throw error
+        }
         const parts = credential.split('.')
         if (parts.length === 3) {
           const decoded = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'))
@@ -93,9 +98,14 @@ export const autenticarConGoogle = async ({
           finalAvatar = decoded.picture || finalAvatar
         }
       }
-    } catch {
-      // Fallback a los datos directos
+    } catch (err) {
+      if (process.env.NODE_ENV === 'production') throw err
+      // Fallback a los datos directos en entorno de test/desarrollo sin red
     }
+  } else if (process.env.NODE_ENV === 'production') {
+    const error = new Error('Token de Google Identity Services (credential) obligatorio en producción')
+    error.status = 400
+    throw error
   }
 
   if (!finalEmail) {

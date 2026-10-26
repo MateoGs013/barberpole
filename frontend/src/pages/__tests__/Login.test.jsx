@@ -25,7 +25,7 @@ describe('Login Component — Profesional & Zen', () => {
     vi.clearAllMocks()
   })
 
-  it('renderiza la vista profesional limpia sin botones de demo públicos por defecto', () => {
+  it('renderiza la vista profesional limpia sin botones de demo ni credenciales expuestas', () => {
     renderLogin('/login')
 
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
@@ -33,7 +33,7 @@ describe('Login Component — Profesional & Zen', () => {
     expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /iniciar sesión/i })).toBeInTheDocument()
 
-    // En producción / modo profesional los accesos demo NO están visibles
+    // En producción los accesos demo y botones hardcodeados NO existen
     expect(screen.queryByRole('button', { name: /^superadmin$/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^admin$/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^barbero$/i })).not.toBeInTheDocument()
@@ -47,14 +47,14 @@ describe('Login Component — Profesional & Zen', () => {
     const passwordInput = screen.getByLabelText(/contraseña/i)
     const submitBtn = screen.getByRole('button', { name: /iniciar sesión/i })
 
-    fireEvent.change(emailInput, { target: { value: 'admin@peluqueria.com' } })
-    fireEvent.change(passwordInput, { target: { value: 'admin123' } })
+    fireEvent.change(emailInput, { target: { value: 'usuario@empresa.com' } })
+    fireEvent.change(passwordInput, { target: { value: 'ContraseñaSegura123!' } })
     fireEvent.click(submitBtn)
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
-        email: 'admin@peluqueria.com',
-        password: 'admin123',
+        email: 'usuario@empresa.com',
+        password: 'ContraseñaSegura123!',
       })
     })
   })
@@ -69,20 +69,11 @@ describe('Login Component — Profesional & Zen', () => {
     expect(mockLogin).not.toHaveBeenCalled()
   })
 
-  it('habilita los accesos rápidos de evaluación únicamente bajo parámetro ?demo=true', () => {
+  it('no expone accesos de prueba ni atajos hardcodeados incluso con query params', () => {
     renderLogin('/login?demo=true')
 
-    expect(screen.getByText(/modo evaluación demo/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^superadmin$/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^admin$/i })).toBeInTheDocument()
-
-    // Probar autocompletado bajo ?demo=true
-    const btnAdmin = screen.getByRole('button', { name: /^admin$/i })
-    fireEvent.click(btnAdmin)
-
-    const emailInput = screen.getByLabelText(/email/i)
-    const passwordInput = screen.getByLabelText(/contraseña/i)
-    expect(emailInput.value).toBe('admin@peluqueria.com')
-    expect(passwordInput.value).toBe('admin123')
+    expect(screen.queryByText(/modo evaluación demo/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^superadmin$/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^admin$/i })).not.toBeInTheDocument()
   })
 })

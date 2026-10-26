@@ -57,24 +57,7 @@ export function GoogleLoginButton({
       return
     }
 
-    try {
-      setCargando(true)
-      const mockGoogleProfile = {
-        nombre: 'Agustín Navarro (Google)',
-        email: 'agustin.navarro.google@barberpole.test',
-        googleId: 'google-oauth2|10987654321',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-      }
-
-      const usuario = await loginConGoogle(mockGoogleProfile)
-      toast.exito(`Sesión iniciada con Google — ${usuario.nombre}`)
-      if (onSuccess) onSuccess(usuario)
-      else navigate('/dashboard')
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'No se pudo iniciar sesión con Google')
-    } finally {
-      setCargando(false)
-    }
+    toast.error('Inicio con Google requiere configurar VITE_GOOGLE_CLIENT_ID en variables de entorno.')
   }
 
   return (
@@ -83,7 +66,7 @@ export function GoogleLoginButton({
       onClick={handleClick}
       disabled={cargando}
       className={`w-full py-3.5 px-4 border border-white/20 hover:border-white hover:bg-white hover:text-black font-mono text-xs uppercase tracking-widest transition-all duration-150 flex items-center justify-center gap-3 select-none cursor-pointer disabled:opacity-40 disabled:pointer-events-none ${className}`}
-      title="Iniciar sesión instantáneamente con tu cuenta de Google"
+      title="Iniciar sesión con tu cuenta de Google"
     >
       <GoogleIcon className="w-4 h-4 shrink-0" />
       <span>{cargando ? 'AUTENTICANDO...' : texto}</span>

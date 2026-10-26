@@ -13,12 +13,13 @@ import {
   Building2,
   Volume2,
   VolumeX,
-  UserCheck,
-  ExternalLink,
   Sparkles,
   ArrowRight,
   LogOut,
-  X,
+  LogIn,
+  Settings,
+  ShieldCheck,
+  UserPlus,
 } from 'lucide-react'
 
 export function CommandPalette() {
@@ -27,7 +28,7 @@ export function CommandPalette() {
   const [indiceSeleccionado, setIndiceSeleccionado] = useState(0)
   const inputRef = useRef(null)
   const navigate = useNavigate()
-  const { usuario, login, logout } = useAuth()
+  const { usuario, logout } = useAuth()
   const toast = useToast()
 
   // Abrir con Cmd+K o Ctrl+K
@@ -67,7 +68,7 @@ export function CommandPalette() {
   }, [abierto])
 
   const comandos = [
-    // Seccion Navegación
+    // Seccion Navegación Principal
     {
       categoria: 'Navegación',
       id: 'nav-dashboard',
@@ -98,40 +99,57 @@ export function CommandPalette() {
     },
     {
       categoria: 'Navegación',
-      id: 'nav-onboarding',
-      titulo: 'Crear Nuevo Salón (Onboarding SaaS)',
-      icono: Building2,
-      accion: () => navigate('/onboarding'),
-    },
-    {
-      categoria: 'Navegación',
       id: 'nav-landing',
       titulo: 'Ir a Landing Page Comercial',
       icono: ArrowRight,
       accion: () => navigate('/'),
     },
-
-    // Seccion Salones Live
     {
-      categoria: 'Portales Públicos',
-      id: 'tenant-palermo',
-      titulo: 'Portal Salón: Studio Palermo',
-      subtitulo: 'barberpole.app/studio-palermo',
-      icono: ExternalLink,
-      accion: () => navigate('/studio-palermo'),
-    },
-    {
-      categoria: 'Portales Públicos',
-      id: 'tenant-nave',
-      titulo: 'Portal Salón: La Nave Barbershop',
-      subtitulo: 'barberpole.app/la-nave',
-      icono: ExternalLink,
-      accion: () => navigate('/la-nave'),
+      categoria: 'Navegación',
+      id: 'nav-onboarding',
+      titulo: 'Crear Nuevo Salón (Onboarding)',
+      icono: Building2,
+      accion: () => navigate('/onboarding'),
     },
 
-    // Acciones y 1-Click Switcher
+    // Administración por Rol
+    ...(usuario?.rol === 'superadmin'
+      ? [
+          {
+            categoria: 'Superadmin',
+            id: 'nav-superadmin',
+            titulo: 'Panel de Control Superadmin',
+            subtitulo: 'Gestión global de salones y tenants',
+            icono: ShieldCheck,
+            accion: () => navigate('/superadmin'),
+          },
+        ]
+      : []),
+
+    ...(usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
+      ? [
+          {
+            categoria: 'Configuración',
+            id: 'nav-configuracion',
+            titulo: 'Configuración Operativa del Salón',
+            subtitulo: 'Horarios, intervalos de slots y datos de contacto',
+            icono: Settings,
+            accion: () => navigate('/configuracion'),
+          },
+          {
+            categoria: 'Equipo',
+            id: 'nav-empleados',
+            titulo: 'Equipo de Profesionales & Google Sync',
+            subtitulo: 'Vincular calendarios y gestionar barberos',
+            icono: Users,
+            accion: () => navigate('/empleados'),
+          },
+        ]
+      : []),
+
+    // Audio & Preferencias
     {
-      categoria: 'Acciones & Audio',
+      categoria: 'Audio & Háptica',
       id: 'toggle-audio',
       titulo: soundManager.isEnabled ? 'Desactivar Audio Háptico' : 'Activar Audio Háptico',
       subtitulo: soundManager.isEnabled ? 'Audio activado (Web Audio API)' : 'Audio silenciado',
@@ -141,60 +159,14 @@ export function CommandPalette() {
         toast.info(estado ? 'Audio háptico activado' : 'Audio silenciado')
       },
     },
-    {
-      categoria: '1-Click Demo Switcher',
-      id: 'demo-admin',
-      titulo: 'Iniciar como Admin Studio',
-      subtitulo: 'admin@peluqueria.com (Control total)',
-      icono: UserCheck,
-      accion: async () => {
-        try {
-          await login('admin@peluqueria.com', 'admin123')
-          toast.exito('Sesión iniciada como Admin Studio')
-          navigate('/dashboard')
-        } catch {
-          toast.error('Error al iniciar como admin')
-        }
-      },
-    },
-    {
-      categoria: '1-Click Demo Switcher',
-      id: 'demo-barbero',
-      titulo: 'Iniciar como Barbero Operativo',
-      subtitulo: 'barbero@peluqueria.com (Agenda de cortes)',
-      icono: UserCheck,
-      accion: async () => {
-        try {
-          await login('barbero@peluqueria.com', 'barbero123')
-          toast.exito('Sesión iniciada como Barbero')
-          navigate('/dashboard')
-        } catch {
-          toast.error('Error al iniciar como barbero')
-        }
-      },
-    },
-    {
-      categoria: '1-Click Demo Switcher',
-      id: 'demo-cliente',
-      titulo: 'Iniciar como Cliente Final',
-      subtitulo: 'cliente@peluqueria.com (Mis citas)',
-      icono: UserCheck,
-      accion: async () => {
-        try {
-          await login('cliente@peluqueria.com', 'cliente123')
-          toast.exito('Sesión iniciada como Cliente')
-          navigate('/reservar')
-        } catch {
-          toast.error('Error al iniciar como cliente')
-        }
-      },
-    },
+
+    // Sesión
     ...(usuario
       ? [
           {
             categoria: 'Sesión',
             id: 'logout',
-            titulo: 'Cerrar Sesión Actual',
+            titulo: 'Cerrar Sesión',
             subtitulo: `Conectado como ${usuario.email}`,
             icono: LogOut,
             accion: () => {
@@ -204,7 +176,24 @@ export function CommandPalette() {
             },
           },
         ]
-      : []),
+      : [
+          {
+            categoria: 'Sesión',
+            id: 'login',
+            titulo: 'Iniciar Sesión',
+            subtitulo: 'Acceder a tu cuenta del salón',
+            icono: LogIn,
+            accion: () => navigate('/login'),
+          },
+          {
+            categoria: 'Sesión',
+            id: 'registro',
+            titulo: 'Crear Cuenta de Cliente',
+            subtitulo: 'Registrate para gestionar tus turnos',
+            icono: UserPlus,
+            accion: () => navigate('/registro'),
+          },
+        ]),
   ]
 
   const comandosFiltrados = comandos.filter((cmd) => {
@@ -264,7 +253,7 @@ export function CommandPalette() {
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Escribí un comando, salón o atajo..."
+                placeholder="Escribí un comando o atajo..."
                 value={busqueda}
                 onChange={(e) => {
                   setBusqueda(e.target.value)

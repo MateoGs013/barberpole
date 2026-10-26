@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { http } from '../api/http.js'
 import { TactileSlot } from '../components/TactileSlot.jsx'
 import { ThemeToggle } from '../components/ThemeToggle.jsx'
 import { useAuth } from '../hooks/useAuth.js'
@@ -111,7 +112,7 @@ function HeroEditorial() {
             href="#salones"
             className="px-8 py-4 border border-white/20 text-white hover:border-white hover:bg-white hover:text-black transition-colors"
           >
-            Ver salones en vivo ↘
+            Ver salones activos ↘
           </a>
         </div>
       </div>
@@ -120,24 +121,27 @@ function HeroEditorial() {
 }
 
 function ShowcaseSalones() {
-  const salones = [
-    {
-      nombre: 'Studio Palermo — Barber & Hair',
-      slug: 'studio-palermo',
-      barrio: 'Palermo Soho, CABA',
-      estilo: 'Cortes de autor, degradé de precisión & colorimetría',
-      profesionales: '3 profesionales activos',
-      badge: 'EN VIVO',
-    },
-    {
-      nombre: 'La Nave Barbershop',
-      slug: 'la-nave',
-      barrio: 'Almagro, CABA',
-      estilo: 'Old school, toalla caliente y navaja tradicional',
-      profesionales: '2 profesionales activos',
-      badge: 'EN VIVO',
-    },
-  ]
+  const [salones, setSalones] = useState([])
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    let cancelado = false
+    http
+      .get('/negocios/publicos')
+      .then((res) => {
+        if (!cancelado && Array.isArray(res.data)) {
+          setSalones(res.data)
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelado) setCargando(false)
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [])
 
   return (
     <section id="salones" className="w-full border-b border-white/10 px-6 sm:px-12 md:px-16 py-20 lg:py-28">
@@ -155,39 +159,58 @@ function ShowcaseSalones() {
         </p>
       </div>
 
-      <div className="divide-y divide-white/10 border-b border-white/10">
-        {salones.map((s) => (
-          <div
-            key={s.slug}
-            className="py-8 flex flex-col md:flex-row md:items-baseline justify-between gap-6 group hover:bg-white/[0.02] transition-colors"
+      {cargando ? (
+        <div className="py-12 text-center font-mono text-xs text-neutral-500 uppercase tracking-widest">
+          Cargando directorio de salones...
+        </div>
+      ) : salones.length === 0 ? (
+        <div className="py-16 text-center space-y-4 font-mono text-xs text-neutral-500 uppercase tracking-wider border border-white/10">
+          <p>No hay salones registrados en la plataforma actualmente.</p>
+          <Link
+            to="/onboarding"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black font-semibold hover:bg-neutral-200 transition-colors"
           >
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 text-xs font-mono text-neutral-500 mb-2 uppercase">
-                <span className="text-white">{s.badge}</span>
-                <span>·</span>
-                <span>barberpole.app/{s.slug}</span>
+            <span>Crear el primer salón</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      ) : (
+        <div className="divide-y divide-white/10 border-b border-white/10">
+          {salones.map((s) => (
+            <div
+              key={s.slug}
+              className="py-8 flex flex-col md:flex-row md:items-baseline justify-between gap-6 group hover:bg-white/[0.02] transition-colors"
+            >
+              <div className="max-w-xl">
+                <div className="flex items-center gap-3 text-xs font-mono text-neutral-500 mb-2 uppercase">
+                  <span className="text-white">EN VIVO</span>
+                  <span>·</span>
+                  <span>barberpole.app/{s.slug}</span>
+                </div>
+                <h3 className="font-mono text-2xl text-white font-medium tracking-tight">
+                  {s.nombre}
+                </h3>
+                {s.descripcion && (
+                  <p className="font-light text-sm text-neutral-400 mt-2">
+                    {s.descripcion}
+                  </p>
+                )}
               </div>
-              <h3 className="font-mono text-2xl text-white font-medium tracking-tight">
-                {s.nombre}
-              </h3>
-              <p className="font-light text-sm text-neutral-400 mt-2">
-                {s.estilo}
-              </p>
-            </div>
 
-            <div className="flex flex-col md:items-end gap-2 shrink-0 font-mono text-xs uppercase">
-              <span className="text-neutral-500">{s.barrio}</span>
-              <Link
-                to={`/${s.slug}`}
-                className="text-white hover:underline flex items-center gap-2 mt-2"
-              >
-                <span>Abrir portal del salón</span>
-                <span>↘</span>
-              </Link>
+              <div className="flex flex-col md:items-end gap-2 shrink-0 font-mono text-xs uppercase">
+                <span className="text-neutral-500">{s.direccion || 'Sede Central'}</span>
+                <Link
+                  to={`/${s.slug}`}
+                  className="text-white hover:underline flex items-center gap-2 mt-2"
+                >
+                  <span>Abrir portal del salón</span>
+                  <span>↘</span>
+                </Link>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
