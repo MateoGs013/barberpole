@@ -83,6 +83,20 @@ export default function Dashboard() {
             <PlusCircle className="w-4 h-4" />
             <span>Reservar turno</span>
           </Link>
+        ) : usuario?.rol === 'superadmin' ? (
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+            <Link to="/superadmin" className="btn btn-primario text-xs font-mono uppercase flex items-center gap-2">
+              <span>Panel Superadmin →</span>
+            </Link>
+            <a
+              href="https://calendar.google.com/calendar/u/0/r"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secundario text-xs font-mono uppercase flex items-center gap-2"
+            >
+              <span>Calendar ↗</span>
+            </a>
+          </div>
         ) : (
           <a
             href="https://calendar.google.com/calendar/u/0/r"
@@ -95,6 +109,23 @@ export default function Dashboard() {
           </a>
         )}
       </div>
+
+      {/* Banner de Superadmin */}
+      {usuario?.rol === 'superadmin' && (
+        <div className="p-4 border border-emerald-500/30 bg-emerald-500/[0.04] font-mono text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-emerald-300">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold uppercase tracking-wider">MODO SUPERADMINISTRADOR</span>
+            <span className="text-neutral-400">— Plataforma central y directorio de tenants.</span>
+          </div>
+          <Link
+            to="/superadmin"
+            className="px-3 py-1.5 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-400 hover:text-black uppercase tracking-wider transition-colors shrink-0"
+          >
+            Ver Espacios Registrados →
+          </Link>
+        </div>
+      )}
 
       {/* Bento Grid de KPIs con NumberTickers */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">

@@ -13,9 +13,11 @@ import {
   LogOut,
   UserCheck,
   Shield,
+  ShieldCheck,
 } from 'lucide-react'
 
 const ICONOS = {
+  '/superadmin': ShieldCheck,
   '/dashboard': LayoutDashboard,
   '/turnos': Calendar,
   '/servicios': Scissors,
@@ -27,6 +29,12 @@ const ICONOS = {
 }
 
 const ITEMS_VISIBLES = {
+  superadmin: [
+    { to: '/superadmin', label: 'Superadmin' },
+    { to: '/dashboard', label: 'Dashboard' },
+    { to: '/turnos', label: 'Turnos' },
+    { to: '/usuarios', label: 'Usuarios' },
+  ],
   admin: [
     { to: '/dashboard', label: 'Inicio' },
     { to: '/turnos', label: 'Turnos' },
@@ -48,6 +56,13 @@ const ITEMS_VISIBLES = {
 }
 
 const ITEMS_EXTRA = {
+  superadmin: [
+    { to: '/servicios', label: 'Servicios' },
+    { to: '/empleados', label: 'Empleados' },
+    { to: '/clientes', label: 'Clientes' },
+    { to: '/configuracion', label: 'Configuración' },
+    { to: '/perfil', label: 'Perfil' },
+  ],
   admin: [
     { to: '/empleados', label: 'Empleados' },
     { to: '/usuarios', label: 'Usuarios' },

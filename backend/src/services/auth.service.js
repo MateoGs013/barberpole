@@ -4,6 +4,15 @@ import { Usuario } from '../models/Usuario.js'
 import { Cliente } from '../models/Cliente.js'
 import { Empleado } from '../models/Empleado.js'
 
+const obtenerSuperadminEmails = () => {
+  const envSuperadmins = process.env.SUPERADMIN_EMAILS || process.env.INITIAL_SUPERADMIN_EMAIL || ''
+  return envSuperadmins
+    .toLowerCase()
+    .split(',')
+    .map((e) => e.trim())
+    .filter(Boolean)
+}
+
 const SALT_ROUNDS = 10
 
 export const registrarUsuario = async ({ nombre, email, password, negocio = null }) => {
@@ -52,6 +61,12 @@ export const iniciarSesion = async ({ email, password }) => {
     const error = new Error('Credenciales inválidas')
     error.status = 401
     throw error
+  }
+
+  const superadmins = obtenerSuperadminEmails()
+  if (superadmins.includes(usuario.email.toLowerCase()) && usuario.rol !== 'superadmin') {
+    usuario.rol = 'superadmin'
+    await usuario.save()
   }
 
   return generarRespuestaAuth(usuario)
@@ -115,6 +130,9 @@ export const autenticarConGoogle = async ({
     throw error
   }
 
+  const superadmins = obtenerSuperadminEmails()
+  const esSuperadmin = superadmins.includes(finalEmail.toLowerCase())
+
   let usuario = await Usuario.findOne({
     $or: [{ email: finalEmail }, ...(finalGoogleId ? [{ googleId: finalGoogleId }] : [])],
   })
@@ -129,6 +147,10 @@ export const autenticarConGoogle = async ({
       usuario.avatar = finalAvatar
       modificado = true
     }
+    if (esSuperadmin && usuario.rol !== 'superadmin') {
+      usuario.rol = 'superadmin'
+      modificado = true
+    }
     if (modificado) {
       await usuario.save()
     }
@@ -139,7 +161,7 @@ export const autenticarConGoogle = async ({
       googleId: finalGoogleId || `google_${Date.now()}`,
       avatar: finalAvatar,
       authProvider: 'google',
-      rol: 'cliente',
+      rol: esSuperadmin ? 'superadmin' : 'cliente',
       negocio: negocio || null,
     })
 

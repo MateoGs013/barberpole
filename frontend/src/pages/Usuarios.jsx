@@ -101,6 +101,7 @@ export default function Usuarios() {
         titulo={editando ? 'Editar usuario' : 'Nuevo usuario'}
       >
         <FormUsuario
+          esSuperadmin={yo?.rol === 'superadmin'}
           inicial={editando}
           onCancelar={cerrarModal}
           onGuardado={() => {
@@ -159,7 +160,7 @@ function FilaUsuario({ usuario, esYo, onEditar, onEliminar }) {
   )
 }
 
-function FormUsuario({ inicial, onCancelar, onGuardado }) {
+function FormUsuario({ inicial, onCancelar, onGuardado, esSuperadmin = false }) {
   const esEdicion = !!inicial
   const [nombre, setNombre] = useState(inicial?.nombre || '')
   const [email, setEmail] = useState(inicial?.email || '')
@@ -243,6 +244,7 @@ function FormUsuario({ inicial, onCancelar, onGuardado }) {
           <option value="cliente">Cliente</option>
           <option value="empleado">Empleado</option>
           <option value="admin">Administrador</option>
+          {esSuperadmin && <option value="superadmin">Superadmin</option>}
         </select>
       </div>
 

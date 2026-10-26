@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { obtenerMiNegocioAPI, actualizarMiNegocioAPI } from '../api/negocios.api.js'
 import { useFetch } from '../hooks/useFetch.js'
 import { useToast } from '../hooks/useToast.js'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth.js'
 
 const DIAS_SEMANA = [
   { id: 1, label: 'Lunes', corto: 'LUN' },
@@ -23,6 +25,7 @@ const RUBROS = [
 
 export default function ConfiguracionNegocio() {
   const toast = useToast()
+  const { usuario } = useAuth()
   const { datos: negocio, cargando, error, recargar } = useFetch(() => obtenerMiNegocioAPI())
 
   const [nombre, setNombre] = useState('')
@@ -129,6 +132,27 @@ export default function ConfiguracionNegocio() {
         <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">
           Cargando configuración...
         </p>
+      </div>
+    )
+  }
+
+  if (!negocio && usuario?.rol === 'superadmin') {
+    return (
+      <div className="p-6 lg:p-12 max-w-2xl mx-auto space-y-6 font-mono text-xs">
+        <div className="border border-white/10 p-6 bg-white/[0.02] space-y-4">
+          <div className="text-white font-medium uppercase tracking-wider text-sm flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span>MODO SUPERADMINISTRADOR</span>
+          </div>
+          <p className="text-neutral-400 font-sans text-sm font-light leading-relaxed">
+            Como Superadministrador global no tenés un negocio individual asignado directamente. Podés configurar cada salón o estudio particular ingresando a su ficha en el Panel de Superadmin.
+          </p>
+          <div className="pt-2">
+            <Link to="/superadmin" className="btn btn-primario inline-flex items-center gap-2">
+              <span>Ir al Directorio de Negocios →</span>
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

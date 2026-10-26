@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "seed": "node src/seed.js",
     "seed:demo": "node src/seed.demo.js",
+    "set-superadmin": "node scripts/asignar-superadmin.js",
     "test": "vitest run"
   },
   "author": "Mateo Gabús",

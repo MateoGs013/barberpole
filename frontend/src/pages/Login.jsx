@@ -42,9 +42,10 @@ export default function Login() {
 
     setEnviando(true)
     try {
-      await login({ email, password })
+      const usuario = await login({ email, password })
       toast.exito('Sesión iniciada correctamente')
-      navigate(redirigirA, { replace: true })
+      const destino = location.state?.from?.pathname || (usuario?.rol === 'superadmin' ? '/superadmin' : '/dashboard')
+      navigate(destino, { replace: true })
     } catch (err) {
       const msg = err.response?.data?.error || 'Credenciales inválidas'
       setErrorGlobal(msg)
@@ -105,7 +106,12 @@ export default function Login() {
 
           {/* Botón Principal Google */}
           <div className="space-y-4">
-            <GoogleLoginButton onSuccess={() => navigate(redirigirA, { replace: true })} />
+            <GoogleLoginButton
+              onSuccess={(u) => {
+                const destino = location.state?.from?.pathname || (u?.rol === 'superadmin' ? '/superadmin' : '/dashboard')
+                navigate(destino, { replace: true })
+              }}
+            />
             <div className="flex items-center gap-3">
               <span className="h-px bg-white/10 flex-1" />
               <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
