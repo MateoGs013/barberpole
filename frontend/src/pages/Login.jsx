@@ -180,7 +180,15 @@ export default function Login() {
       {/* Footer Objetivo B&W */}
       <footer className="w-full border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-neutral-500 uppercase tracking-widest gap-4">
         <span>BARBERPOLE — SISTEMA EDITORIAL</span>
-        <span>MODO ZEN & HIPERFOCO PERMANENTE</span>
+        <div className="flex items-center gap-4 text-neutral-400">
+          <Link to="/privacidad" className="hover:text-white transition-colors">
+            Privacidad
+          </Link>
+          <span className="text-neutral-700">·</span>
+          <Link to="/terminos" className="hover:text-white transition-colors">
+            Términos
+          </Link>
+        </div>
       </footer>
     </div>
   )

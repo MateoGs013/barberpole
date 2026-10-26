@@ -20,6 +20,8 @@ import OnboardingNegocio from '../pages/OnboardingNegocio.jsx'
 import PortalNegocio from '../pages/PortalNegocio.jsx'
 import ConfiguracionNegocio from '../pages/ConfiguracionNegocio.jsx'
 import Superadmin from '../pages/Superadmin.jsx'
+import Privacidad from '../pages/Privacidad.jsx'
+import Terminos from '../pages/Terminos.jsx'
 import NotFound from '../pages/NotFound.jsx'
 
 export function AppRouter() {
@@ -37,6 +39,8 @@ export function AppRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/onboarding" element={<OnboardingNegocio />} />
+        <Route path="/privacidad" element={<Privacidad />} />
+        <Route path="/terminos" element={<Terminos />} />
 
         {/* Rutas protegidas — comparten el LayoutAutenticado */}
         <Route

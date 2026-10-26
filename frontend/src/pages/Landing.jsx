@@ -401,13 +401,21 @@ function PricingEditorial() {
 
 function FooterEditorial() {
   return (
-    <footer className="w-full px-6 sm:px-12 md:px-16 py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-xs font-mono uppercase tracking-widest text-neutral-500">
+    <footer className="w-full px-6 sm:px-12 md:px-16 py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-xs font-mono uppercase tracking-widest text-neutral-500 border-t border-white/10">
       <div>
         <span>BARBERPOLE — MOTOR UNIVERSAL DE TURNOS</span>
         <span className="mx-3 text-neutral-700">·</span>
         <span>MODO ZEN & HIPERFOCO</span>
       </div>
-      <div>
+      <div className="flex items-center gap-6">
+        <Link to="/privacidad" className="hover:text-white transition-colors">
+          Privacidad
+        </Link>
+        <span className="text-neutral-700">·</span>
+        <Link to="/terminos" className="hover:text-white transition-colors">
+          Términos
+        </Link>
+        <span className="text-neutral-700">·</span>
         <span>BUENOS AIRES · '26</span>
       </div>
     </footer>
