@@ -1,3 +1,14 @@
+import { createRequire } from 'node:module'
+const require = createRequire(import.meta.url)
+const zlib = require('node:zlib')
+
+// Polyfill para compatibilidad con undici 8.12+ (requerido por JSDOM 30) en Node < 22.15
+if (typeof zlib.createZstdDecompress !== 'function') {
+  zlib.createZstdDecompress = function () {
+    throw new Error('zstd decompression not supported in this Node version')
+  }
+}
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
