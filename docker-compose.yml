@@ -6,9 +6,9 @@ services:
     container_name: barberpole-db
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: peluqueria
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-peluqueria}
     volumes:
       - mongo_data:/data/db
     healthcheck:
@@ -27,13 +27,18 @@ services:
     container_name: barberpole-api
     restart: unless-stopped
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     environment:
       PORT: 4000
-      MONGODB_URI: mongodb://mongodb:27017/peluqueria
-      JWT_SECRET: super-secret-jwt-key-for-docker-compose-production
-      JWT_EXPIRES_IN: 7d
-      FRONTEND_URL: http://localhost,http://localhost:3000,http://localhost:80,http://127.0.0.1:3000
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/peluqueria}
+      JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-key-for-docker-compose-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SUPERADMIN_EMAILS: ${SUPERADMIN_EMAILS:-}
+      INITIAL_SUPERADMIN_EMAIL: ${INITIAL_SUPERADMIN_EMAIL:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost,http://localhost:3000,http://localhost:80}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALENDAR_REDIRECT_URI: ${GOOGLE_CALENDAR_REDIRECT_URI:-}
       NODE_ENV: production
       TZ: America/Argentina/Buenos_Aires
     depends_on:
@@ -46,6 +51,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-}
     container_name: barberpole-ui
     restart: unless-stopped
     ports:
