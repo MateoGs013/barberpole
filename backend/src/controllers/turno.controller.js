@@ -1,9 +1,31 @@
 import * as turnoService from '../services/turno.service.js'
 import { Cliente } from '../models/Cliente.js'
+import { Usuario } from '../models/Usuario.js'
 
 const obtenerClienteDelUsuario = async (req) => {
-  if (req.usuario.rol !== 'cliente') return null
-  return Cliente.findOne({ usuario: req.usuario.id })
+  let cliente = await Cliente.findOne({ usuario: req.usuario.id })
+  if (!cliente) {
+    const usuario = await Usuario.findById(req.usuario.id)
+    if (!usuario) return null
+    if (usuario.email) {
+      cliente = await Cliente.findOne({
+        email: usuario.email.toLowerCase(),
+        $or: [{ usuario: null }, { usuario: { $exists: false } }],
+      })
+    }
+    if (cliente) {
+      cliente.usuario = usuario._id
+      await cliente.save()
+    } else {
+      cliente = await Cliente.create({
+        nombre: usuario.nombre || 'Cliente',
+        email: usuario.email || '',
+        usuario: usuario._id,
+        negocio: usuario.negocio || null,
+      })
+    }
+  }
+  return cliente
 }
 
 export const listar = async (req, res, next) => {
@@ -53,19 +75,30 @@ export const obtener = async (req, res, next) => {
 
 export const crear = async (req, res, next) => {
   try {
+    let clienteId = req.body.cliente
     if (req.usuario.rol === 'cliente') {
       const miCliente = await obtenerClienteDelUsuario(req)
       if (!miCliente) {
         return res.status(400).json({
-          error: 'No tenés un perfil de cliente vinculado. Pedile al admin que lo cree.',
+          error: 'No tenés un perfil de cliente vinculado.',
         })
       }
-      if (String(req.body.cliente) !== String(miCliente._id)) {
+      if (clienteId && String(clienteId) !== String(miCliente._id)) {
         return res.status(403).json({ error: 'No podés crear turnos para otros clientes' })
       }
+      clienteId = miCliente._id
+    } else if (!clienteId) {
+      const miPerfil = await obtenerClienteDelUsuario(req)
+      if (miPerfil) clienteId = miPerfil._id
     }
+
+    if (!clienteId) {
+      return res.status(400).json({ error: 'El campo cliente es obligatorio' })
+    }
+
     const turno = await turnoService.crearTurno({
       ...req.body,
+      cliente: clienteId,
       negocio: req.body.negocio || req.negocioId,
     })
     res.status(201).json(turno)

@@ -20,18 +20,16 @@ export function AuthProvider({ children }) {
   const [miCliente, setMiCliente] = useState(null)
   const [cargando, setCargando] = useState(true)
 
-  const cargarMiCliente = async (rol) => {
-    if (rol !== 'cliente') {
-      setMiCliente(null)
-      return
-    }
+  const cargarMiCliente = useCallback(async () => {
     try {
       const cli = await miClienteAPI()
       setMiCliente(cli)
+      return cli
     } catch {
       setMiCliente(null)
+      return null
     }
-  }
+  }, [])
 
   useEffect(() => {
     const limpiarSesion = () => {
@@ -50,7 +48,7 @@ export function AuthProvider({ children }) {
       try {
         const datos = await yoAPI()
         setUsuario(datos)
-        await cargarMiCliente(datos.rol)
+        await cargarMiCliente()
       } catch {
         setUsuario(null)
       } finally {
@@ -63,26 +61,26 @@ export function AuthProvider({ children }) {
       setearCallbackNoAutorizado(null)
       window.removeEventListener('auth:desautorizado', limpiarSesion)
     }
-  }, [])
+  }, [cargarMiCliente])
 
   const login = async (credenciales) => {
     const { usuario } = await loginAPI(credenciales)
     setUsuario(usuario)
-    await cargarMiCliente(usuario.rol)
+    await cargarMiCliente()
     return usuario
   }
 
   const loginConGoogle = async (datosGoogle) => {
     const { usuario } = await loginGoogleAPI(datosGoogle)
     setUsuario(usuario)
-    await cargarMiCliente(usuario.rol)
+    await cargarMiCliente()
     return usuario
   }
 
   const registrar = async (datos) => {
     const { usuario } = await registrarAPI(datos)
     setUsuario(usuario)
-    await cargarMiCliente(usuario.rol)
+    await cargarMiCliente()
     return usuario
   }
 
@@ -92,7 +90,16 @@ export function AuthProvider({ children }) {
     setMiCliente(null)
   }
 
-  const valor = { usuario, miCliente, cargando, login, loginConGoogle, registrar, logout }
+  const valor = {
+    usuario,
+    miCliente,
+    cargando,
+    login,
+    loginConGoogle,
+    registrar,
+    logout,
+    cargarMiCliente,
+  }
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>
 }

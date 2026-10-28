@@ -61,18 +61,32 @@ export const yo = async (req, res, next) => {
 // 1) Los usuarios registrados antes de implementar la vinculación automática
 //    obtienen su perfil al primer pedido.
 // 2) El frontend siempre puede asumir que un usuario logueado va a tener
-//    un perfil disponible para reservar turnos.
+//    un perfil disponible para reservar turnos (sea cliente, admin o superadmin).
 export const miCliente = async (req, res, next) => {
   try {
     let cliente = await Cliente.findOne({ usuario: req.usuario.id })
     if (!cliente) {
       const usuario = await Usuario.findById(req.usuario.id)
       if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' })
-      cliente = await Cliente.create({
-        nombre: usuario.nombre,
-        email: usuario.email,
-        usuario: usuario._id,
-      })
+
+      if (usuario.email) {
+        cliente = await Cliente.findOne({
+          email: usuario.email.toLowerCase(),
+          $or: [{ usuario: null }, { usuario: { $exists: false } }],
+        })
+      }
+
+      if (cliente) {
+        cliente.usuario = usuario._id
+        await cliente.save()
+      } else {
+        cliente = await Cliente.create({
+          nombre: usuario.nombre || 'Cliente',
+          email: usuario.email || '',
+          usuario: usuario._id,
+          negocio: usuario.negocio || null,
+        })
+      }
     }
     res.json(cliente)
   } catch (error) {

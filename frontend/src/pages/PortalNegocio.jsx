@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { obtenerNegocioPublicoAPI } from '../api/negocios.api.js'
 import { obtenerDisponibilidadAPI } from '../api/empleados.api.js'
 import { crearTurnoAPI } from '../api/turnos.api.js'
+import { miClienteAPI } from '../api/auth.api.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
 import { TactileSlot } from '../components/TactileSlot.jsx'
@@ -16,7 +17,7 @@ import { ArrowLeft, Check } from 'lucide-react'
 
 export default function PortalNegocio() {
   const { slug } = useParams()
-  const { usuario, miCliente } = useAuth()
+  const { usuario, miCliente, cargarMiCliente } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -26,6 +27,12 @@ export default function PortalNegocio() {
 
   // Control de paso en modo hiperfoco (1: Servicio, 2: Profesional, 3: Fecha & Hora, 4: Boarding Pass)
   const [paso, setPaso] = useState(1)
+
+  useEffect(() => {
+    if (usuario && !miCliente && cargarMiCliente) {
+      cargarMiCliente()
+    }
+  }, [usuario, miCliente, cargarMiCliente])
 
   const [servicioId, setServicioId] = useState('')
   const [empleadoId, setEmpleadoId] = useState('')
@@ -156,7 +163,21 @@ export default function PortalNegocio() {
       return
     }
 
-    if (!miCliente?._id) {
+    let perfilCliente = miCliente
+    if (!perfilCliente?._id) {
+      try {
+        if (cargarMiCliente) {
+          perfilCliente = await cargarMiCliente()
+        }
+        if (!perfilCliente?._id) {
+          perfilCliente = await miClienteAPI()
+        }
+      } catch (err) {
+        console.error('No se pudo validar el perfil de cliente:', err)
+      }
+    }
+
+    if (!perfilCliente?._id) {
       setErrorGlobal('No pudimos validar tu perfil de cliente. Refrescá la página.')
       return
     }
@@ -168,7 +189,7 @@ export default function PortalNegocio() {
     try {
       await crearTurnoAPI({
         negocio: negocio.id,
-        cliente: miCliente._id,
+        cliente: perfilCliente._id,
         empleado: empleadoId,
         servicio: servicioId,
         fechaHora: fechaHoraIso,

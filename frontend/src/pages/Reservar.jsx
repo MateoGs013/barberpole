@@ -7,6 +7,7 @@ import { useToast } from '../hooks/useToast.js'
 import { listarServiciosAPI } from '../api/servicios.api.js'
 import { listarEmpleadosAPI, obtenerDisponibilidadAPI } from '../api/empleados.api.js'
 import { crearTurnoAPI } from '../api/turnos.api.js'
+import { miClienteAPI } from '../api/auth.api.js'
 import { TactileSlot } from '../components/TactileSlot.jsx'
 import { MatrixCalendar } from '../components/MatrixCalendar.jsx'
 import { BoardingPassTicket } from '../components/BoardingPassTicket.jsx'
@@ -14,7 +15,7 @@ import { ThemeToggle } from '../components/ThemeToggle.jsx'
 import { soundManager } from '../utils/sound.js'
 
 export default function Reservar() {
-  const { miCliente } = useAuth()
+  const { miCliente, cargarMiCliente } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -90,7 +91,21 @@ export default function Reservar() {
 
   const onConfirmar = async () => {
     setErrorGlobal('')
-    if (!miCliente?._id) {
+    let perfilCliente = miCliente
+    if (!perfilCliente?._id) {
+      try {
+        if (cargarMiCliente) {
+          perfilCliente = await cargarMiCliente()
+        }
+        if (!perfilCliente?._id) {
+          perfilCliente = await miClienteAPI()
+        }
+      } catch (err) {
+        console.error('No se pudo validar perfil en Reservar:', err)
+      }
+    }
+
+    if (!perfilCliente?._id) {
       setErrorGlobal('No encontramos tu perfil de cliente. Volvé a iniciar sesión.')
       return
     }
@@ -110,7 +125,7 @@ export default function Reservar() {
     setEnviando(true)
     try {
       const res = await crearTurnoAPI({
-        cliente: miCliente._id,
+        cliente: perfilCliente._id,
         empleado: empleadoId,
         servicio: servicioId,
         fechaHora: fechaHoraIso,
