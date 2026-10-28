@@ -24,6 +24,7 @@ services:
       TZ: America/Argentina/Buenos_Aires
     networks:
       - barberpole-network
+      - coolify
 
   frontend:
     build:
@@ -40,7 +41,10 @@ services:
       - backend
     networks:
       - barberpole-network
+      - coolify
 
 networks:
   barberpole-network:
     driver: bridge
+  coolify:
+    external: true
