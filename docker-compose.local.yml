@@ -1,0 +1,67 @@
+version: '3.8'
+
+# Docker Compose para Desarrollo Local Todo-en-Uno (con MongoDB incluido)
+# Uso: docker compose -f docker-compose.local.yml up --build
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: barberpole-db-local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: peluqueria
+    volumes:
+      - mongo_local_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - barberpole-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: barberpole-api-local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4000:4000"
+    environment:
+      PORT: 4000
+      MONGODB_URI: mongodb://mongodb:27017/peluqueria
+      JWT_SECRET: dev-secret-key-for-local-development-only
+      JWT_EXPIRES_IN: 7d
+      FRONTEND_URL: http://localhost,http://localhost:3000,http://localhost:80
+      NODE_ENV: production
+      TZ: America/Argentina/Buenos_Aires
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - barberpole-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: barberpole-ui-local
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - barberpole-network
+
+volumes:
+  mongo_local_data:
+    driver: local
+
+networks:
+  barberpole-network:
+    driver: bridge

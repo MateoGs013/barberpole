@@ -1,25 +1,6 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:7
-    container_name: barberpole-db
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-peluqueria}
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - barberpole-network
-
   backend:
     build:
       context: ./backend
@@ -30,20 +11,17 @@ services:
       - "127.0.0.1:4000:4000"
     environment:
       PORT: 4000
-      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/peluqueria}
+      MONGODB_URI: ${MONGODB_URI}
       JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-key-for-docker-compose-production}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       SUPERADMIN_EMAILS: ${SUPERADMIN_EMAILS:-}
       INITIAL_SUPERADMIN_EMAIL: ${INITIAL_SUPERADMIN_EMAIL:-}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost,http://localhost:3000,http://localhost:80}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_CALENDAR_REDIRECT_URI: ${GOOGLE_CALENDAR_REDIRECT_URI:-}
       NODE_ENV: production
       TZ: America/Argentina/Buenos_Aires
-    depends_on:
-      mongodb:
-        condition: service_healthy
     networks:
       - barberpole-network
 
@@ -62,10 +40,6 @@ services:
       - backend
     networks:
       - barberpole-network
-
-volumes:
-  mongo_data:
-    driver: local
 
 networks:
   barberpole-network:
