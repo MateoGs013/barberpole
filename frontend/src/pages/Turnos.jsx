@@ -419,6 +419,29 @@ function FilaTurnoEditorial({
 
       {/* Columna Acciones */}
       <div className="flex flex-wrap items-center gap-2 shrink-0">
+        {(turno.estado === 'pendiente' || turno.estado === 'confirmado') && (
+          <a
+            href={generarGoogleCalendarUrl({
+              titulo: puedeGestionar
+                ? `${turno.cliente?.nombre || 'Cliente'} — ${turno.servicio?.nombre || 'Turno'}`
+                : `${turno.servicio?.nombre || 'Turno'} — BarberPole`,
+              descripcion: puedeGestionar
+                ? `Turno con ${turno.cliente?.nombre || 'Cliente'}.\nServicio: ${turno.servicio?.nombre || '—'}\nProfesional: ${turno.empleado?.nombre || '—'}\nPrecio: ${turno.precioCobrado != null ? turno.precioCobrado : (turno.servicio?.precio || 0)}`
+                : `Turno confirmado con ${turno.empleado?.nombre || 'Profesional'}.\nServicio: ${turno.servicio?.nombre || '—'}`,
+              ubicacion: 'Sede Oficial',
+              fechaHora: turno.fechaHora,
+              duracionMinutos: turno.duracionMinutos || 30,
+            })}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-secundario !px-2.5 !py-1 text-xs font-mono uppercase flex items-center gap-1.5"
+            title="Abrir y guardar este turno en tu Google Calendar"
+          >
+            <span>+ Calendar</span>
+            <span className="text-zinc-500">↗</span>
+          </a>
+        )}
+
         {puedeGestionar ? (
           <>
             {turno.estado === 'pendiente' && (
@@ -461,30 +484,13 @@ function FilaTurnoEditorial({
           </>
         ) : (
           (turno.estado === 'pendiente' || turno.estado === 'confirmado') && (
-            <>
-              <a
-                href={generarGoogleCalendarUrl({
-                  titulo: `${turno.servicio?.nombre || 'Turno'} — BarberPole`,
-                  descripcion: `Turno confirmado con ${turno.empleado?.nombre}.\nServicio: ${turno.servicio?.nombre}`,
-                  ubicacion: 'Sede Oficial',
-                  fechaHora: turno.fechaHora,
-                  duracionMinutos: turno.duracionMinutos || 30,
-                })}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-secundario !px-3 !py-1.5 text-xs font-mono uppercase"
-                title="Sincronizar automáticamente con Google Calendar"
-              >
-                + Calendar ↗
-              </a>
-              <button
-                onClick={onCancelarCliente}
-                className="btn btn-peligro !px-3 !py-1.5 text-xs font-mono uppercase"
-                title="Cancelar con al menos 2 horas de anticipación"
-              >
-                Cancelar reserva
-              </button>
-            </>
+            <button
+              onClick={onCancelarCliente}
+              className="btn btn-peligro !px-3 !py-1.5 text-xs font-mono uppercase"
+              title="Cancelar con al menos 2 horas de anticipación"
+            >
+              Cancelar reserva
+            </button>
           )
         )}
       </div>
