@@ -2,7 +2,11 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+
+# Forzar instalación de devDependencies (Vite, Tailwind, etc.) sin importar si se pasó NODE_ENV=production en el build
+ENV NODE_ENV=development
+RUN npm ci --include=dev
+
 COPY . ./
 
 ARG VITE_API_URL
