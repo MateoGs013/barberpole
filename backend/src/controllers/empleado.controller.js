@@ -1,3 +1,4 @@
+import { Empleado } from '../models/Empleado.js'
 import * as empleadoService from '../services/empleado.service.js'
 
 export const listar = async (req, res, next) => {
@@ -66,6 +67,16 @@ export const eliminar = async (req, res, next) => {
 
 export const conectarGoogle = async (req, res, next) => {
   try {
+    const emp = await Empleado.findById(req.params.id)
+    if (!emp) return res.status(404).json({ error: 'Empleado no encontrado' })
+
+    if (req.usuario.rol === 'empleado' && String(emp.usuario) !== String(req.usuario.id)) {
+      return res.status(403).json({ error: 'Solo podés gestionar tu propio Google Calendar' })
+    }
+    if (req.usuario.rol === 'admin' && req.negocioId && String(emp.negocio) !== String(req.negocioId)) {
+      return res.status(403).json({ error: 'No podés gestionar empleados de otro negocio' })
+    }
+
     const empleado = await empleadoService.conectarGoogleCalendar(req.params.id, req.body)
     res.json(empleado)
   } catch (error) {
@@ -75,6 +86,16 @@ export const conectarGoogle = async (req, res, next) => {
 
 export const desconectarGoogle = async (req, res, next) => {
   try {
+    const emp = await Empleado.findById(req.params.id)
+    if (!emp) return res.status(404).json({ error: 'Empleado no encontrado' })
+
+    if (req.usuario.rol === 'empleado' && String(emp.usuario) !== String(req.usuario.id)) {
+      return res.status(403).json({ error: 'Solo podés gestionar tu propio Google Calendar' })
+    }
+    if (req.usuario.rol === 'admin' && req.negocioId && String(emp.negocio) !== String(req.negocioId)) {
+      return res.status(403).json({ error: 'No podés gestionar empleados de otro negocio' })
+    }
+
     const empleado = await empleadoService.desconectarGoogleCalendar(req.params.id)
     res.json(empleado)
   } catch (error) {
@@ -84,6 +105,16 @@ export const desconectarGoogle = async (req, res, next) => {
 
 export const bloquearGoogle = async (req, res, next) => {
   try {
+    const emp = await Empleado.findById(req.params.id)
+    if (!emp) return res.status(404).json({ error: 'Empleado no encontrado' })
+
+    if (req.usuario.rol === 'empleado' && String(emp.usuario) !== String(req.usuario.id)) {
+      return res.status(403).json({ error: 'Solo podés gestionar tu propio Google Calendar' })
+    }
+    if (req.usuario.rol === 'admin' && req.negocioId && String(emp.negocio) !== String(req.negocioId)) {
+      return res.status(403).json({ error: 'No podés gestionar empleados de otro negocio' })
+    }
+
     const empleado = await empleadoService.bloquearHorarioGoogle(req.params.id, req.body)
     res.json(empleado)
   } catch (error) {
@@ -93,6 +124,16 @@ export const bloquearGoogle = async (req, res, next) => {
 
 export const desbloquearGoogle = async (req, res, next) => {
   try {
+    const emp = await Empleado.findById(req.params.id)
+    if (!emp) return res.status(404).json({ error: 'Empleado no encontrado' })
+
+    if (req.usuario.rol === 'empleado' && String(emp.usuario) !== String(req.usuario.id)) {
+      return res.status(403).json({ error: 'Solo podés gestionar tu propio Google Calendar' })
+    }
+    if (req.usuario.rol === 'admin' && req.negocioId && String(emp.negocio) !== String(req.negocioId)) {
+      return res.status(403).json({ error: 'No podés gestionar empleados de otro negocio' })
+    }
+
     const empleado = await empleadoService.desbloquearHorarioGoogle(
       req.params.id,
       req.params.eventId

@@ -58,7 +58,7 @@ export function AppRouter() {
         {/* Solo clientes */}
         <Route
           element={
-            <ProtectedRoute roles={['cliente']}>
+            <ProtectedRoute roles={['cliente', 'admin', 'superadmin']}>
               <LayoutAutenticado />
             </ProtectedRoute>
           }

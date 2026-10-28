@@ -27,6 +27,7 @@ export default function PortalNegocio() {
 
   // Control de paso en modo hiperfoco (1: Servicio, 2: Profesional, 3: Fecha & Hora, 4: Boarding Pass)
   const [paso, setPaso] = useState(1)
+  const [turnoConfirmado, setTurnoConfirmado] = useState(null)
 
   useEffect(() => {
     if (usuario && !miCliente && cargarMiCliente) {
@@ -187,7 +188,7 @@ export default function PortalNegocio() {
 
     setEnviando(true)
     try {
-      await crearTurnoAPI({
+      const nuevoTurno = await crearTurnoAPI({
         negocio: negocio.id,
         cliente: perfilCliente._id,
         empleado: empleadoId,
@@ -196,7 +197,8 @@ export default function PortalNegocio() {
       })
       soundManager.playSuccess()
       toast.exito(`Turno reservado en ${negocio.nombre}`)
-      navigate('/turnos')
+      setTurnoConfirmado(nuevoTurno)
+      setPaso(4)
     } catch (e) {
       setErrorGlobal(e.response?.data?.error || 'No pudimos agendar tu turno')
     } finally {
@@ -616,20 +618,26 @@ export default function PortalNegocio() {
             >
               <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
                 <div>
-                  <button
-                    type="button"
-                    onClick={() => setPaso(3)}
-                    className="font-mono text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
-                  >
-                    <ArrowLeft className="w-3 h-3" />
-                    <span>Cambiar día u horario</span>
-                  </button>
+                  {!turnoConfirmado && (
+                    <button
+                      type="button"
+                      onClick={() => setPaso(3)}
+                      className="font-mono text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
+                    >
+                      <ArrowLeft className="w-3 h-3" />
+                      <span>Cambiar día u horario</span>
+                    </button>
+                  )}
                   <h2 className="font-mono font-medium text-2xl text-white uppercase">
-                    Comprobante de Reserva
+                    {turnoConfirmado ? 'Reserva Confirmada' : 'Comprobante de Reserva'}
                   </h2>
                 </div>
-                <span className="font-mono text-xs text-neutral-400 uppercase tracking-widest">
-                  ETAPA FINAL
+                <span
+                  className={`font-mono text-xs uppercase tracking-widest ${
+                    turnoConfirmado ? 'text-emerald-400 font-semibold' : 'text-neutral-400'
+                  }`}
+                >
+                  {turnoConfirmado ? '● CONFIRMADO' : 'ETAPA FINAL'}
                 </span>
               </div>
 
@@ -639,7 +647,7 @@ export default function PortalNegocio() {
                 </div>
               )}
 
-              {!usuario && (
+              {!usuario && !turnoConfirmado && (
                 <div className="p-4 border border-white/20 bg-white/5 font-mono text-xs flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="text-white font-medium uppercase tracking-wider">
@@ -668,10 +676,19 @@ export default function PortalNegocio() {
                 fecha={fecha}
                 hora={hora}
                 slot={slotSeleccionado}
-                codigoTurno={`TK-${Math.floor(1000 + Math.random() * 9000)}`}
+                codigoTurno={
+                  turnoConfirmado?._id
+                    ? `BP-${turnoConfirmado._id.slice(-4).toUpperCase()}`
+                    : `TK-${Math.floor(1000 + Math.random() * 9000)}`
+                }
                 onConfirmar={onConfirmar}
                 enviando={enviando}
                 deshabilitado={!sePuedeReservar}
+                confirmado={!!turnoConfirmado}
+                fechaHoraIso={
+                  turnoConfirmado?.fechaHora || (fecha && hora ? `${fecha}T${hora}:00` : null)
+                }
+                onVerMisTurnos={() => navigate('/turnos')}
               />
             </motion.div>
           )}
@@ -679,7 +696,7 @@ export default function PortalNegocio() {
       </main>
 
       {/* Barra de control inferior fija si paso < 4 */}
-      {paso < 4 && (
+      {!turnoConfirmado && paso < 4 && (
         <div className="fixed bottom-0 inset-x-0 z-40 bg-black/95 border-t border-white/10 px-6 sm:px-12 py-4">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 font-mono text-xs">
             <div className="text-neutral-400 uppercase tracking-wider truncate">
