@@ -17,6 +17,23 @@ empleadoRouter.get('/:id/disponibilidad', optAuth, reglaIdParam, validarRequest,
 empleadoRouter.get('/:id', requireAuth, reglaIdParam, validarRequest, ctrl.obtener)
 
 // Sincronización Bidireccional de Google Calendar para el barbero
+empleadoRouter.get(
+  '/:id/google-calendar/auth-url',
+  requireAuth,
+  requireRol('admin', 'empleado'),
+  reglaIdParam,
+  validarRequest,
+  ctrl.obtenerAuthUrlGoogle
+)
+
+empleadoRouter.post(
+  '/:id/google-calendar/callback',
+  requireAuth,
+  requireRol('admin', 'empleado'),
+  reglaIdParam,
+  validarRequest,
+  ctrl.callbackGoogle
+)
 empleadoRouter.post(
   '/:id/google-calendar/conectar',
   requireAuth,

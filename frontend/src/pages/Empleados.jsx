@@ -8,6 +8,7 @@ import {
   desconectarGoogleCalendarAPI,
   bloquearHorarioGoogleAPI,
   desbloquearHorarioGoogleAPI,
+  obtenerAuthUrlGoogleAPI,
 } from '../api/empleados.api.js'
 import { useFetch } from '../hooks/useFetch.js'
 import { useAuth } from '../hooks/useAuth.js'
@@ -485,6 +486,32 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
               >
                 {cargando ? 'Vinculando...' : 'Vincular cuenta de Google'}
               </button>
+
+              <div className="pt-2 border-t border-white/5">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setCargando(true)
+                    setErrorLocal('')
+                    try {
+                      const { url } = await obtenerAuthUrlGoogleAPI(empActual._id)
+                      if (url) window.location.href = url
+                    } catch (err) {
+                      setErrorLocal(
+                        err.response?.data?.error ||
+                          'Para autorización directa en la nube completá GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en el servidor.'
+                      )
+                    } finally {
+                      setCargando(false)
+                    }
+                  }}
+                  disabled={cargando}
+                  className="btn btn-secundario w-full text-xs font-mono uppercase flex items-center justify-center gap-1.5"
+                  title="Conectar directamente con Google OAuth2 para sincronización automática en tiempo real"
+                >
+                  <span>Conectar API Oficial Google ↗</span>
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex items-center justify-between pt-2 border-t border-white/5">

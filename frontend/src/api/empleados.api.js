@@ -29,3 +29,9 @@ export const bloquearHorarioGoogleAPI = async (id, datos) =>
 
 export const desbloquearHorarioGoogleAPI = async (id, eventId) =>
   (await http.delete(`/empleados/${id}/google-calendar/bloquear/${eventId}`)).data
+
+export const obtenerAuthUrlGoogleAPI = async (id, params = {}) =>
+  (await http.get(`/empleados/${id}/google-calendar/auth-url`, { params })).data
+
+export const callbackGoogleCalendarAPI = async (id, datos = {}) =>
+  (await http.post(`/empleados/${id}/google-calendar/callback`, datos)).data

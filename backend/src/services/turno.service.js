@@ -128,6 +128,27 @@ export const crearTurno = async (datos) => {
     }
 
     const turno = await Turno.create(payload)
+
+    // Sincronización en vivo con Google Calendar API si hay credenciales activas
+    if (empleado.googleSyncActivo) {
+      try {
+        const { crearEventoGoogleCalendar } = await import('./google-calendar.service.js')
+        const gEventId = await crearEventoGoogleCalendar({
+          empleadoId: datos.empleado,
+          turno,
+          cliente,
+          servicio,
+          negocio: { nombre: datos.negocioNombre, direccion: datos.negocioDireccion },
+        })
+        if (gEventId) {
+          turno.googleCalendarEventId = gEventId
+          await turno.save()
+        }
+      } catch (err) {
+        // Fallback silencioso para no interrumpir la reserva
+      }
+    }
+
     return Turno.findById(turno._id).populate(POBLAR)
   })
 }
@@ -167,6 +188,17 @@ export const cancelarTurno = async (id, { usuarioId, rol } = {}) => {
 
   turno.estado = 'cancelado'
   await turno.save()
+
+  if (turno.googleCalendarEventId && turno.empleado) {
+    try {
+      const { eliminarEventoGoogleCalendar } = await import('./google-calendar.service.js')
+      await eliminarEventoGoogleCalendar({
+        empleadoId: turno.empleado._id || turno.empleado,
+        googleCalendarEventId: turno.googleCalendarEventId,
+      })
+    } catch {}
+  }
+
   return Turno.findById(turno._id).populate(POBLAR)
 }
 

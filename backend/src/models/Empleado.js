@@ -33,6 +33,9 @@ const empleadoSchema = new mongoose.Schema(
     activo: { type: Boolean, default: true },
     googleCalendarId: { type: String, trim: true, default: null },
     googleSyncActivo: { type: Boolean, default: false },
+    googleAccessToken: { type: String, default: null, select: false },
+    googleRefreshToken: { type: String, default: null, select: false },
+    googleTokenExpiry: { type: Date, default: null, select: false },
     eventosGoogle: [eventoGoogleSchema],
   },
   { timestamps: true }

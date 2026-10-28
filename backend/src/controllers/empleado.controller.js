@@ -143,3 +143,27 @@ export const desbloquearGoogle = async (req, res, next) => {
     next(error)
   }
 }
+
+export const obtenerAuthUrlGoogle = async (req, res, next) => {
+  try {
+    const { generarAuthUrl } = await import('../services/google-calendar.service.js')
+    const url = generarAuthUrl(req.params.id, req.query.redirectUri)
+    res.json({ url })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const callbackGoogle = async (req, res, next) => {
+  try {
+    const { canjearCodigoYVincular } = await import('../services/google-calendar.service.js')
+    const empleado = await canjearCodigoYVincular({
+      code: req.body.code,
+      empleadoId: req.params.id,
+      customRedirectUri: req.body.redirectUri,
+    })
+    res.json(empleado)
+  } catch (error) {
+    next(error)
+  }
+}

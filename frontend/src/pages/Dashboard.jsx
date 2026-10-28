@@ -1,3 +1,4 @@
+import { generarGoogleCalendarUrl } from '../utils/calendar.js'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useFetch } from '../hooks/useFetch.js'
@@ -238,13 +239,31 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
                   <span className="font-mono text-xs text-zinc-400">
                     {formatearHora(new Date(t.fechaHora))}
                   </span>
                   <span className={`badge ${CLASES_BADGE_ESTADO[t.estado] || 'badge-confirmado'}`}>
                     {t.estado}
                   </span>
+                  {t.estado !== 'cancelado' && (
+                    <a
+                      href={generarGoogleCalendarUrl({
+                        titulo: `${t.servicio?.nombre || 'Turno'} — BarberPole`,
+                        descripcion: `Turno agendado.\nServicio: ${t.servicio?.nombre || '—'}\nProfesional: ${t.empleado?.nombre || '—'}\nCliente: ${t.cliente?.nombre || '—'}`,
+                        ubicacion: 'Sede Oficial',
+                        fechaHora: t.fechaHora,
+                        duracionMinutos: t.duracionMinutos || t.servicio?.duracionMinutos || 30,
+                      })}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-secundario !px-2.5 !py-1 text-xs font-mono uppercase inline-flex items-center gap-1.5"
+                      title="Guardar este turno en Google Calendar"
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>+ Calendar ↗</span>
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
