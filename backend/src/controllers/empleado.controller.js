@@ -167,3 +167,48 @@ export const callbackGoogle = async (req, res, next) => {
     next(error)
   }
 }
+
+export const callbackGoogleRedirect = async (req, res, next) => {
+  const frontendUrl = process.env.FRONTEND_URL?.split(',')[0] || 'http://localhost:5173'
+  try {
+    const { code, state, error } = req.query
+
+    if (error) {
+      return res.redirect(
+        `${frontendUrl}/empleados?googleSync=error&mensaje=${encodeURIComponent(error)}`
+      )
+    }
+
+    if (!code || !state) {
+      return res.redirect(
+        `${frontendUrl}/empleados?googleSync=error&mensaje=Faltan_parametros`
+      )
+    }
+
+    let empleadoId = null
+    try {
+      const parsed = JSON.parse(state)
+      empleadoId = parsed.empleadoId
+    } catch {
+      empleadoId = state
+    }
+
+    if (!empleadoId) {
+      return res.redirect(
+        `${frontendUrl}/empleados?googleSync=error&mensaje=Empleado_no_especificado`
+      )
+    }
+
+    const { canjearCodigoYVincular } = await import('../services/google-calendar.service.js')
+    await canjearCodigoYVincular({
+      code,
+      empleadoId,
+    })
+
+    res.redirect(`${frontendUrl}/empleados?googleSync=exito`)
+  } catch (err) {
+    res.redirect(
+      `${frontendUrl}/empleados?googleSync=error&mensaje=${encodeURIComponent(err.message)}`
+    )
+  }
+}

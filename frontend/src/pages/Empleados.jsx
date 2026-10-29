@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   listarEmpleadosAPI,
   crearEmpleadoAPI,
@@ -25,6 +26,23 @@ export default function Empleados() {
     listarEmpleadosAPI()
   )
   const { visibles: pagina, pagina: nPagina, setPagina, totalPaginas } = usePaginacion(empleados, 15)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    const syncStatus = searchParams.get('googleSync')
+    if (syncStatus === 'exito') {
+      toast.exito('¡Google Calendar conectado y sincronizando automáticamente!')
+      searchParams.delete('googleSync')
+      setSearchParams(searchParams, { replace: true })
+      if (typeof recargar === 'function') recargar()
+    } else if (syncStatus === 'error') {
+      const msg = searchParams.get('mensaje') || 'Error desconocido'
+      toast.error(`Error al conectar Google Calendar: ${msg}`)
+      searchParams.delete('googleSync')
+      searchParams.delete('mensaje')
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, [searchParams])
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)

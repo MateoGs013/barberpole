@@ -12,6 +12,7 @@ import { requireAuth, requireRol, optAuth } from '../middlewares/auth.js'
 
 export const empleadoRouter = Router()
 
+empleadoRouter.get('/google-calendar/callback', ctrl.callbackGoogleRedirect)
 empleadoRouter.get('/', requireAuth, ctrl.listar)
 empleadoRouter.get('/:id/disponibilidad', optAuth, reglaIdParam, validarRequest, ctrl.disponibilidad)
 empleadoRouter.get('/:id', requireAuth, reglaIdParam, validarRequest, ctrl.obtener)
