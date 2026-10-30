@@ -10,6 +10,10 @@ const POBLAR = [
   { path: 'negocio', select: 'nombre slug' },
 ]
 
+// Lock en memoria por empleado: serializa el chequeo de solapamiento + creación
+// DENTRO de un mismo proceso. OJO: no cubre múltiples instancias (ej. varias
+// réplicas en Coolify). Para el caso multi-instancia, crearTurno agrega una
+// reconciliación post-creación contra la base (ver reconciliarSolapamiento).
 const locksPorEmpleado = new Map()
 
 const conBloqueoEmpleado = async (empleadoId, accion) => {
@@ -128,6 +132,15 @@ export const crearTurno = async (datos) => {
     }
 
     const turno = await Turno.create(payload)
+
+    // Red de seguridad entre procesos: el lock en memoria solo protege dentro de
+    // una instancia. Si otra réplica creó un turno superpuesto en paralelo, resolvemos
+    // la carrera de forma determinística: gana el de _id menor y el resto se elimina.
+    // El _id de Mongo da un orden total consistente, así que siempre sobrevive exactamente uno.
+    if (await reconciliarSolapamiento({ turnoId: turno._id, empleadoId: datos.empleado, inicio, fin })) {
+      await Turno.findByIdAndDelete(turno._id)
+      throw conError('El empleado ya tiene un turno en ese horario', 409)
+    }
 
     // Sincronización en vivo con Google Calendar API si hay credenciales activas
     if (empleado.googleSyncActivo) {
@@ -311,6 +324,21 @@ export const hayTurnoSuperpuesto = async ({
       : new Date(tInicio.getTime() + (t.duracionMinutos || t.servicio?.duracionMinutos || 30) * 60_000)
     return fechaInicio < tFin && tInicio < fechaFin
   })
+}
+
+// Desempate determinístico para carreras entre instancias: devuelve true si existe
+// otro turno NO cancelado del mismo empleado, creado antes (_id menor), que se
+// superpone con [inicio, fin). El que llame revierte su propia creación si da true,
+// de modo que ante N reservas simultáneas superpuestas sobreviva exactamente una.
+const reconciliarSolapamiento = async ({ turnoId, empleadoId, inicio, fin }) => {
+  const anterior = await Turno.findOne({
+    _id: { $lt: turnoId },
+    empleado: empleadoId,
+    estado: { $ne: 'cancelado' },
+    fechaHora: { $lt: new Date(fin) },
+    fechaHoraFin: { $gt: new Date(inicio) },
+  }).select('_id')
+  return Boolean(anterior)
 }
 
 const conError = (mensaje, status) => {

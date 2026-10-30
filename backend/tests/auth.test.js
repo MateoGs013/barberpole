@@ -42,6 +42,20 @@ describe('Auth Endpoints & Atomic Client Creation', () => {
     expect(resDuplicado.body.error).toMatch(/ya existe/i)
   })
 
+  it('rechaza registro con contraseña débil (corta o sin número) con 400', async () => {
+    const base = { nombre: 'Pass Debil', email: 'debil@barberpole.test' }
+
+    // Menos de 8 caracteres
+    const corta = await request(app).post('/api/auth/registro').send({ ...base, password: 'abc123' })
+    expect(corta.status).toBe(400)
+
+    // 8+ caracteres pero sin ningún número
+    const sinNumero = await request(app)
+      .post('/api/auth/registro')
+      .send({ ...base, password: 'sololetras' })
+    expect(sinNumero.status).toBe(400)
+  })
+
   it('inicia sesión con credenciales correctas y rechaza con inválidas', async () => {
     const usuario = {
       nombre: 'Esteban Quito',

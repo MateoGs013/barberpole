@@ -102,6 +102,8 @@ app.get('/api/salud', (req, res) => {
 // Rutas de la API (con authLimiter en endpoints críticos de auth)
 app.use('/api/auth/login', authLimiter)
 app.use('/api/auth/registro', authLimiter)
+app.use('/api/auth/google', authLimiter)
+app.use('/api/negocios/onboarding', authLimiter)
 app.use('/api/auth', authRouter)
 app.use('/api/negocios', negocioRouter)
 app.use('/api/servicios', servicioRouter)
