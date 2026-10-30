@@ -13,6 +13,16 @@ const obtenerSuperadminEmails = () => {
     .filter(Boolean)
 }
 
+// client_id(s) OAuth 2.0 contra los que validamos la audiencia (aud) del ID token.
+// Acepta una lista separada por coma por si hay clientes web + móvil.
+const obtenerClientIdsPermitidos = () => {
+  const raw = process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_IDS || ''
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
 const SALT_ROUNDS = 10
 
 export const registrarUsuario = async ({ nombre, email, password, negocio = null }) => {
@@ -95,6 +105,33 @@ export const autenticarConGoogle = async ({
       const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`)
       if (res.ok) {
         const payload = await res.json()
+
+        // Validación de audiencia: el token DEBE haber sido emitido para nuestro
+        // client_id. Sin este chequeo, un ID token válido de CUALQUIER otra app de
+        // Google serviría para loguearse acá (confusión de audiencia).
+        const audienciasPermitidas = obtenerClientIdsPermitidos()
+        if (audienciasPermitidas.length > 0) {
+          if (!payload.aud || !audienciasPermitidas.includes(payload.aud)) {
+            const error = new Error('El token de Google fue emitido para otra aplicación')
+            error.status = 401
+            throw error
+          }
+        } else if (process.env.NODE_ENV === 'production') {
+          const error = new Error(
+            'GOOGLE_CLIENT_ID no está configurado; no se puede validar la audiencia del token de Google'
+          )
+          error.status = 500
+          throw error
+        }
+
+        // El email debe estar verificado por Google (evita secuestro de cuentas
+        // por coincidencia de email no verificado).
+        if (payload.email_verified === false || payload.email_verified === 'false') {
+          const error = new Error('El email de la cuenta de Google no está verificado')
+          error.status = 401
+          throw error
+        }
+
         finalEmail = payload.email
         finalNombre = payload.name || payload.given_name || 'Usuario Google'
         finalGoogleId = payload.sub
@@ -115,6 +152,9 @@ export const autenticarConGoogle = async ({
         }
       }
     } catch (err) {
+      // Un error intencional de validación (tiene .status) siempre se propaga,
+      // incluso en dev/test. Solo los fallos de red/parsing caen al fallback.
+      if (err.status) throw err
       if (process.env.NODE_ENV === 'production') throw err
       // Fallback a los datos directos en entorno de test/desarrollo sin red
     }

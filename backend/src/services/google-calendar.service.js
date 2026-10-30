@@ -2,7 +2,32 @@
 // Maneja flujo OAuth 2.0 (Offline Access con Refresh Token)
 // y operaciones REST para creación, actualización y cancelación de eventos en la agenda.
 
+import jwt from 'jsonwebtoken'
 import { Empleado } from '../models/Empleado.js'
+
+// Vida del `state` de OAuth: suficiente para completar el consentimiento,
+// corta para limitar replays.
+const STATE_EXPIRA_EN = '10m'
+
+// Firma el `state` del flujo OAuth con JWT. Antes era JSON plano con el empleadoId,
+// lo que permitía a un atacante forjar el callback con el empleadoId de otra persona
+// y vincular su cuenta/calendario (CSRF). Firmado, el callback solo acepta estados
+// que el propio servidor emitió, y con expiración corta.
+const firmarState = (empleadoId) =>
+  jwt.sign({ empleadoId: String(empleadoId) }, process.env.JWT_SECRET, {
+    expiresIn: STATE_EXPIRA_EN,
+  })
+
+// Verifica el `state` del callback y devuelve el empleadoId, o null si es inválido/expirado.
+export const verificarStateOAuth = (state) => {
+  if (!state) return null
+  try {
+    const payload = jwt.verify(state, process.env.JWT_SECRET)
+    return payload.empleadoId || null
+  } catch {
+    return null
+  }
+}
 
 export const generarAuthUrl = (empleadoId, customRedirectUri = null) => {
   const clientId = process.env.GOOGLE_CLIENT_ID
@@ -27,7 +52,7 @@ export const generarAuthUrl = (empleadoId, customRedirectUri = null) => {
     scope,
     access_type: 'offline',
     prompt: 'consent',
-    state: JSON.stringify({ empleadoId }),
+    state: firmarState(empleadoId),
   })
 
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`

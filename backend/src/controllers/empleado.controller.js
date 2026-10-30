@@ -197,21 +197,19 @@ export const callbackGoogleRedirect = async (req, res, next) => {
       )
     }
 
-    let empleadoId = null
-    try {
-      const parsed = JSON.parse(state)
-      empleadoId = parsed.empleadoId
-    } catch {
-      empleadoId = state
-    }
+    // El state viene firmado por el servidor (JWT). Si fue manipulado o expiró,
+    // no confiamos en el empleadoId: cortamos el flujo.
+    const { canjearCodigoYVincular, verificarStateOAuth } = await import(
+      '../services/google-calendar.service.js'
+    )
+    const empleadoId = verificarStateOAuth(state)
 
     if (!empleadoId) {
       return res.redirect(
-        `${frontendUrl}/empleados?googleSync=error&mensaje=Empleado_no_especificado`
+        `${frontendUrl}/empleados?googleSync=error&mensaje=Estado_invalido_o_expirado`
       )
     }
 
-    const { canjearCodigoYVincular } = await import('../services/google-calendar.service.js')
     await canjearCodigoYVincular({
       code,
       empleadoId,
