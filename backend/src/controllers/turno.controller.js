@@ -1,6 +1,22 @@
 import * as turnoService from '../services/turno.service.js'
 import { Cliente } from '../models/Cliente.js'
 import { Usuario } from '../models/Usuario.js'
+import { Turno } from '../models/Turno.js'
+
+// Normaliza un negocio (ObjectId, documento poblado o null) a string o null.
+const normalizarNegocioId = (valor) => {
+  if (valor == null) return null
+  return String(valor._id ?? valor)
+}
+
+// Aislamiento multi-tenant: un admin/empleado solo puede operar sobre recursos
+// de su propio negocio. Un superadmin (god de la plataforma) no tiene restricción.
+// Compara el negocio del token contra el del recurso; el caso sin negocio
+// (ambos null, modo single-tenant) se considera el mismo ámbito.
+const puedeOperarEnNegocio = (req, negocioRecurso) => {
+  if (req.usuario.rol === 'superadmin') return true
+  return normalizarNegocioId(req.negocioId) === normalizarNegocioId(negocioRecurso)
+}
 
 const obtenerClienteDelUsuario = async (req) => {
   let cliente = await Cliente.findOne({ usuario: req.usuario.id })
@@ -66,6 +82,8 @@ export const obtener = async (req, res, next) => {
       if (!miCliente || String(turno.cliente._id) !== String(miCliente._id)) {
         return res.status(403).json({ error: 'No podés ver turnos de otros clientes' })
       }
+    } else if (!puedeOperarEnNegocio(req, turno.negocio)) {
+      return res.status(403).json({ error: 'No podés ver turnos de otro negocio' })
     }
     res.json(turno)
   } catch (error) {
@@ -121,6 +139,13 @@ export const cancelar = async (req, res, next) => {
 
 export const actualizar = async (req, res, next) => {
   try {
+    const existente = await Turno.findById(req.params.id)
+    if (!existente) {
+      return res.status(404).json({ error: 'Turno no encontrado' })
+    }
+    if (!puedeOperarEnNegocio(req, existente.negocio)) {
+      return res.status(403).json({ error: 'No podés modificar turnos de otro negocio' })
+    }
     const turno = await turnoService.actualizarTurno(req.params.id, req.body)
     res.json(turno)
   } catch (error) {
@@ -130,6 +155,13 @@ export const actualizar = async (req, res, next) => {
 
 export const eliminar = async (req, res, next) => {
   try {
+    const existente = await Turno.findById(req.params.id)
+    if (!existente) {
+      return res.status(404).json({ error: 'Turno no encontrado' })
+    }
+    if (!puedeOperarEnNegocio(req, existente.negocio)) {
+      return res.status(403).json({ error: 'No podés eliminar turnos de otro negocio' })
+    }
     const turno = await turnoService.eliminarTurno(req.params.id)
     res.json(turno)
   } catch (error) {

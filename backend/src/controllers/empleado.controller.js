@@ -49,6 +49,12 @@ export const crear = async (req, res, next) => {
 
 export const actualizar = async (req, res, next) => {
   try {
+    const emp = await Empleado.findById(req.params.id)
+    if (!emp) return res.status(404).json({ error: 'Empleado no encontrado' })
+    if (req.usuario.rol !== 'superadmin' && req.negocioId && String(emp.negocio) !== String(req.negocioId)) {
+      return res.status(403).json({ error: 'No podés gestionar empleados de otro negocio' })
+    }
+
     const empleado = await empleadoService.actualizarEmpleado(req.params.id, req.body)
     res.json(empleado)
   } catch (error) {
@@ -58,6 +64,12 @@ export const actualizar = async (req, res, next) => {
 
 export const eliminar = async (req, res, next) => {
   try {
+    const emp = await Empleado.findById(req.params.id)
+    if (!emp) return res.status(404).json({ error: 'Empleado no encontrado' })
+    if (req.usuario.rol !== 'superadmin' && req.negocioId && String(emp.negocio) !== String(req.negocioId)) {
+      return res.status(403).json({ error: 'No podés gestionar empleados de otro negocio' })
+    }
+
     await empleadoService.eliminarEmpleado(req.params.id)
     res.status(204).end()
   } catch (error) {
