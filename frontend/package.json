@@ -1,8 +1,11 @@
 {
   "name": "barberpole-frontend",
   "version": "0.0.0",
-  "description": "Frontend React para BarberPole (SaaS de peluquería) - Parcial 2 Aplicaciones Híbridas",
+  "description": "Frontend React (Vite) para BarberPole — SaaS multi-tenant de gestión de turnos",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

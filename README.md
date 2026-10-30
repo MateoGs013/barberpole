@@ -1,7 +1,7 @@
 # BarberPole 💈 — B2B Multi-Tenant Barbershop & Salon SaaS Platform
 
 [![CI/CD Pipeline](https://github.com/MateoGs013/barberpole/actions/workflows/ci.yml/badge.svg)](https://github.com/MateoGs013/barberpole/actions/workflows/ci.yml)
-[![Node.js Version](https://img.shields.io/badge/Node.js-20%2B-brightgreen.svg)](https://nodejs.org/)
+[![Node.js Version](https://img.shields.io/badge/Node.js-22%2B-brightgreen.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Design: Modo Hiperfoco OLED](https://img.shields.io/badge/Design-Modo_Hiperfoco_OLED_%23050505-000000.svg)]()
 [![Microinteractions: Bencho UI](https://img.shields.io/badge/Interactions-Bencho_UI_Tactile-blueviolet.svg)](https://bencho.dev/)
@@ -12,7 +12,7 @@ Plataforma SaaS multi-inquilino (Multi-Tenant) comercial de alto rendimiento par
 
 ![barberpole — landing](docs/preview-hero.png)
 
-*Origen: Parcial 2 — Aplicaciones Híbridas — Da Vinci*
+*Proyecto de portafolio — servicio backend Node.js/Express multi-tenant con frontend React. Nació como trabajo académico y evolucionó hacia un servicio production-oriented (seguridad, tests y CI).*
 
 ---
 
@@ -66,9 +66,9 @@ graph TD
 - **Dynamic Island**: Píldora morphing flotante que expande el resumen en vivo de la reserva y confirma la cita sin cambios bruscos de pantalla.
 - **BarberPole Monocromático**: Emblema minimalista con reflejo de cristal satinado y rotación sutil.
 
-### 3. ⚡ Slot Engine & Control Atómico de Concurrencia
+### 3. ⚡ Slot Engine & Control de Concurrencia
 - **Disponibilidad Inteligente**: `GET /api/empleados/:id/disponibilidad?fecha=YYYY-MM-DD&servicioId=...` calcula dinámicamente horarios libres respetando horarios de apertura/cierre y turnos existentes.
-- **Anti-Collision Mutex**: Bloqueo secuencial por empleado (`conBloqueoEmpleado`) que previene reservas duplicadas al mismo microsegundo devolviendo `409 Conflict`.
+- **Anti-Doble-Reserva**: Lock secuencial por empleado dentro del proceso (`conBloqueoEmpleado`) que serializa el chequeo de solapamiento y la creación, devolviendo `409 Conflict` ante colisiones. Como red de seguridad entre múltiples instancias, una reconciliación contra la base resuelve carreras concurrentes de forma determinística (sobrevive el turno de `_id` menor).
 - **Cancelación Autónoma**: Validación estricta de ventana mínima de 2 horas previas a la cita (`PATCH /api/turnos/:id/cancelar`).
 - **Snapshots Contables Inmutables**: Los turnos graban `precioCobrado`, `duracionMinutos` y `fechaHoraFin` en el momento exacto de la reserva.
 
@@ -126,7 +126,7 @@ cp .env.example .env
 # Poblar base de datos con salones demo y datos multi-tenant
 npm run seed:demo
 
-# Ejecutar suite de tests automatizados (19 tests)
+# Ejecutar suite de tests automatizados (48 tests)
 npm test
 
 # Iniciar servidor backend en modo desarrollo
@@ -141,7 +141,7 @@ cd ../frontend
 # Instalar dependencias
 npm install
 
-# Ejecutar suite de tests unitarios (11 tests)
+# Ejecutar suite de tests unitarios (18 tests)
 npm test
 
 # Build de producción
@@ -153,24 +153,25 @@ npm run dev
 
 ---
 
-## 🧪 Suite de Tests Automatizados (30/30 Pasando)
+## 🧪 Suite de Tests Automatizados (66/66 Pasando)
 
-### Backend Tests (`19 passed` | `vitest` + `supertest` + `mongodb-memory-server`)
+### Backend Tests (`48 passed` | `vitest` + `supertest` + `mongodb-memory-server`)
 ```bash
 cd backend && npm test
 ```
 - ✅ Onboarding autoservicio de nuevos salones (`POST /api/negocios/onboarding`).
 - ✅ Detección y rechazo de slugs duplicados con código `409 Conflict`.
 - ✅ Consulta de portal público de tenant con servicios y profesionales (`GET /api/negocios/publico/:slug`).
-- ✅ **Aislamiento Multi-Tenant Estricto**: verificación cruzada de que los servicios y turnos creados en el Salón A son invisibles para el Salón B.
+- ✅ **Aislamiento Multi-Tenant Estricto**: verificación cruzada de que servicios, turnos, empleados y usuarios de un salón son invisibles e intocables desde otro (anti-IDOR en `/api/usuarios`, `/api/turnos/:id` y `/api/empleados/:id`).
 - ✅ Registro público y creación atómica de perfiles `Cliente`.
-- ✅ Prevención de brute-force y autenticación segura con JWT `negocio` claim.
+- ✅ Autenticación segura con JWT `negocio` claim y política de contraseñas (mín. 8, con letra y número).
+- ✅ **Hardening OAuth de Google**: validación de audiencia (`aud`) del ID token, rechazo de email no verificado y `state` firmado (JWT) en el callback de Calendar.
 - ✅ Rechazo estricto de turnos en fechas pasadas (`400 Bad Request`).
 - ✅ Inmutabilidad de snapshots contables (`precioCobrado`, `duracionMinutos`).
-- ✅ Slot Engine: cálculo dinámico de franjas horarias libres y ocupadas.
-- ✅ **Anti-Collision Concurrency Test**: carreras paralelas de peticiones concurrentes al mismo microsegundo resultan en exactamente 1 confirmación y 1 rechazo `409 Conflict`.
+- ✅ Slot Engine: cálculo dinámico de franjas horarias libres y ocupadas, con colisión contra eventos de Google Calendar.
+- ✅ **Anti-Doble-Reserva**: carreras paralelas de reservas concurrentes al mismo horario resultan en exactamente 1 confirmación y 1 rechazo `409 Conflict`.
 
-### Frontend Tests (`11 passed` | `vitest` + `@testing-library/react` + `jsdom`)
+### Frontend Tests (`18 passed` | `vitest` + `@testing-library/react` + `jsdom`)
 ```bash
 cd frontend && npm test
 ```
@@ -192,9 +193,13 @@ cd frontend && npm test
 - `PUT /api/negocios/mi-negocio` — Actualización de branding y horarios (*admin*).
 
 ### Autenticación (`/api/auth`)
-- `POST /api/auth/registro` — Registro con creación atómica de cliente.
-- `POST /api/auth/login` — Inicio de sesión con claims de tenant en JWT.
+- `POST /api/auth/registro` — Registro con creación atómica de cliente (rate-limited).
+- `POST /api/auth/login` — Inicio de sesión con claims de tenant en JWT (rate-limited).
+- `POST /api/auth/google` — Login con Google Identity Services, validando la audiencia del ID token (rate-limited).
 - `GET /api/auth/yo` — Rehidratación de sesión.
+
+### Usuarios (`/api/usuarios`, *admin*)
+- CRUD de usuarios **scoped al negocio** del admin autenticado (un admin no ve ni gestiona usuarios de otro tenant).
 
 ### Empleados & Slot Engine (`/api/empleados`)
 - `GET /api/empleados` — Listado de profesionales scoped por salón.
@@ -205,7 +210,7 @@ cd frontend && npm test
 
 ### Turnos & Reservas (`/api/turnos`)
 - `GET /api/turnos?desde=...&hasta=...&estado=...` — Turnos scoped con paginación.
-- `POST /api/turnos` — Reserva con validación anti-pasado, snapshots contables y Mutex anti-collision.
+- `POST /api/turnos` — Reserva con validación anti-pasado, snapshots contables y control anti-doble-reserva.
 - `PATCH /api/turnos/:id/cancelar` — Cancelación con lead-time mínimo de 2hs.
 
 ### Servicios (`/api/servicios`)
@@ -222,5 +227,5 @@ cd frontend && npm test
 ## 👨‍💻 Autor
 
 **Mateo Gabús**  
-*Parcial 2 — Aplicaciones Híbridas — Escuela Da Vinci (2026)*  
+*Proyecto de portafolio — SaaS multi-tenant full-stack (Node.js/Express · MongoDB · React)*  
 Repositorio: [https://github.com/MateoGs013/barberpole.git](https://github.com/MateoGs013/barberpole.git)

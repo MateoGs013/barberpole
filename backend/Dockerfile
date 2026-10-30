@@ -1,11 +1,11 @@
 # Stage 1: Dependencies
-FROM node:20-alpine AS dependencies
+FROM node:22-alpine AS dependencies
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
 # Stage 2: Production Runner
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

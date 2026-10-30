@@ -1,9 +1,12 @@
 {
   "name": "barberpole-backend",
   "version": "1.0.0",
-  "description": "API REST para BarberPole (SaaS de peluquería) - Parcial 2 Aplicaciones Híbridas",
+  "description": "API REST multi-tenant para BarberPole — SaaS de gestión de turnos para barberías y salones",
   "main": "server.js",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",

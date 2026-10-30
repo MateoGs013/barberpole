@@ -1,4 +1,6 @@
-# Reglas de Diseño Frontend: Zen & Hiperfoco Permanente
+# Design Guidelines — Zen & Hiperfoco
+
+Lineamientos de diseño del frontend de BarberPole (estética "Modo Hiperfoco" OLED).
 
 ## 1. Filosofía y Estética
 - **Minimalismo Radical / Menos es Más:** Prohibido sobre-diseñar. No agregar contenedores, cajas, sombras, gradientes, bordes gruesos ni elementos decorativos innecesarios.
