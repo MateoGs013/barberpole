@@ -88,15 +88,15 @@ export default function Superadmin() {
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-8">
       {/* Header Zen Superadmin */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+            <p className="font-mono text-xs uppercase tracking-widest text-muted">
               — PANEL DE CONTROL CENTRAL · MULTI-TENANT SAAS
             </p>
           </div>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             SUPERADMIN.
           </h1>
         </div>
@@ -111,49 +111,49 @@ export default function Superadmin() {
 
       {/* Telemetría Global Bento Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="p-5 border border-white/10 bg-white/[0.01]">
-          <div className="flex items-center justify-between text-neutral-500 mb-2">
+        <div className="p-5 border border-ink/10 bg-ink/[0.01]">
+          <div className="flex items-center justify-between text-faint mb-2">
             <span className="font-mono text-xs uppercase tracking-wider">Espacios Totales</span>
-            <Building2 className="w-4 h-4 text-neutral-400" />
+            <Building2 className="w-4 h-4 text-muted" />
           </div>
-          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             {totalSalones}
           </p>
         </div>
 
-        <div className="p-5 border border-white/10 bg-white/[0.01]">
-          <div className="flex items-center justify-between text-neutral-500 mb-2">
+        <div className="p-5 border border-ink/10 bg-ink/[0.01]">
+          <div className="flex items-center justify-between text-faint mb-2">
             <span className="font-mono text-xs uppercase tracking-wider">Espacios Activos</span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             {salonesActivos}
           </p>
         </div>
 
-        <div className="p-5 border border-white/10 bg-white/[0.01]">
-          <div className="flex items-center justify-between text-neutral-500 mb-2">
+        <div className="p-5 border border-ink/10 bg-ink/[0.01]">
+          <div className="flex items-center justify-between text-faint mb-2">
             <span className="font-mono text-xs uppercase tracking-wider">Turnos Globales</span>
-            <Calendar className="w-4 h-4 text-neutral-400" />
+            <Calendar className="w-4 h-4 text-muted" />
           </div>
-          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             {totalTurnos}
           </p>
         </div>
 
-        <div className="p-5 border border-white/10 bg-white/[0.01]">
-          <div className="flex items-center justify-between text-neutral-500 mb-2">
+        <div className="p-5 border border-ink/10 bg-ink/[0.01]">
+          <div className="flex items-center justify-between text-faint mb-2">
             <span className="font-mono text-xs uppercase tracking-wider">Profesionales</span>
-            <Users className="w-4 h-4 text-neutral-400" />
+            <Users className="w-4 h-4 text-muted" />
           </div>
-          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             {totalBarberos}
           </p>
         </div>
       </div>
 
       {/* Filtros & Búsqueda */}
-      <div className="p-4 border border-white/10 space-y-4">
+      <div className="p-4 border border-ink/10 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="label" htmlFor="busqueda">Buscar Negocio o Responsable</label>
@@ -166,7 +166,7 @@ export default function Superadmin() {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
               />
-              <Search className="w-3.5 h-3.5 text-neutral-500 absolute right-3 top-3 pointer-events-none" />
+              <Search className="w-3.5 h-3.5 text-faint absolute right-3 top-3 pointer-events-none" />
             </div>
           </div>
 
@@ -202,7 +202,7 @@ export default function Superadmin() {
       </div>
 
       {/* Lista Tabular Editorial */}
-      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando espacios...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando espacios...</p>}
       {error && (
         <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar negocios multi-tenant
@@ -210,13 +210,13 @@ export default function Superadmin() {
       )}
 
       {salonesFiltrados && salonesFiltrados.length === 0 && !cargando && (
-        <div className="py-12 border border-white/10 text-center font-mono text-xs uppercase text-neutral-500">
+        <div className="py-12 border border-ink/10 text-center font-mono text-xs uppercase text-faint">
           No se encontraron negocios con los criterios seleccionados
         </div>
       )}
 
       {salonesFiltrados && salonesFiltrados.length > 0 && (
-        <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+        <ul className="divide-y divide-ink/10 border-t border-b border-ink/10">
           {salonesFiltrados.map((s) => (
             <FilaSuperadmin
               key={s._id}
@@ -272,10 +272,10 @@ function FilaSuperadmin({ salon, onEditar, onToggleEstado, onEliminar }) {
   const cfg = salon.configuracion || {}
 
   return (
-    <li className="py-5 px-3 hover:bg-white/[0.02] transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-4 font-mono">
+    <li className="py-5 px-3 hover:bg-ink/[0.02] transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-4 font-mono">
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-lg uppercase text-white font-medium tracking-tight">
+          <h3 className="text-lg uppercase text-ink font-medium tracking-tight">
             {salon.nombre}
           </h3>
           <span className="badge badge-confirmado text-[11px] font-mono">
@@ -284,24 +284,24 @@ function FilaSuperadmin({ salon, onEditar, onToggleEstado, onEliminar }) {
           <span className={`badge ${salon.activo ? 'badge-confirmado' : 'badge-cancelado'}`}>
             {salon.activo ? '● ACTIVO' : '○ SUSPENDIDO'}
           </span>
-          <span className="badge !border-white/20 text-neutral-300 uppercase">
+          <span className="badge !border-ink/20 text-muted uppercase">
             PLAN {salon.plan}
           </span>
-          <span className="badge !border-white/20 text-neutral-300 uppercase">
+          <span className="badge !border-ink/20 text-muted uppercase">
             {salon.modalidad === 'particular' ? 'Estudio' : 'Salón'}
           </span>
-          <span className="badge !border-white/20 text-neutral-400 uppercase">
+          <span className="badge !border-ink/20 text-muted uppercase">
             {salon.rubro || 'barberia'}
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-400">
-          <span>Responsable: <strong className="text-white">{salon.owner?.nombre || '—'}</strong> ({salon.owner?.email || '—'})</span>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+          <span>Responsable: <strong className="text-ink">{salon.owner?.nombre || '—'}</strong> ({salon.owner?.email || '—'})</span>
           {salon.telefono && <span>· Tel: {salon.telefono}</span>}
           {salon.direccion && <span>· Dir: {salon.direccion}</span>}
         </div>
 
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-neutral-500 pt-1">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-faint pt-1">
           <span>{salon.metricas?.turnos || 0} turnos</span>
           <span>· {salon.metricas?.empleados || 0} profesionales</span>
           <span>· {salon.metricas?.servicios || 0} servicios</span>
@@ -417,7 +417,7 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
 
         {/* Identidad */}
         <div className="space-y-4">
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">
             — 01. IDENTIDAD & MODALIDAD
           </p>
 
@@ -491,8 +491,8 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
         </div>
 
         {/* Dueño / Administrador */}
-        <div className="space-y-4 pt-4 border-t border-white/10">
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+        <div className="space-y-4 pt-4 border-t border-ink/10">
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">
             — 02. RESPONSABLE DE LA CUENTA
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -534,8 +534,8 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
         </div>
 
         {/* Horarios Iniciales */}
-        <div className="space-y-4 pt-4 border-t border-white/10">
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+        <div className="space-y-4 pt-4 border-t border-ink/10">
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">
             — 03. HORARIOS OPERATIVOS
           </p>
           <div className="grid grid-cols-3 gap-3">
@@ -576,7 +576,7 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-white/10 flex gap-3">
+        <div className="pt-4 border-t border-ink/10 flex gap-3">
           <button type="button" onClick={onCerrar} className="btn btn-secundario flex-1">
             Cancelar
           </button>
@@ -739,8 +739,8 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
           </div>
         </div>
 
-        <div className="space-y-4 pt-4 border-t border-white/10">
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+        <div className="space-y-4 pt-4 border-t border-ink/10">
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">
             — PARÁMETROS OPERATIVOS
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -795,7 +795,7 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-white/10 flex gap-3">
+        <div className="pt-4 border-t border-ink/10 flex gap-3">
           <button type="button" onClick={onCerrar} className="btn btn-secundario flex-1">
             Cancelar
           </button>

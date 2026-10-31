@@ -127,7 +127,7 @@ export function GoogleLoginButton({
         type="button"
         onClick={handleClick}
         disabled={cargando}
-        className={`w-full py-3.5 px-4 border border-white/20 hover:border-white hover:bg-white hover:text-black font-mono text-xs uppercase tracking-widest transition-all duration-150 flex items-center justify-center gap-3 select-none cursor-pointer disabled:opacity-40 disabled:pointer-events-none ${className}`}
+        className={`w-full py-3.5 px-4 border border-ink/20 hover:border-ink hover:bg-ink hover:text-canvas font-mono text-xs uppercase tracking-widest transition-all duration-150 flex items-center justify-center gap-3 select-none cursor-pointer disabled:opacity-40 disabled:pointer-events-none ${className}`}
         title="Iniciar sesión con tu cuenta de Google"
       >
         <GoogleIcon className="w-4 h-4 shrink-0" />
@@ -142,13 +142,13 @@ export function GoogleLoginButton({
         ancho="max-w-md"
       >
         <form onSubmit={handleDevSubmit} className="space-y-4 font-mono text-xs">
-          <div className="p-3 border border-white/10 bg-white/5 space-y-1">
-            <div className="flex items-center gap-2 text-white font-medium uppercase tracking-wider">
-              <Info className="w-3.5 h-3.5 text-neutral-400" />
+          <div className="p-3 border border-ink/10 bg-ink/5 space-y-1">
+            <div className="flex items-center gap-2 text-ink font-medium uppercase tracking-wider">
+              <Info className="w-3.5 h-3.5 text-muted" />
               <span>Configuración de Google OAuth</span>
             </div>
-            <p className="text-neutral-400 font-sans text-xs font-light leading-relaxed">
-              No se detectó <code className="text-white">VITE_GOOGLE_CLIENT_ID</code> en el frontend. Podés ingresar tu email directamente para probar el acceso o configurar tu Client ID en el archivo <code className="text-white">.env</code>.
+            <p className="text-muted font-sans text-xs font-light leading-relaxed">
+              No se detectó <code className="text-ink">VITE_GOOGLE_CLIENT_ID</code> en el frontend. Podés ingresar tu email directamente para probar el acceso o configurar tu Client ID en el archivo <code className="text-ink">.env</code>.
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export function GoogleLoginButton({
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
+          <div className="flex justify-end gap-3 pt-3 border-t border-ink/10">
             <button
               type="button"
               onClick={() => setModalDev(false)}

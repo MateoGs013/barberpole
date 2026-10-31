@@ -97,7 +97,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="lg:hidden fixed bottom-3 inset-x-3 z-40 bg-zinc-950/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.8)] px-2 py-1">
+      <nav className="lg:hidden fixed bottom-3 inset-x-3 z-40 bg-surface/90 backdrop-blur-xl border border-ink/10 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.8)] px-2 py-1">
         <ul className={`grid ${columnas} items-center`}>
           {principales.map((item) => {
             const Icono = ICONOS[item.to] || Calendar
@@ -108,8 +108,8 @@ export function BottomNav() {
                   className={({ isActive }) =>
                     `flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl text-center transition-all ${
                       isActive
-                        ? 'text-white bg-white/10 font-medium'
-                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                        ? 'text-ink bg-ink/10 font-medium'
+                        : 'text-muted hover:text-ink hover:bg-ink/5'
                     }`
                   }
                 >
@@ -126,7 +126,7 @@ export function BottomNav() {
               <button
                 type="button"
                 onClick={() => setMasAbierto(true)}
-                className="w-full h-full flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl text-center text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                className="w-full h-full flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl text-center text-muted hover:text-ink hover:bg-ink/5 transition-all"
               >
                 <MoreHorizontal className="w-4 h-4" />
                 <span className="font-mono text-[9px] uppercase tracking-wider leading-none">
@@ -147,9 +147,9 @@ export function BottomNav() {
               <li key={item.to}>
                 <button
                   onClick={() => irY(item.to)}
-                  className="w-full text-left rounded-xl border border-white/10 bg-zinc-900/50 hover:bg-zinc-850 hover:border-white/20 px-4 py-3 flex items-center gap-3 transition-all text-zinc-200"
+                  className="w-full text-left rounded-xl border border-ink/10 bg-elevated/50 hover:bg-elevated hover:border-ink/20 px-4 py-3 flex items-center gap-3 transition-all text-ink"
                 >
-                  <Icono className="w-5 h-5 text-zinc-400" />
+                  <Icono className="w-5 h-5 text-muted" />
                   <span className="font-mono text-xs uppercase tracking-wider">
                     {item.label}
                   </span>
@@ -157,7 +157,7 @@ export function BottomNav() {
               </li>
             )
           })}
-          <li className="pt-3 border-t border-white/10">
+          <li className="pt-3 border-t border-ink/10">
             <button
               onClick={onLogout}
               className="btn btn-peligro w-full justify-center"

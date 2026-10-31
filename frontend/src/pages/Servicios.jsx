@@ -53,12 +53,12 @@ export default function Servicios() {
   return (
     <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint mb-1">
             — CATÁLOGO DE TRABAJOS
           </p>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             SERVICIOS.
           </h1>
         </div>
@@ -69,7 +69,7 @@ export default function Servicios() {
         )}
       </div>
 
-      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando...</p>}
       {error && (
         <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar servicios
@@ -77,14 +77,14 @@ export default function Servicios() {
       )}
 
       {servicios && servicios.length === 0 && (
-        <div className="py-12 border border-white/10 text-center">
-          <p className="font-mono text-sm uppercase text-neutral-400">No hay servicios cargados</p>
+        <div className="py-12 border border-ink/10 text-center">
+          <p className="font-mono text-sm uppercase text-muted">No hay servicios cargados</p>
         </div>
       )}
 
       {servicios && servicios.length > 0 && (
         <div className="space-y-6">
-          <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+          <ul className="divide-y divide-ink/10 border-t border-b border-ink/10">
             {pagina.map((s) => (
               <FilaServicio
                 key={s._id}
@@ -131,10 +131,10 @@ export default function Servicios() {
 
 function FilaServicio({ servicio, esAdmin, onEditar, onEliminar }) {
   return (
-    <li className="py-5 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <li className="py-5 px-2 hover:bg-ink/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-white truncate">
+          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-ink truncate">
             {servicio.nombre}
           </h3>
           {!servicio.activo && (
@@ -142,14 +142,14 @@ function FilaServicio({ servicio, esAdmin, onEditar, onEliminar }) {
           )}
         </div>
         {servicio.descripcion && (
-          <p className="font-sans text-xs text-neutral-400 mb-2 line-clamp-2 max-w-2xl font-light">
+          <p className="font-sans text-xs text-muted mb-2 line-clamp-2 max-w-2xl font-light">
             {servicio.descripcion}
           </p>
         )}
-        <div className="flex items-center gap-3 font-mono text-xs text-neutral-500">
+        <div className="flex items-center gap-3 font-mono text-xs text-faint">
           <span>{servicio.duracionMinutos} MIN</span>
           <span>·</span>
-          <span className="text-white font-semibold">${servicio.precio?.toLocaleString('es-AR')}</span>
+          <span className="text-ink font-semibold">${servicio.precio?.toLocaleString('es-AR')}</span>
         </div>
       </div>
 
@@ -272,12 +272,12 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
           type="checkbox"
           checked={activo}
           onChange={(e) => setActivo(e.target.checked)}
-          className="w-4 h-4 rounded-none accent-white cursor-pointer"
+          className="w-4 h-4 rounded-none accent-ink cursor-pointer"
         />
-        <span className="font-mono text-xs uppercase tracking-wider text-neutral-300">Servicio activo</span>
+        <span className="font-mono text-xs uppercase tracking-wider text-muted">Servicio activo</span>
       </label>
 
-      <div className="flex gap-3 pt-6 border-t border-white/10">
+      <div className="flex gap-3 pt-6 border-t border-ink/10">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
           Cancelar
         </button>

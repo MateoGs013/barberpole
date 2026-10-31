@@ -1,16 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
+      // Colores semánticos respaldados por tokens CSS (ver src/index.css).
+      // El sufijo /<alpha-value> permite opacidades: bg-ink/10, border-ink/20, etc.
       colors: {
-        fondo: '#050505',
-        superficie: '#0c0c0e',
-        elevado: '#141417',
-        negro: '#050505',
-        crema: '#050505', // compat
-        'rojo-faro': '#E60026',
-        'azul-faro': '#0044CC',
+        canvas: 'rgb(var(--canvas) / <alpha-value>)',
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        elevated: 'rgb(var(--elevated) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        faint: 'rgb(var(--faint) / <alpha-value>)',
+        line: 'rgb(var(--line) / <alpha-value>)',
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],

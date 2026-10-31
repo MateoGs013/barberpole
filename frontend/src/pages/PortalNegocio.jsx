@@ -210,8 +210,8 @@ export default function PortalNegocio() {
 
   if (cargandoSalon) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="font-mono text-xs text-neutral-500 uppercase tracking-widest animate-pulse">
+      <div className="min-h-screen bg-canvas text-ink flex items-center justify-center p-6">
+        <div className="font-mono text-xs text-faint uppercase tracking-widest animate-pulse">
           Cargando agenda...
         </div>
       </div>
@@ -220,11 +220,11 @@ export default function PortalNegocio() {
 
   if (errorSalon || !negocio) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-        <div className="text-center max-w-md border border-white/10 p-10">
-          <p className="font-mono text-5xl font-light text-white">404</p>
-          <h1 className="font-mono text-lg text-white uppercase mt-4">Espacio no encontrado</h1>
-          <p className="font-mono text-xs text-neutral-500 mt-2 uppercase">
+      <div className="min-h-screen bg-canvas text-ink flex items-center justify-center p-6">
+        <div className="text-center max-w-md border border-ink/10 p-10">
+          <p className="font-mono text-5xl font-light text-ink">404</p>
+          <h1 className="font-mono text-lg text-ink uppercase mt-4">Espacio no encontrado</h1>
+          <p className="font-mono text-xs text-faint mt-2 uppercase">
             El enlace no existe o fue dado de baja.
           </p>
           <Link to="/" className="btn btn-primario mt-8 inline-block">
@@ -236,20 +236,20 @@ export default function PortalNegocio() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-black text-white p-6 sm:p-10 md:p-14 lg:p-20 pb-36 flex flex-col justify-between selection:bg-white selection:text-black">
+    <div className="min-h-screen w-full bg-canvas text-ink p-6 sm:p-10 md:p-14 lg:p-20 pb-36 flex flex-col justify-between selection:bg-ink selection:text-canvas">
       {/* Header Objetivo B&W */}
-      <header className="w-full border-b border-white/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-neutral-400">
+      <header className="w-full border-b border-ink/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-muted">
         <div className="flex items-center gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-white font-medium text-sm tracking-tight">{negocio.nombre}</h1>
+              <h1 className="text-ink font-medium text-sm tracking-tight">{negocio.nombre}</h1>
               {negocio.modalidad === 'particular' && (
-                <span className="text-[10px] px-1.5 py-0.5 border border-white/20 text-neutral-300 font-mono">
+                <span className="text-[10px] px-1.5 py-0.5 border border-ink/20 text-muted font-mono">
                   ESTUDIO PRIVADO
                 </span>
               )}
             </div>
-            <span className="text-neutral-500 text-xs font-mono">
+            <span className="text-faint text-xs font-mono">
               {negocio.direccion || 'BUENOS AIRES'}
             </span>
           </div>
@@ -258,11 +258,11 @@ export default function PortalNegocio() {
         <div className="flex items-center gap-3">
           <ThemeToggle className="hidden sm:inline-flex" />
           {usuario ? (
-            <Link to="/dashboard" className="text-white hover:underline">
+            <Link to="/dashboard" className="text-ink hover:underline">
               Mi cuenta ↗
             </Link>
           ) : (
-            <Link to="/login" className="px-3 py-1.5 border border-white/20 text-white hover:bg-white hover:text-black transition-colors">
+            <Link to="/login" className="px-3 py-1.5 border border-ink/20 text-ink hover:bg-ink hover:text-canvas transition-colors">
               Ingresar
             </Link>
           )}
@@ -270,24 +270,24 @@ export default function PortalNegocio() {
       </header>
 
       {/* Stepper Objetivo con Guiones Editoriales */}
-      <div className="w-full border-b border-white/10 py-4 my-6">
+      <div className="w-full border-b border-ink/10 py-4 my-6">
         <div className="flex items-center gap-4 sm:gap-6 font-mono text-xs overflow-x-auto scrollbar-none">
           {/* Paso 1: Servicio */}
           <button
             type="button"
             onClick={() => setPaso(1)}
             className={`flex items-center gap-2 cursor-pointer shrink-0 transition-colors ${
-              paso === 1 ? 'text-white font-semibold' : servicioId ? 'text-neutral-400 hover:text-white' : 'text-neutral-600'
+              paso === 1 ? 'text-ink font-semibold' : servicioId ? 'text-muted hover:text-ink' : 'text-faint'
             }`}
           >
-            <span className={`px-1.5 py-0.5 text-[10px] ${paso === 1 ? 'bg-white text-black' : 'border border-white/20'}`}>
+            <span className={`px-1.5 py-0.5 text-[10px] ${paso === 1 ? 'bg-ink text-canvas' : 'border border-ink/20'}`}>
               01
             </span>
             <span>SERVICIO ↘</span>
-            {servicioId && <Check className="w-3 h-3 text-white" />}
+            {servicioId && <Check className="w-3 h-3 text-ink" />}
           </button>
 
-          <span className="text-neutral-700">—</span>
+          <span className="text-faint">—</span>
 
           {/* Paso 2: Profesional (Oculto o simplificado si es particular/unipersonal) */}
           {!esParticularOUnipersonal && (
@@ -297,17 +297,17 @@ export default function PortalNegocio() {
                 onClick={() => servicioId && setPaso(2)}
                 disabled={!servicioId}
                 className={`flex items-center gap-2 shrink-0 transition-colors ${
-                  !servicioId ? 'text-neutral-700 cursor-not-allowed' : paso === 2 ? 'text-white font-semibold cursor-pointer' : empleadoId ? 'text-neutral-400 hover:text-white cursor-pointer' : 'text-neutral-600 cursor-pointer'
+                  !servicioId ? 'text-faint cursor-not-allowed' : paso === 2 ? 'text-ink font-semibold cursor-pointer' : empleadoId ? 'text-muted hover:text-ink cursor-pointer' : 'text-faint cursor-pointer'
                 }`}
               >
-                <span className={`px-1.5 py-0.5 text-[10px] ${paso === 2 ? 'bg-white text-black' : 'border border-white/20'}`}>
+                <span className={`px-1.5 py-0.5 text-[10px] ${paso === 2 ? 'bg-ink text-canvas' : 'border border-ink/20'}`}>
                   02
                 </span>
                 <span>PROFESIONAL ↘</span>
-                {empleadoId && <Check className="w-3 h-3 text-white" />}
+                {empleadoId && <Check className="w-3 h-3 text-ink" />}
               </button>
 
-              <span className="text-neutral-700">—</span>
+              <span className="text-faint">—</span>
             </>
           )}
 
@@ -317,17 +317,17 @@ export default function PortalNegocio() {
             onClick={() => servicioId && empleadoId && setPaso(3)}
             disabled={!servicioId || !empleadoId}
             className={`flex items-center gap-2 shrink-0 transition-colors ${
-              !servicioId || !empleadoId ? 'text-neutral-700 cursor-not-allowed' : paso === 3 ? 'text-white font-semibold cursor-pointer' : hora ? 'text-neutral-400 hover:text-white cursor-pointer' : 'text-neutral-600 cursor-pointer'
+              !servicioId || !empleadoId ? 'text-faint cursor-not-allowed' : paso === 3 ? 'text-ink font-semibold cursor-pointer' : hora ? 'text-muted hover:text-ink cursor-pointer' : 'text-faint cursor-pointer'
             }`}
           >
-            <span className={`px-1.5 py-0.5 text-[10px] ${paso === 3 ? 'bg-white text-black' : 'border border-white/20'}`}>
+            <span className={`px-1.5 py-0.5 text-[10px] ${paso === 3 ? 'bg-ink text-canvas' : 'border border-ink/20'}`}>
               {esParticularOUnipersonal ? '02' : '03'}
             </span>
             <span>FECHA Y HORA ↘</span>
-            {hora && <Check className="w-3 h-3 text-white" />}
+            {hora && <Check className="w-3 h-3 text-ink" />}
           </button>
 
-          <span className="text-neutral-700">—</span>
+          <span className="text-faint">—</span>
 
           {/* Paso 4: Ticket */}
           <button
@@ -335,10 +335,10 @@ export default function PortalNegocio() {
             onClick={() => sePuedeReservar && setPaso(4)}
             disabled={!sePuedeReservar}
             className={`flex items-center gap-2 shrink-0 transition-colors ${
-              !sePuedeReservar ? 'text-neutral-700 cursor-not-allowed' : paso === 4 ? 'text-white font-semibold cursor-pointer' : 'text-neutral-400 hover:text-white cursor-pointer'
+              !sePuedeReservar ? 'text-faint cursor-not-allowed' : paso === 4 ? 'text-ink font-semibold cursor-pointer' : 'text-muted hover:text-ink cursor-pointer'
             }`}
           >
-            <span className={`px-1.5 py-0.5 text-[10px] ${paso === 4 ? 'bg-white text-black' : 'border border-white/20'}`}>
+            <span className={`px-1.5 py-0.5 text-[10px] ${paso === 4 ? 'bg-ink text-canvas' : 'border border-ink/20'}`}>
               {esParticularOUnipersonal ? '03' : '04'}
             </span>
             <span>COMPROBANTE ↘</span>
@@ -359,26 +359,26 @@ export default function PortalNegocio() {
               transition={{ duration: 0.15 }}
               className="space-y-6"
             >
-              <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
+              <div className="flex items-baseline justify-between border-b border-ink/10 pb-4">
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
+                  <p className="font-mono text-xs uppercase tracking-widest text-faint">
                     01 — CATÁLOGO DE SERVICIOS
                   </p>
-                  <h2 className="font-mono font-medium text-2xl text-white mt-1 uppercase">
+                  <h2 className="font-mono font-medium text-2xl text-ink mt-1 uppercase">
                     Elegí el servicio
                   </h2>
                 </div>
-                <span className="font-mono text-xs text-neutral-500 uppercase">
+                <span className="font-mono text-xs text-faint uppercase">
                   {servicios.length} disponibles
                 </span>
               </div>
 
               {servicios.length === 0 ? (
-                <p className="font-mono text-xs text-neutral-500 uppercase">
+                <p className="font-mono text-xs text-faint uppercase">
                   No hay servicios registrados en este momento.
                 </p>
               ) : (
-                <div className="divide-y divide-white/10 border-b border-white/10">
+                <div className="divide-y divide-ink/10 border-b border-ink/10">
                   {servicios.map((s) => {
                     const activo = s._id === servicioId
                     return (
@@ -394,14 +394,14 @@ export default function PortalNegocio() {
                           }
                         }}
                         className={`group py-5 px-4 -mx-4 flex items-baseline justify-between transition-colors cursor-pointer ${
-                          activo ? 'bg-white text-black' : 'hover:bg-white/5 text-neutral-300 hover:text-white'
+                          activo ? 'bg-ink text-canvas' : 'hover:bg-ink/5 text-muted hover:text-ink'
                         }`}
                       >
                         <div>
                           <div className="font-mono text-lg font-medium tracking-tight">
                             {s.nombre}
                           </div>
-                          <div className={`font-mono text-xs mt-1 ${activo ? 'text-neutral-700' : 'text-neutral-500'}`}>
+                          <div className={`font-mono text-xs mt-1 ${activo ? 'text-faint' : 'text-faint'}`}>
                             {s.duracionMinutos} MIN {s.descripcion ? `· ${s.descripcion}` : ''}
                           </div>
                         </div>
@@ -432,33 +432,33 @@ export default function PortalNegocio() {
               transition={{ duration: 0.15 }}
               className="space-y-6"
             >
-              <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
+              <div className="flex items-baseline justify-between border-b border-ink/10 pb-4">
                 <div>
                   <button
                     type="button"
                     onClick={() => setPaso(1)}
-                    className="font-mono text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
+                    className="font-mono text-xs text-faint hover:text-ink transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
                   >
                     <ArrowLeft className="w-3 h-3" />
                     <span>Volver a servicios</span>
                   </button>
-                  <h2 className="font-mono font-medium text-2xl text-white uppercase">
+                  <h2 className="font-mono font-medium text-2xl text-ink uppercase">
                     Elegí el profesional
                   </h2>
                 </div>
                 {servicioElegido && (
-                  <span className="font-mono text-xs text-neutral-400 hidden sm:inline uppercase">
+                  <span className="font-mono text-xs text-muted hidden sm:inline uppercase">
                     {servicioElegido.nombre} · ${servicioElegido.precio?.toLocaleString('es-AR')}
                   </span>
                 )}
               </div>
 
               {empleados.length === 0 ? (
-                <p className="font-mono text-xs text-neutral-500 uppercase">
+                <p className="font-mono text-xs text-faint uppercase">
                   No hay profesionales disponibles en este momento.
                 </p>
               ) : (
-                <div className="divide-y divide-white/10 border-b border-white/10">
+                <div className="divide-y divide-ink/10 border-b border-ink/10">
                   {empleados.map((e) => {
                     const activo = e._id === empleadoId
                     return (
@@ -474,14 +474,14 @@ export default function PortalNegocio() {
                           }
                         }}
                         className={`group py-5 px-4 -mx-4 flex items-baseline justify-between transition-colors cursor-pointer ${
-                          activo ? 'bg-white text-black' : 'hover:bg-white/5 text-neutral-300 hover:text-white'
+                          activo ? 'bg-ink text-canvas' : 'hover:bg-ink/5 text-muted hover:text-ink'
                         }`}
                       >
                         <div>
                           <div className="font-mono text-lg font-medium tracking-tight">
                             {e.nombre}
                           </div>
-                          <div className={`font-mono text-xs mt-1 uppercase ${activo ? 'text-neutral-700' : 'text-neutral-500'}`}>
+                          <div className={`font-mono text-xs mt-1 uppercase ${activo ? 'text-faint' : 'text-faint'}`}>
                             {e.especialidad || 'Especialista'}
                           </div>
                         </div>
@@ -507,25 +507,25 @@ export default function PortalNegocio() {
               transition={{ duration: 0.15 }}
               className="space-y-6"
             >
-              <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
+              <div className="flex items-baseline justify-between border-b border-ink/10 pb-4">
                 <div>
                   <button
                     type="button"
                     onClick={() => setPaso(esParticularOUnipersonal ? 1 : 2)}
-                    className="font-mono text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
+                    className="font-mono text-xs text-faint hover:text-ink transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
                   >
                     <ArrowLeft className="w-3 h-3" />
                     <span>{esParticularOUnipersonal ? 'Volver a servicios' : 'Volver a profesionales'}</span>
                   </button>
-                  <h2 className="font-mono font-medium text-2xl text-white uppercase">
+                  <h2 className="font-mono font-medium text-2xl text-ink uppercase">
                     Elegí día y horario
                   </h2>
                 </div>
-                <div className="text-right font-mono text-xs text-neutral-400 hidden sm:block uppercase">
+                <div className="text-right font-mono text-xs text-muted hidden sm:block uppercase">
                   <span>{servicioElegido?.nombre}</span>
                   {empleadoElegido && (
                     <>
-                      <span className="text-neutral-600"> — </span>
+                      <span className="text-faint"> — </span>
                       <span>{empleadoElegido.nombre}</span>
                     </>
                   )}
@@ -544,18 +544,18 @@ export default function PortalNegocio() {
                 />
 
                 <div className="space-y-4">
-                  <div className="font-mono text-xs uppercase tracking-widest text-neutral-500">
+                  <div className="font-mono text-xs uppercase tracking-widest text-faint">
                     HORARIOS DISPONIBLES
                   </div>
 
                   {!fecha && (
-                    <div className="py-12 border border-white/10 text-center font-mono text-xs uppercase tracking-wider text-neutral-500">
+                    <div className="py-12 border border-ink/10 text-center font-mono text-xs uppercase tracking-wider text-faint">
                       ← Tocá un día en el calendario para consultar horarios
                     </div>
                   )}
 
                   {fecha && cargandoSlots && (
-                    <div className="py-12 border border-white/10 text-center font-mono text-xs uppercase tracking-wider text-white animate-pulse">
+                    <div className="py-12 border border-ink/10 text-center font-mono text-xs uppercase tracking-wider text-ink animate-pulse">
                       Consultando disponibilidad...
                     </div>
                   )}
@@ -567,7 +567,7 @@ export default function PortalNegocio() {
                   )}
 
                   {fecha && !cargandoSlots && !errorSlots && slots.length === 0 && (
-                    <div className="py-12 border border-white/10 text-center font-mono text-xs uppercase tracking-wider text-neutral-500">
+                    <div className="py-12 border border-ink/10 text-center font-mono text-xs uppercase tracking-wider text-faint">
                       Sin turnos libres para esta fecha. Probá otro día.
                     </div>
                   )}
@@ -589,11 +589,11 @@ export default function PortalNegocio() {
                       </div>
 
                       {hora && (
-                        <div className="pt-4 border-t border-white/10 flex justify-end">
+                        <div className="pt-4 border-t border-ink/10 flex justify-end">
                           <button
                             type="button"
                             onClick={() => setPaso(4)}
-                            className="px-6 py-3 bg-white text-black font-mono text-xs font-semibold uppercase tracking-wider hover:bg-neutral-200 transition-colors cursor-pointer"
+                            className="px-6 py-3 bg-ink text-canvas font-mono text-xs font-semibold uppercase tracking-wider hover:bg-ink/90 transition-colors cursor-pointer"
                           >
                             Ver Comprobante ↘
                           </button>
@@ -616,25 +616,25 @@ export default function PortalNegocio() {
               transition={{ duration: 0.15 }}
               className="space-y-6"
             >
-              <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
+              <div className="flex items-baseline justify-between border-b border-ink/10 pb-4">
                 <div>
                   {!turnoConfirmado && (
                     <button
                       type="button"
                       onClick={() => setPaso(3)}
-                      className="font-mono text-xs text-neutral-500 hover:text-white transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
+                      className="font-mono text-xs text-faint hover:text-ink transition-colors cursor-pointer mb-2 flex items-center gap-1 uppercase"
                     >
                       <ArrowLeft className="w-3 h-3" />
                       <span>Cambiar día u horario</span>
                     </button>
                   )}
-                  <h2 className="font-mono font-medium text-2xl text-white uppercase">
+                  <h2 className="font-mono font-medium text-2xl text-ink uppercase">
                     {turnoConfirmado ? 'Reserva Confirmada' : 'Comprobante de Reserva'}
                   </h2>
                 </div>
                 <span
                   className={`font-mono text-xs uppercase tracking-widest ${
-                    turnoConfirmado ? 'text-emerald-400 font-semibold' : 'text-neutral-400'
+                    turnoConfirmado ? 'text-emerald-400 font-semibold' : 'text-muted'
                   }`}
                 >
                   {turnoConfirmado ? '● CONFIRMADO' : 'ETAPA FINAL'}
@@ -648,12 +648,12 @@ export default function PortalNegocio() {
               )}
 
               {!usuario && !turnoConfirmado && (
-                <div className="p-4 border border-white/20 bg-white/5 font-mono text-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="p-4 border border-ink/20 bg-ink/5 font-mono text-xs flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <div className="text-white font-medium uppercase tracking-wider">
+                    <div className="text-ink font-medium uppercase tracking-wider">
                       ACCESO DIRECTO 1-CLICK
                     </div>
-                    <p className="text-neutral-400 font-sans text-xs">
+                    <p className="text-muted font-sans text-xs">
                       Ingresá con Google para confirmar la reserva y sincronizar en tu calendario.
                     </p>
                   </div>
@@ -697,11 +697,11 @@ export default function PortalNegocio() {
 
       {/* Barra de control inferior fija si paso < 4 */}
       {!turnoConfirmado && paso < 4 && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-black/95 border-t border-white/10 px-6 sm:px-12 py-4">
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-canvas/95 border-t border-ink/10 px-6 sm:px-12 py-4">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 font-mono text-xs">
-            <div className="text-neutral-400 uppercase tracking-wider truncate">
-              <span className="text-neutral-600">{negocio.nombre}:</span>{' '}
-              <span className="text-white">
+            <div className="text-muted uppercase tracking-wider truncate">
+              <span className="text-faint">{negocio.nombre}:</span>{' '}
+              <span className="text-ink">
                 {servicioElegido?.nombre || '— SERVICIO —'} ·{' '}
                 {empleadoElegido?.nombre || '— PROFESIONAL —'} ·{' '}
                 {fecha && hora ? `${fecha} ${hora} HS` : '— FECHA Y HORA —'}
@@ -712,7 +712,7 @@ export default function PortalNegocio() {
               type="button"
               onClick={onConfirmar}
               disabled={!sePuedeReservar || enviando}
-              className="px-6 py-3 bg-white text-black font-semibold uppercase tracking-wider hover:bg-neutral-200 transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer shrink-0"
+              className="px-6 py-3 bg-ink text-canvas font-semibold uppercase tracking-wider hover:bg-ink/90 transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer shrink-0"
             >
               {enviando ? 'Confirmando...' : 'Confirmar Reserva ↗'}
             </button>

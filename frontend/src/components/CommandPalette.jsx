@@ -236,7 +236,7 @@ export function CommandPalette() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setAbierto(false)}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 bg-canvas/80 backdrop-blur-md"
           />
 
           {/* Modal flotante de comando */}
@@ -245,11 +245,11 @@ export function CommandPalette() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -10 }}
             transition={{ type: 'spring', stiffness: 450, damping: 30 }}
-            className="relative w-full max-w-xl rounded-2xl bg-zinc-950/95 border border-white/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden z-10 text-zinc-100"
+            className="relative w-full max-w-xl rounded-2xl bg-surface/95 border border-ink/15 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden z-10 text-ink"
           >
             {/* Input Header */}
-            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/10">
-              <Search className="w-4 h-4 text-zinc-500 shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-ink/10">
+              <Search className="w-4 h-4 text-faint shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -260,9 +260,9 @@ export function CommandPalette() {
                   setIndiceSeleccionado(0)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-transparent text-sm font-mono text-zinc-100 placeholder-zinc-500 focus:outline-none"
+                className="w-full bg-transparent text-sm font-mono text-ink placeholder-zinc-500 focus:outline-none"
               />
-              <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 border border-white/10 px-1.5 py-0.5 rounded select-none">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-faint border border-ink/10 px-1.5 py-0.5 rounded select-none">
                 ESC
               </span>
             </div>
@@ -270,7 +270,7 @@ export function CommandPalette() {
             {/* Lista de Comandos */}
             <div className="max-h-80 overflow-y-auto p-2 space-y-1">
               {comandosFiltrados.length === 0 ? (
-                <div className="py-8 text-center text-zinc-500 font-mono text-xs">
+                <div className="py-8 text-center text-faint font-mono text-xs">
                   No se encontraron comandos para &quot;{busqueda}&quot;
                 </div>
               ) : (
@@ -285,31 +285,31 @@ export function CommandPalette() {
                       onMouseEnter={() => setIndiceSeleccionado(idx)}
                       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all ${
                         estaSeleccionado
-                          ? 'bg-white/10 text-white shadow-inner'
-                          : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                          ? 'bg-ink/10 text-ink shadow-inner'
+                          : 'text-muted hover:text-ink hover:bg-ink/5'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div
                           className={`p-1.5 rounded-md ${
-                            estaSeleccionado ? 'bg-white text-black' : 'bg-zinc-900 text-zinc-400'
+                            estaSeleccionado ? 'bg-ink text-canvas' : 'bg-elevated text-muted'
                           }`}
                         >
                           <Icon className="w-4 h-4" />
                         </div>
                         <div className="truncate">
-                          <p className="font-mono text-xs font-medium tracking-tight text-white">
+                          <p className="font-mono text-xs font-medium tracking-tight text-ink">
                             {cmd.titulo}
                           </p>
                           {cmd.subtitulo && (
-                            <p className="font-mono text-[10px] text-zinc-500 truncate">
+                            <p className="font-mono text-[10px] text-faint truncate">
                               {cmd.subtitulo}
                             </p>
                           )}
                         </div>
                       </div>
 
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-600 shrink-0 ml-2">
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-faint shrink-0 ml-2">
                         {cmd.categoria}
                       </span>
                     </button>
@@ -319,12 +319,12 @@ export function CommandPalette() {
             </div>
 
             {/* Footer de atajos */}
-            <div className="flex items-center justify-between px-4 py-2 border-t border-white/5 bg-zinc-900/50 font-mono text-[10px] text-zinc-500">
+            <div className="flex items-center justify-between px-4 py-2 border-t border-ink/5 bg-elevated/50 font-mono text-[10px] text-faint">
               <div className="flex items-center gap-3">
                 <span>↑↓ Navegar</span>
                 <span>↵ Seleccionar</span>
               </div>
-              <span className="text-zinc-600">BarberPole Command Engine</span>
+              <span className="text-faint">BarberPole Command Engine</span>
             </div>
           </motion.div>
         </div>

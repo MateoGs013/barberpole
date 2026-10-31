@@ -2,7 +2,7 @@
 export function BarberPole({ className = '' }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/20 shadow-[0_0_50px_rgba(255,255,255,0.06)] bg-zinc-950 ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-ink/20 shadow-[0_0_50px_rgba(255,255,255,0.06)] bg-surface ${className}`}
     >
       <div
         className="absolute inset-0 opacity-40 animate-pulse-subtle"
@@ -22,8 +22,8 @@ export function BarberPole({ className = '' }) {
         }}
       />
       {/* Reflejo especular de cristal */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent pointer-events-none" />
-      <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-ink/[0.04] to-transparent pointer-events-none" />
+      <div className="absolute inset-0 ring-1 ring-inset ring-ink/10 rounded-2xl pointer-events-none" />
     </div>
   )
 }

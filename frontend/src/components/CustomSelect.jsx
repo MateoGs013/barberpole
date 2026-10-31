@@ -120,15 +120,15 @@ export function CustomSelect({
         aria-haspopup="listbox"
         aria-expanded={abierto}
         className={`w-full py-2.5 px-0 bg-transparent border-b text-left font-mono text-xs flex items-center justify-between gap-2 select-none transition-all duration-150 outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-          abierto ? 'border-white text-white' : 'border-white/20 hover:border-white/50 text-white'
+          abierto ? 'border-ink text-ink' : 'border-ink/20 hover:border-ink/50 text-ink'
         }`}
       >
-        <span className={`truncate ${seleccionada ? 'text-white font-medium' : 'text-neutral-500'}`}>
+        <span className={`truncate ${seleccionada ? 'text-ink font-medium' : 'text-faint'}`}>
           {seleccionada ? seleccionada.label : placeholder}
         </span>
         <ChevronDown
           className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
-            abierto ? 'rotate-180 text-white' : 'text-neutral-400'
+            abierto ? 'rotate-180 text-ink' : 'text-muted'
           }`}
         />
       </button>
@@ -155,10 +155,10 @@ export function CustomSelect({
         <div
           role="listbox"
           tabIndex={-1}
-          className="absolute z-50 left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-[#0a0a0a] border border-white/20 shadow-2xl text-xs font-mono animate-in fade-in zoom-in-95 duration-100 divide-y divide-white/5"
+          className="absolute z-50 left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-[#0a0a0a] border border-ink/20 shadow-2xl text-xs font-mono animate-in fade-in zoom-in-95 duration-100 divide-y divide-ink/5"
         >
           {normalizadas.length === 0 ? (
-            <div className="px-4 py-3 text-neutral-500 italic uppercase tracking-wider text-[11px]">
+            <div className="px-4 py-3 text-faint italic uppercase tracking-wider text-[11px]">
               Sin opciones disponibles
             </div>
           ) : (
@@ -175,10 +175,10 @@ export function CustomSelect({
                   onMouseEnter={() => setFocusIndex(idx)}
                   className={`px-4 py-3 flex items-center justify-between gap-3 cursor-pointer transition-colors duration-100 ${
                     estaSeleccionado
-                      ? 'bg-white text-black font-medium'
+                      ? 'bg-ink text-canvas font-medium'
                       : tieneFoco
-                      ? 'bg-white/10 text-white'
-                      : 'text-neutral-300 hover:bg-white/5 hover:text-white'
+                      ? 'bg-ink/10 text-ink'
+                      : 'text-muted hover:bg-ink/5 hover:text-ink'
                   }`}
                 >
                   <div className="flex flex-col min-w-0 pr-2">
@@ -186,7 +186,7 @@ export function CustomSelect({
                     {opt.sublabel && (
                       <span
                         className={`text-[11px] font-sans font-light truncate ${
-                          estaSeleccionado ? 'text-neutral-700' : 'text-neutral-500'
+                          estaSeleccionado ? 'text-faint' : 'text-faint'
                         }`}
                       >
                         {opt.sublabel}
@@ -198,13 +198,13 @@ export function CustomSelect({
                     {opt.badge && (
                       <span
                         className={`text-[9px] uppercase px-1.5 py-0.5 border ${
-                          estaSeleccionado ? 'border-black text-black' : 'border-white/20 text-neutral-400'
+                          estaSeleccionado ? 'border-canvas text-canvas' : 'border-ink/20 text-muted'
                         }`}
                       >
                         {opt.badge}
                       </span>
                     )}
-                    {estaSeleccionado && <Check className="w-3.5 h-3.5 text-black shrink-0" />}
+                    {estaSeleccionado && <Check className="w-3.5 h-3.5 text-canvas shrink-0" />}
                   </div>
                 </div>
               )

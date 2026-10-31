@@ -150,12 +150,12 @@ export default function Turnos() {
   return (
     <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
       {/* Header Zen */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint mb-1">
             — {esCliente ? 'PANEL DE CLIENTE' : 'AGENDA & OPERACIONES'}
           </p>
-          <h1 className="text-3xl sm:text-5xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-3xl sm:text-5xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             {esCliente ? 'MIS TURNOS.' : 'TURNOS.'}
           </h1>
         </div>
@@ -186,8 +186,8 @@ export default function Turnos() {
       </div>
 
       {/* Barra de Filtros Tabular Hairline */}
-      <div className="p-4 border border-white/10 space-y-4">
-        <div className="flex items-center justify-between font-mono text-xs text-neutral-400 uppercase tracking-wider">
+      <div className="p-4 border border-ink/10 space-y-4">
+        <div className="flex items-center justify-between font-mono text-xs text-muted uppercase tracking-wider">
           <span className="flex items-center gap-2">
             <Filter className="w-3.5 h-3.5" />
             <span>Filtros de Agenda</span>
@@ -196,7 +196,7 @@ export default function Turnos() {
             <button
               type="button"
               onClick={limpiarFiltros}
-              className="text-neutral-400 hover:text-white underline cursor-pointer"
+              className="text-muted hover:text-ink underline cursor-pointer"
             >
               Limpiar filtros [✕]
             </button>
@@ -263,7 +263,7 @@ export default function Turnos() {
 
       {/* Estados de Carga o Error */}
       {cargando && (
-        <div className="py-12 text-center font-mono text-xs uppercase text-neutral-500 tracking-widest animate-pulse">
+        <div className="py-12 text-center font-mono text-xs uppercase text-faint tracking-widest animate-pulse">
           Sincronizando agenda con Slot Engine...
         </div>
       )}
@@ -275,7 +275,7 @@ export default function Turnos() {
       )}
 
       {turnos && turnos.length === 0 && !cargando && (
-        <div className="p-12 text-center border border-white/10 font-mono text-xs uppercase text-neutral-400">
+        <div className="p-12 text-center border border-ink/10 font-mono text-xs uppercase text-muted">
           No hay turnos registrados {hayFiltros ? 'con los filtros seleccionados' : 'en la agenda'}
         </div>
       )}
@@ -286,16 +286,16 @@ export default function Turnos() {
           const fechaDelGrupo = new Date(lista[0].fechaHora)
           return (
             <section key={clave} className="space-y-3">
-              <header className="flex items-baseline justify-between border-b border-white/15 pb-2">
-                <h2 className="font-mono text-base sm:text-lg font-medium uppercase tracking-wider text-white">
+              <header className="flex items-baseline justify-between border-b border-ink/15 pb-2">
+                <h2 className="font-mono text-base sm:text-lg font-medium uppercase tracking-wider text-ink">
                   {formatearDia(fechaDelGrupo)}
                 </h2>
-                <span className="font-mono text-xs uppercase text-neutral-500">
+                <span className="font-mono text-xs uppercase text-faint">
                   {lista.length} {lista.length === 1 ? 'turno' : 'turnos'}
                 </span>
               </header>
 
-              <ul className="divide-y divide-white/10 border-b border-white/10">
+              <ul className="divide-y divide-ink/10 border-b border-ink/10">
                 {lista.map((turno) => (
                   <FilaTurnoEditorial
                     key={turno._id}
@@ -373,13 +373,13 @@ function FilaTurnoEditorial({
   const claseBadge = CLASES_BADGE_ESTADO[turno.estado] || 'badge-pendiente'
 
   return (
-    <li className="py-4 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs">
+    <li className="py-4 px-2 hover:bg-ink/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs">
       {/* Columna Hora & Duración */}
       <div className="flex sm:flex-col items-baseline sm:items-start gap-2 sm:gap-0 sm:min-w-[100px] shrink-0">
-        <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight text-white leading-none">
+        <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight text-ink leading-none">
           {formatearHora(fecha)}
         </span>
-        <span className="text-[10px] uppercase text-neutral-500 tracking-wider mt-1">
+        <span className="text-[10px] uppercase text-faint tracking-wider mt-1">
           {turno.duracionMinutos || turno.servicio?.duracionMinutos || 30} MIN
         </span>
       </div>
@@ -389,7 +389,7 @@ function FilaTurnoEditorial({
         <div className="flex items-center gap-2 flex-wrap">
           <span className={`badge ${claseBadge}`}>{turno.estado}</span>
           {turno.precioCobrado != null && (
-            <span className="font-mono text-xs text-white font-medium">
+            <span className="font-mono text-xs text-ink font-medium">
               ${turno.precioCobrado.toLocaleString('es-AR')}
             </span>
           )}
@@ -400,18 +400,18 @@ function FilaTurnoEditorial({
           )}
         </div>
 
-        <h3 className="font-mono text-base uppercase text-white font-medium truncate">
+        <h3 className="font-mono text-base uppercase text-ink font-medium truncate">
           {turno.cliente?.nombre || '—'}
         </h3>
 
-        <p className="text-neutral-400 text-xs">
-          <span className="text-white">{turno.servicio?.nombre || 'Servicio'}</span>
-          <span className="text-neutral-600"> — </span>
+        <p className="text-muted text-xs">
+          <span className="text-ink">{turno.servicio?.nombre || 'Servicio'}</span>
+          <span className="text-faint"> — </span>
           <span>{turno.empleado?.nombre || 'Profesional'}</span>
         </p>
 
         {turno.notas && (
-          <p className="text-neutral-500 text-[11px] italic truncate">
+          <p className="text-faint text-[11px] italic truncate">
             Nota: {turno.notas}
           </p>
         )}
@@ -438,7 +438,7 @@ function FilaTurnoEditorial({
             title="Abrir y guardar este turno en tu Google Calendar"
           >
             <span>+ Calendar</span>
-            <span className="text-zinc-500">↗</span>
+            <span className="text-faint">↗</span>
           </a>
         )}
 
@@ -683,16 +683,16 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
       </div>
 
       {/* Sección 2: Slot Engine Unificado */}
-      <div className="border border-white/10 p-4 space-y-4 bg-white/[0.01]">
-        <div className="flex items-center justify-between border-b border-white/10 pb-2">
-          <span className="uppercase text-neutral-400 tracking-wider">
+      <div className="border border-ink/10 p-4 space-y-4 bg-ink/[0.01]">
+        <div className="flex items-center justify-between border-b border-ink/10 pb-2">
+          <span className="uppercase text-muted tracking-wider">
             DISPONIBILIDAD & HORARIOS — SLOT ENGINE
           </span>
           {esEdicion && (
             <button
               type="button"
               onClick={() => setReagendarActivo(!reagendarActivo)}
-              className="text-neutral-300 hover:text-white uppercase underline cursor-pointer"
+              className="text-muted hover:text-ink uppercase underline cursor-pointer"
             >
               {reagendarActivo ? 'Mantener Horario Actual' : 'Modificar Horario'}
             </button>
@@ -700,17 +700,17 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
         </div>
 
         {!reagendarActivo ? (
-          <div className="p-3 bg-white/5 flex items-center justify-between">
+          <div className="p-3 bg-ink/5 flex items-center justify-between">
             <div>
-              <span className="text-neutral-500 uppercase">HORARIO AGENDADO: </span>
-              <strong className="text-white">{fecha} a las {hora} HS</strong>
+              <span className="text-faint uppercase">HORARIO AGENDADO: </span>
+              <strong className="text-ink">{fecha} a las {hora} HS</strong>
             </div>
             <span className="badge badge-confirmado">SIN MODIFICACIONES</span>
           </div>
         ) : (
           <div className="space-y-4">
             {(!empleado || !servicio) ? (
-              <p className="text-neutral-500 italic py-4 text-center">
+              <p className="text-faint italic py-4 text-center">
                 ← Seleccioná un servicio y un profesional para consultar la matriz de horarios en vivo
               </p>
             ) : (
@@ -731,18 +731,18 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
                   <div className="flex items-center justify-between mb-2">
                     <label className="label !mb-0">2. Horarios Calculados</label>
                     {hora && (
-                      <span className="text-white uppercase tracking-wider font-medium">
+                      <span className="text-ink uppercase tracking-wider font-medium">
                         Slot: {hora} HS
                       </span>
                     )}
                   </div>
 
                   {cargandoSlots ? (
-                    <p className="text-neutral-500 animate-pulse py-4 text-center uppercase tracking-wider">
+                    <p className="text-faint animate-pulse py-4 text-center uppercase tracking-wider">
                       Consultando disponibilidad y bloqueos de Google Calendar...
                     </p>
                   ) : slots.length === 0 ? (
-                    <p className="text-neutral-500 py-4 text-center">
+                    <p className="text-faint py-4 text-center">
                       {fecha ? 'No hay turnos disponibles para este día.' : 'Seleccioná un día en el calendario.'}
                     </p>
                   ) : (
@@ -801,7 +801,7 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
       </div>
 
       {/* Botones de Acción */}
-      <div className="flex gap-3 pt-4 border-t border-white/10">
+      <div className="flex gap-3 pt-4 border-t border-ink/10">
         <button
           type="button"
           onClick={onCancelar}

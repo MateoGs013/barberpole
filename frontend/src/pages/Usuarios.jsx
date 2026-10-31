@@ -51,12 +51,12 @@ export default function Usuarios() {
 
   return (
     <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint mb-1">
             — GESTIÓN DE ACCESOS
           </p>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             USUARIOS.
           </h1>
         </div>
@@ -65,7 +65,7 @@ export default function Usuarios() {
         </button>
       </div>
 
-      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando...</p>}
       {error && (
         <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar usuarios
@@ -73,14 +73,14 @@ export default function Usuarios() {
       )}
 
       {usuarios && usuarios.length === 0 && (
-        <div className="py-12 border border-white/10 text-center">
-          <p className="font-mono text-sm uppercase text-neutral-400">No hay usuarios cargados</p>
+        <div className="py-12 border border-ink/10 text-center">
+          <p className="font-mono text-sm uppercase text-muted">No hay usuarios cargados</p>
         </div>
       )}
 
       {usuarios && usuarios.length > 0 && (
         <div className="space-y-6">
-          <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+          <ul className="divide-y divide-ink/10 border-t border-b border-ink/10">
             {pagina.map((u) => (
               <FilaUsuario
                 key={u._id}
@@ -128,10 +128,10 @@ export default function Usuarios() {
 
 function FilaUsuario({ usuario, esYo, onEditar, onEliminar }) {
   return (
-    <li className="py-4 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <li className="py-4 px-2 hover:bg-ink/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-white truncate">
+          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-ink truncate">
             {usuario.nombre}
           </h3>
           {esYo && (
@@ -141,7 +141,7 @@ function FilaUsuario({ usuario, esYo, onEditar, onEliminar }) {
             {usuario.rol}
           </span>
         </div>
-        <p className="font-mono text-xs text-neutral-400">
+        <p className="font-mono text-xs text-muted">
           {usuario.email}
         </p>
       </div>
@@ -224,7 +224,7 @@ function FormUsuario({ inicial, onCancelar, onGuardado, esSuperadmin = false }) 
 
       <div>
         <label className="label" htmlFor="password">
-          Contraseña {esEdicion && <span className="text-neutral-500 normal-case font-mono text-[10px]">(opcional — dejar vacío para mantener)</span>}
+          Contraseña {esEdicion && <span className="text-faint normal-case font-mono text-[10px]">(opcional — dejar vacío para mantener)</span>}
         </label>
         <input
           id="password"
@@ -248,7 +248,7 @@ function FormUsuario({ inicial, onCancelar, onGuardado, esSuperadmin = false }) 
         </select>
       </div>
 
-      <div className="flex gap-3 pt-6 border-t border-white/10">
+      <div className="flex gap-3 pt-6 border-t border-ink/10">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
           Cancelar
         </button>

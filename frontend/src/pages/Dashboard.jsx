@@ -73,15 +73,15 @@ export default function Dashboard() {
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-8">
       {/* Header Telemetría */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-white" />
-            <span className="font-mono text-xs uppercase tracking-widest text-zinc-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-ink" />
+            <span className="font-mono text-xs uppercase tracking-widest text-muted">
               Sesión activa · {usuario?.rol}
             </span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-display font-bold text-white tracking-tight leading-none uppercase">
+          <h1 className="text-3xl md:text-5xl font-display font-bold text-ink tracking-tight leading-none uppercase">
             {esCliente ? 'Tu Espacio.' : 'Consola de Control.'}
           </h1>
         </div>
@@ -113,7 +113,7 @@ export default function Dashboard() {
             className="btn btn-secundario self-start sm:self-auto text-xs font-mono uppercase flex items-center gap-2"
           >
             <span>Google Calendar</span>
-            <span className="text-zinc-500">↗</span>
+            <span className="text-faint">↗</span>
           </a>
         )}
       </div>
@@ -124,11 +124,11 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 text-emerald-300">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-semibold uppercase tracking-wider">MODO SUPERADMINISTRADOR</span>
-            <span className="text-neutral-400">— Plataforma central y directorio de tenants.</span>
+            <span className="text-muted">— Plataforma central y directorio de tenants.</span>
           </div>
           <Link
             to="/superadmin"
-            className="px-3 py-1.5 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-400 hover:text-black uppercase tracking-wider transition-colors shrink-0"
+            className="px-3 py-1.5 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-400 hover:text-canvas uppercase tracking-wider transition-colors shrink-0"
           >
             Ver Espacios Registrados →
           </Link>
@@ -138,45 +138,45 @@ export default function Dashboard() {
       {/* Bento Grid de KPIs con NumberTickers */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <SpotlightCard className="p-5">
-          <div className="flex items-center justify-between text-zinc-500 mb-3">
+          <div className="flex items-center justify-between text-faint mb-3">
             <span className="font-mono text-xs uppercase tracking-wider">
               {esCliente ? 'Mis turnos' : 'Turnos totales'}
             </span>
-            <Calendar className="w-4 h-4 text-zinc-400" />
+            <Calendar className="w-4 h-4 text-muted" />
           </div>
-          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             <NumberTicker value={total} />
           </p>
         </SpotlightCard>
 
         <SpotlightCard className="p-5">
-          <div className="flex items-center justify-between text-zinc-500 mb-3">
+          <div className="flex items-center justify-between text-faint mb-3">
             <span className="font-mono text-xs uppercase tracking-wider">Pendientes</span>
-            <AlertCircle className="w-4 h-4 text-zinc-400" />
+            <AlertCircle className="w-4 h-4 text-muted" />
           </div>
-          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             <NumberTicker value={pendientes} />
           </p>
         </SpotlightCard>
 
         <SpotlightCard className="p-5">
-          <div className="flex items-center justify-between text-zinc-500 mb-3">
+          <div className="flex items-center justify-between text-faint mb-3">
             <span className="font-mono text-xs uppercase tracking-wider">Confirmados</span>
-            <CheckCircle2 className="w-4 h-4 text-zinc-400" />
+            <CheckCircle2 className="w-4 h-4 text-muted" />
           </div>
-          <p className="font-mono font-bold text-3xl lg:text-4xl text-white tracking-tight">
+          <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             <NumberTicker value={confirmados} />
           </p>
         </SpotlightCard>
 
         <SpotlightCard className="p-5">
-          <div className="flex items-center justify-between text-zinc-500 mb-3">
+          <div className="flex items-center justify-between text-faint mb-3">
             <span className="font-mono text-xs uppercase tracking-wider">
               {esCliente ? 'Completados' : 'Facturación mes'}
             </span>
-            <TrendingUp className="w-4 h-4 text-zinc-400" />
+            <TrendingUp className="w-4 h-4 text-muted" />
           </div>
-          <p className="font-mono font-bold text-2xl lg:text-3xl text-white tracking-tight">
+          <p className="font-mono font-bold text-2xl lg:text-3xl text-ink tracking-tight">
             {esCliente ? (
               <NumberTicker value={completados} />
             ) : (
@@ -188,16 +188,16 @@ export default function Dashboard() {
 
       {/* Próximos turnos */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+        <div className="flex items-center justify-between border-b border-ink/10 pb-3">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-zinc-400" />
-            <h2 className="font-display font-semibold text-xl text-white tracking-tight">
+            <Clock className="w-4 h-4 text-muted" />
+            <h2 className="font-display font-semibold text-xl text-ink tracking-tight">
               Próximos turnos
             </h2>
           </div>
           <Link
             to="/turnos"
-            className="font-mono text-xs uppercase tracking-wider text-zinc-400 hover:text-white transition-colors inline-flex items-center gap-1"
+            className="font-mono text-xs uppercase tracking-wider text-muted hover:text-ink transition-colors inline-flex items-center gap-1"
           >
             <span>Ver agenda completa</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -205,33 +205,33 @@ export default function Dashboard() {
         </div>
 
         {cargando ? (
-          <div className="p-12 text-center font-mono text-xs text-zinc-500 uppercase tracking-widest animate-pulse">
+          <div className="p-12 text-center font-mono text-xs text-faint uppercase tracking-widest animate-pulse">
             Sincronizando telemetría...
           </div>
         ) : proximos.length === 0 ? (
-          <div className="p-12 text-center border border-dashed border-white/10 bg-transparent">
-            <Calendar className="w-8 h-8 text-zinc-600 mx-auto mb-3" />
-            <p className="font-mono text-xs uppercase text-zinc-400 tracking-wider">
+          <div className="p-12 text-center border border-dashed border-ink/10 bg-transparent">
+            <Calendar className="w-8 h-8 text-faint mx-auto mb-3" />
+            <p className="font-mono text-xs uppercase text-muted tracking-wider">
               No hay turnos futuros programados
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-white/10 border-y border-white/10">
+          <div className="divide-y divide-ink/10 border-y border-ink/10">
             {proximos.map((t) => (
               <div
                 key={t._id}
-                className="py-3.5 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-white/[0.02] transition-colors"
+                className="py-3.5 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-ink/[0.02] transition-colors"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-ink shrink-0" />
                   <div className="truncate">
-                    <p className="font-sans font-medium text-sm text-white truncate">
+                    <p className="font-sans font-medium text-sm text-ink truncate">
                       {t.servicio?.nombre || 'Servicio'}
                     </p>
-                    <div className="flex items-center gap-2 font-mono text-xs text-zinc-500 mt-0.5">
+                    <div className="flex items-center gap-2 font-mono text-xs text-faint mt-0.5">
                       <span>{t.empleado?.nombre}</span>
                       <span>·</span>
-                      <span className="flex items-center gap-1 text-zinc-400">
+                      <span className="flex items-center gap-1 text-muted">
                         <User className="w-3 h-3" />
                         {t.cliente?.nombre || 'Cliente'}
                       </span>
@@ -239,8 +239,8 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                  <span className="font-mono text-xs text-zinc-400">
+                <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-ink/5">
+                  <span className="font-mono text-xs text-muted">
                     {formatearHora(new Date(t.fechaHora))}
                   </span>
                   <span className={`badge ${CLASES_BADGE_ESTADO[t.estado] || 'badge-confirmado'}`}>
@@ -260,7 +260,7 @@ export default function Dashboard() {
                       className="btn btn-secundario !px-2.5 !py-1 text-xs font-mono uppercase inline-flex items-center gap-1.5"
                       title="Guardar este turno en Google Calendar"
                     >
-                      <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                      <Calendar className="w-3.5 h-3.5 text-muted" />
                       <span>+ Calendar ↗</span>
                     </a>
                   )}

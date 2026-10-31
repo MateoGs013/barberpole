@@ -60,23 +60,23 @@ export function LayoutAutenticado() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col pb-24 lg:pb-0 bg-[#050505] text-zinc-100">
-      <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10">
+    <div className="min-h-screen flex flex-col pb-24 lg:pb-0 bg-[#050505] text-ink">
+      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-ink/10">
         <div className="px-4 lg:px-8 py-3 flex items-center justify-between gap-4">
           {/* Logo Monocromático Studio */}
           <Link
             to="/dashboard"
             className="flex items-center gap-2 group shrink-0"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-white group-hover:scale-125 transition-transform" />
-            <span className="font-mono text-xs uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
-              BarberPole <span className="text-zinc-600">—</span> Studio
+            <span className="w-1.5 h-1.5 rounded-full bg-ink group-hover:scale-125 transition-transform" />
+            <span className="font-mono text-xs uppercase tracking-widest text-muted group-hover:text-ink transition-colors">
+              BarberPole <span className="text-faint">—</span> Studio
             </span>
           </Link>
 
           {/* Nav horizontal desktop */}
           <nav className="hidden lg:block">
-            <ul className="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-900/40 border border-white/5">
+            <ul className="flex items-center gap-1.5 p-1 rounded-xl bg-elevated/40 border border-ink/5">
               {links.map((link) => (
                 <li key={link.to}>
                   <NavLink
@@ -84,8 +84,8 @@ export function LayoutAutenticado() {
                     className={({ isActive }) =>
                       `px-3 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider transition-all duration-150 ${
                         isActive
-                          ? 'bg-white/10 text-white border border-white/15 shadow-[0_0_15px_rgba(255,255,255,0.05)]'
-                          : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
+                          ? 'bg-ink/10 text-ink border border-ink/15 shadow-[0_0_15px_rgba(255,255,255,0.05)]'
+                          : 'text-muted hover:text-ink hover:bg-ink/5 border border-transparent'
                       }`
                     }
                   >
@@ -101,12 +101,12 @@ export function LayoutAutenticado() {
             {/* Command Palette Trigger */}
             <button
               onClick={abrirCommandPalette}
-              className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/10 bg-zinc-900/50 hover:bg-zinc-800/60 text-zinc-400 hover:text-zinc-200 font-mono text-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-ink/10 bg-elevated/50 hover:bg-elevated/60 text-muted hover:text-ink font-mono text-xs transition-colors cursor-pointer"
               title="Abrir paleta de comandos (Ctrl+K / Cmd+K)"
             >
-              <Search className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="hidden md:inline text-[11px] text-zinc-400">Buscar...</span>
-              <kbd className="text-[10px] bg-zinc-950 border border-white/10 px-1.5 py-0.5 rounded text-zinc-400 select-none">
+              <Search className="w-3.5 h-3.5 text-muted" />
+              <span className="hidden md:inline text-[11px] text-muted">Buscar...</span>
+              <kbd className="text-[10px] bg-surface border border-ink/10 px-1.5 py-0.5 rounded text-muted select-none">
                 ⌘K
               </kbd>
             </button>
@@ -119,8 +119,8 @@ export function LayoutAutenticado() {
               onClick={toggleAudio}
               className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
                 audioActivo
-                  ? 'border-white bg-white text-black'
-                  : 'border-white/10 bg-zinc-900/50 text-zinc-500 hover:text-zinc-300'
+                  ? 'border-ink bg-ink text-canvas'
+                  : 'border-ink/10 bg-elevated/50 text-faint hover:text-muted'
               }`}
               title={audioActivo ? 'Audio táctil activado (clic para silenciar)' : 'Audio silenciado (clic para activar)'}
             >
@@ -129,17 +129,17 @@ export function LayoutAutenticado() {
 
             {/* Usuario Info */}
             <div className="hidden sm:block text-right">
-              <p className="font-sans text-xs font-medium text-zinc-200 leading-tight">
+              <p className="font-sans text-xs font-medium text-ink leading-tight">
                 {usuario?.nombre}
               </p>
-              <span className="font-mono text-[10px] uppercase text-zinc-500 tracking-wider">
+              <span className="font-mono text-[10px] uppercase text-faint tracking-wider">
                 {usuario?.rol}
               </span>
             </div>
 
             <button
               onClick={onLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-zinc-900/60 hover:bg-white hover:text-black hover:border-white text-zinc-400 font-mono text-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-ink/10 bg-elevated/60 hover:bg-ink hover:text-canvas hover:border-ink text-muted font-mono text-xs transition-all cursor-pointer"
               title="Cerrar sesión"
             >
               <LogOut className="w-3.5 h-3.5" />

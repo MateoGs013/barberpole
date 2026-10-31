@@ -10,7 +10,7 @@ export function Paginacion({ pagina, totalPaginas, onCambiar }) {
   return (
     <nav
       aria-label="Paginación"
-      className="flex items-center justify-between gap-3 mt-8 pt-6 border-t-3 border-negro"
+      className="flex items-center justify-between gap-3 mt-8 pt-6 border-t-3 border-line"
     >
       <button
         type="button"

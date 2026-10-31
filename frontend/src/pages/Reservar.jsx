@@ -148,13 +148,13 @@ export default function Reservar() {
   // Vista de Sincronización Post-Confirmación Automática
   if (turnoConfirmado) {
     return (
-      <div className="min-h-screen w-full bg-black text-white p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-between selection:bg-white selection:text-black">
-        <header className="w-full border-b border-white/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
+      <div className="min-h-screen w-full bg-canvas text-ink p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-between selection:bg-ink selection:text-canvas">
+        <header className="w-full border-b border-ink/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
           <div>
             <p className="font-mono text-xs uppercase tracking-widest text-emerald-400 mb-2">
               ● RESERVA REGISTRADA CON ÉXITO
             </p>
-            <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase">
+            <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase">
               TURNO ASEGURADO.
             </h1>
           </div>
@@ -192,7 +192,7 @@ export default function Reservar() {
           />
         </main>
 
-        <footer className="w-full border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-neutral-500 uppercase tracking-widest gap-4">
+        <footer className="w-full border-t border-ink/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-faint uppercase tracking-widest gap-4">
           <span>BARBERPOLE — SINCRONIZACIÓN AUTOMÁTICA ACTIVA</span>
           <span>GOOGLE CALENDAR · ICS · WHATSAPP</span>
         </footer>
@@ -201,20 +201,20 @@ export default function Reservar() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-black text-white p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-between selection:bg-white selection:text-black">
+    <div className="min-h-screen w-full bg-canvas text-ink p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-between selection:bg-ink selection:text-canvas">
       {/* Header Objetivo Full Width */}
-      <header className="w-full border-b border-white/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
+      <header className="w-full border-b border-ink/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-2">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint mb-2">
             — MODO HIPERFOCO PERMANENTE
           </p>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase">
             NUEVO TURNO
           </h1>
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <div className="font-mono text-xs text-neutral-400 uppercase tracking-widest hidden sm:block">
+          <div className="font-mono text-xs text-muted uppercase tracking-widest hidden sm:block">
             SISTEMA DE EMISIÓN DIRECTA
           </div>
         </div>
@@ -224,17 +224,17 @@ export default function Reservar() {
       <main className="w-full my-auto py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         
         {/* COLUMNA 1: Servicios */}
-        <section className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
-          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/10">
-            <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+        <section className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-ink/10 pb-8 lg:pb-0 lg:pr-8">
+          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-ink/10">
+            <h2 className="font-mono text-xs uppercase tracking-widest text-muted">
               01 — ELEGÍ EL SERVICIO
             </h2>
-            <span className="font-mono text-[10px] uppercase text-neutral-500">
+            <span className="font-mono text-[10px] uppercase text-faint">
               {servicioId ? 'SELECCIONADO' : '1 REQUERIDO'}
             </span>
           </div>
 
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-ink/10">
             {servicios?.map((s) => {
               const seleccionado = s._id === servicioId
               return (
@@ -243,14 +243,14 @@ export default function Reservar() {
                   type="button"
                   onClick={() => seleccionarServicio(s._id)}
                   className={`w-full py-4 text-left transition-colors flex items-center justify-between group cursor-pointer ${
-                    seleccionado ? 'text-white' : 'text-neutral-400 hover:text-white'
+                    seleccionado ? 'text-ink' : 'text-muted hover:text-ink'
                   }`}
                 >
                   <div className="min-w-0 pr-4">
-                    <p className={`font-mono text-sm uppercase tracking-tight ${seleccionado ? 'font-bold text-white' : ''}`}>
+                    <p className={`font-mono text-sm uppercase tracking-tight ${seleccionado ? 'font-bold text-ink' : ''}`}>
                       {s.nombre}
                     </p>
-                    <p className="font-mono text-[11px] text-neutral-500 mt-1 uppercase">
+                    <p className="font-mono text-[11px] text-faint mt-1 uppercase">
                       {s.duracionMinutos} MIN
                     </p>
                   </div>
@@ -259,7 +259,7 @@ export default function Reservar() {
                       ${s.precio?.toLocaleString('es-AR')}
                     </p>
                     {seleccionado && (
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-white mt-1 block">
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-ink mt-1 block">
                         [ACTIVO]
                       </span>
                     )}
@@ -271,17 +271,17 @@ export default function Reservar() {
         </section>
 
         {/* COLUMNA 2: Profesionales */}
-        <section className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
-          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/10">
-            <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+        <section className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-ink/10 pb-8 lg:pb-0 lg:pr-8">
+          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-ink/10">
+            <h2 className="font-mono text-xs uppercase tracking-widest text-muted">
               02 — ELEGÍ EL PROFESIONAL
             </h2>
-            <span className="font-mono text-[10px] uppercase text-neutral-500">
+            <span className="font-mono text-[10px] uppercase text-faint">
               {empleadoId ? 'SELECCIONADO' : '1 REQUERIDO'}
             </span>
           </div>
 
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-ink/10">
             {empleados?.map((e) => {
               const seleccionado = e._id === empleadoId
               return (
@@ -290,20 +290,20 @@ export default function Reservar() {
                   type="button"
                   onClick={() => seleccionarEmpleado(e._id)}
                   className={`w-full py-4 text-left transition-colors flex items-center justify-between group cursor-pointer ${
-                    seleccionado ? 'text-white' : 'text-neutral-400 hover:text-white'
+                    seleccionado ? 'text-ink' : 'text-muted hover:text-ink'
                   }`}
                 >
                   <div className="min-w-0 pr-4">
-                    <p className={`font-mono text-sm uppercase tracking-tight ${seleccionado ? 'font-bold text-white' : ''}`}>
+                    <p className={`font-mono text-sm uppercase tracking-tight ${seleccionado ? 'font-bold text-ink' : ''}`}>
                       {e.nombre}
                     </p>
-                    <p className="font-mono text-[11px] text-neutral-500 mt-1 uppercase">
+                    <p className="font-mono text-[11px] text-faint mt-1 uppercase">
                       {e.especialidad}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
                     <span className={`font-mono text-[11px] uppercase tracking-wider ${
-                      seleccionado ? 'text-white font-bold' : 'text-neutral-500 group-hover:text-white'
+                      seleccionado ? 'text-ink font-bold' : 'text-faint group-hover:text-ink'
                     }`}>
                       {seleccionado ? '[ELEGIDO]' : 'ELEGIR'}
                     </span>
@@ -316,11 +316,11 @@ export default function Reservar() {
 
         {/* COLUMNA 3: Matriz de Calendario & Horarios */}
         <section className="lg:col-span-4">
-          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-white/10">
-            <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+          <div className="flex items-baseline justify-between mb-6 pb-2 border-b border-ink/10">
+            <h2 className="font-mono text-xs uppercase tracking-widest text-muted">
               03 — ELEGÍ DÍA Y HORARIO
             </h2>
-            <span className="font-mono text-[10px] uppercase text-neutral-500">
+            <span className="font-mono text-[10px] uppercase text-faint">
               {fecha && hora ? `${hora} HS` : 'FECHA PENDIENTE'}
             </span>
           </div>
@@ -338,17 +338,17 @@ export default function Reservar() {
             />
 
             {/* Selector de horario en grilla monocromática */}
-            <div className="pt-4 border-t border-white/10">
-              <label className="block font-mono text-[11px] uppercase tracking-widest text-neutral-400 mb-3">
+            <div className="pt-4 border-t border-ink/10">
+              <label className="block font-mono text-[11px] uppercase tracking-widest text-muted mb-3">
                 HORARIOS DISPONIBLES
               </label>
 
               {!fecha ? (
-                <p className="font-mono text-xs text-neutral-600 uppercase tracking-wider py-4">
+                <p className="font-mono text-xs text-faint uppercase tracking-wider py-4">
                   Seleccioná un día en el calendario superior
                 </p>
               ) : cargandoSlots ? (
-                <p className="font-mono text-xs text-neutral-500 uppercase tracking-widest animate-pulse py-4">
+                <p className="font-mono text-xs text-faint uppercase tracking-widest animate-pulse py-4">
                   Calculando disponibilidad en vivo...
                 </p>
               ) : errorSlots ? (
@@ -356,7 +356,7 @@ export default function Reservar() {
                   {errorSlots}
                 </p>
               ) : slots.length === 0 ? (
-                <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider py-4">
+                <p className="font-mono text-xs text-faint uppercase tracking-wider py-4">
                   No hay horarios disponibles para esta combinación
                 </p>
               ) : (
@@ -384,14 +384,14 @@ export default function Reservar() {
       </main>
 
       {/* Footer Fijo Objetivo con Confirmar Reserva */}
-      <footer className="w-full border-t border-white/10 pt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-6">
+      <footer className="w-full border-t border-ink/10 pt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-6">
         <div>
           {errorGlobal ? (
             <p className="font-mono text-xs text-rose-400 uppercase">{errorGlobal}</p>
           ) : (
-            <div className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+            <div className="font-mono text-xs uppercase tracking-widest text-muted">
               <span>RESUMEN:</span>{' '}
-              <span className="text-white font-medium">
+              <span className="text-ink font-medium">
                 {servicioElegido?.nombre || '— SERVICIO —'} ·{' '}
                 {empleadoElegido?.nombre || '— PROFESIONAL —'} ·{' '}
                 {fecha && hora ? `${fecha} ${hora} HS` : '— DÍA Y HORA —'}
@@ -404,7 +404,7 @@ export default function Reservar() {
           type="button"
           onClick={onConfirmar}
           disabled={!sePuedeReservar || enviando}
-          className="px-10 py-5 bg-white text-black hover:bg-neutral-200 font-mono text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-3 shrink-0"
+          className="px-10 py-5 bg-ink text-canvas hover:bg-ink/90 font-mono text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-3 shrink-0"
         >
           <span>{enviando ? 'Confirmando...' : 'Confirmar Reserva'}</span>
           <span>↗</span>

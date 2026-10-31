@@ -113,21 +113,21 @@ export function MatrixCalendar({
   }
 
   return (
-    <div className="bg-transparent border border-white/10 p-5 md:p-6 text-white select-none">
+    <div className="bg-transparent border border-ink/10 p-5 md:p-6 text-ink select-none">
       {/* Display SWA B&W */}
-      <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5 mb-5">
+      <div className="flex items-start justify-between gap-4 border-b border-ink/10 pb-5 mb-5">
         <div className="flex items-baseline gap-4">
-          <span className="font-mono font-light text-6xl md:text-8xl text-white leading-none tracking-tight">
+          <span className="font-mono font-light text-6xl md:text-8xl text-ink leading-none tracking-tight">
             {infoSeleccionada ? infoSeleccionada.diaNum : fechaActual.getDate()}
           </span>
           <div>
-            <h3 className="font-mono font-medium text-lg md:text-xl text-white tracking-tight uppercase">
+            <h3 className="font-mono font-medium text-lg md:text-xl text-ink tracking-tight uppercase">
               {infoSeleccionada ? infoSeleccionada.mesNom : MESES[mesVista]}
             </h3>
-            <div className="flex items-center gap-2 font-mono text-xs text-neutral-400 uppercase tracking-widest mt-0.5">
+            <div className="flex items-center gap-2 font-mono text-xs text-muted uppercase tracking-widest mt-0.5">
               <span>'{String(infoSeleccionada ? infoSeleccionada.anioNum : anioVista).slice(-2)}</span>
               <span>—</span>
-              <span className="text-white font-medium">
+              <span className="text-ink font-medium">
                 {infoSeleccionada ? infoSeleccionada.diaSem : 'SELECCIONÁ DÍA'}
               </span>
             </div>
@@ -140,7 +140,7 @@ export function MatrixCalendar({
             type="button"
             tabIndex={-1}
             onClick={irMesAnterior}
-            className="w-8 h-8 border border-white/10 hover:border-white text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 border border-ink/10 hover:border-ink text-muted hover:text-ink flex items-center justify-center transition-colors cursor-pointer"
             title="Mes anterior"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -149,7 +149,7 @@ export function MatrixCalendar({
             type="button"
             tabIndex={-1}
             onClick={irMesSiguiente}
-            className="w-8 h-8 border border-white/10 hover:border-white text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 border border-ink/10 hover:border-ink text-muted hover:text-ink flex items-center justify-center transition-colors cursor-pointer"
             title="Mes siguiente"
           >
             <ChevronRight className="w-4 h-4" />
@@ -162,7 +162,7 @@ export function MatrixCalendar({
         {DIAS_SEMANA.map((d) => (
           <span
             key={d}
-            className="font-mono text-[10px] uppercase tracking-widest text-neutral-500"
+            className="font-mono text-[10px] uppercase tracking-widest text-faint"
           >
             {d}
           </span>
@@ -186,12 +186,12 @@ export function MatrixCalendar({
               onClick={() => manejarClickDia(isoStr, esPasado)}
               className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-xs transition-colors select-none cursor-pointer ${
                 esPasado
-                  ? 'opacity-20 text-neutral-600 cursor-not-allowed bg-transparent'
+                  ? 'opacity-20 text-faint cursor-not-allowed bg-transparent'
                   : esSeleccionado
-                    ? 'bg-white text-black font-semibold'
+                    ? 'bg-ink text-canvas font-semibold'
                     : esHoy
-                      ? 'border border-white text-white'
-                      : 'border border-white/10 text-neutral-400 hover:text-white hover:border-white/40'
+                      ? 'border border-ink text-ink'
+                      : 'border border-ink/10 text-muted hover:text-ink hover:border-ink/40'
               }`}
             >
               {numero}
@@ -201,16 +201,16 @@ export function MatrixCalendar({
       </div>
 
       {/* Referencia técnica accesible */}
-      <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500 pt-4 mt-4 border-t border-white/10 uppercase tracking-wider">
+      <div className="flex items-center justify-between text-[10px] font-mono text-faint pt-4 mt-4 border-t border-ink/10 uppercase tracking-wider">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-white" /> Elegido
+            <span className="w-2 h-2 rounded-full bg-ink" /> Elegido
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full border border-white" /> Hoy
+            <span className="w-2 h-2 rounded-full border border-ink" /> Hoy
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full border border-white/20" /> Disponible
+            <span className="w-2 h-2 rounded-full border border-ink/20" /> Disponible
           </span>
         </div>
 
@@ -224,7 +224,7 @@ export function MatrixCalendar({
             min={minStr}
             value={fechaSeleccionada || ''}
             onChange={(e) => onSeleccionarFecha?.(e.target.value)}
-            className="text-[10px] font-mono bg-transparent border border-white/10 px-1 py-0.5 text-neutral-400 focus:outline-none cursor-pointer"
+            className="text-[10px] font-mono bg-transparent border border-ink/10 px-1 py-0.5 text-muted focus:outline-none cursor-pointer"
           />
         </div>
       </div>

@@ -29,8 +29,8 @@ export function SpotlightCard({
       onClick={onClick}
       className={`relative overflow-hidden rounded-none border transition-all duration-150 ${
         active
-          ? 'border-white bg-white/5'
-          : 'border-white/10 hover:border-white/30 bg-transparent'
+          ? 'border-ink bg-ink/5'
+          : 'border-ink/10 hover:border-ink/30 bg-transparent'
       } ${className}`}
     >
       {/* Specular cursor glow */}

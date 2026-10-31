@@ -4,12 +4,12 @@ import { ThemeToggle } from '../components/ThemeToggle.jsx'
 
 export default function Privacidad() {
   return (
-    <div className="min-h-screen w-full bg-black text-white flex flex-col justify-between p-6 sm:p-10 md:p-16 lg:p-20 selection:bg-white selection:text-black">
+    <div className="min-h-screen w-full bg-canvas text-ink flex flex-col justify-between p-6 sm:p-10 md:p-16 lg:p-20 selection:bg-ink selection:text-canvas">
       {/* Header Editorial B&W */}
-      <header className="w-full border-b border-white/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-neutral-400">
+      <header className="w-full border-b border-ink/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-muted">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-muted hover:text-ink transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Volver al inicio</span>
@@ -17,31 +17,31 @@ export default function Privacidad() {
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="hidden sm:inline text-white font-medium">BARBERPOLE — LEGAL</span>
+          <span className="hidden sm:inline text-ink font-medium">BARBERPOLE — LEGAL</span>
         </div>
       </header>
 
       {/* Main Document Content */}
       <main className="max-w-3xl w-full mx-auto my-12 space-y-12">
-        <div className="space-y-3 border-b border-white/10 pb-8">
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
+        <div className="space-y-3 border-b border-ink/10 pb-8">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint">
             — DOCUMENTO DE COMPLIANCE & PRIVACIDAD
           </p>
-          <h1 className="text-3xl sm:text-5xl font-mono font-medium tracking-tight text-white uppercase">
+          <h1 className="text-3xl sm:text-5xl font-mono font-medium tracking-tight text-ink uppercase">
             POLÍTICA DE{' '}
             <br />
             PRIVACIDAD.
           </h1>
-          <p className="font-mono text-xs text-neutral-400 uppercase tracking-wider">
+          <p className="font-mono text-xs text-muted uppercase tracking-wider">
             Última actualización: Octubre 2026 · Versión 1.0 Producción
           </p>
         </div>
 
         {/* Secciones */}
-        <div className="space-y-10 text-sm leading-relaxed text-neutral-300 font-sans font-light">
+        <div className="space-y-10 text-sm leading-relaxed text-muted font-sans font-light">
           {/* Sección 1 */}
           <section className="space-y-3">
-            <h2 className="font-mono text-xs text-white uppercase tracking-widest">
+            <h2 className="font-mono text-xs text-ink uppercase tracking-widest">
               01 — RESPONSABLE DEL TRATAMIENTO
             </h2>
             <p>
@@ -51,13 +51,13 @@ export default function Privacidad() {
 
           {/* Sección 2 */}
           <section className="space-y-3">
-            <h2 className="font-mono text-xs text-white uppercase tracking-widest">
+            <h2 className="font-mono text-xs text-ink uppercase tracking-widest">
               02 — INFORMACIÓN RECOPILADA
             </h2>
             <p>
               Recolectamos exclusivamente la información técnica y de contacto necesaria para garantizar la reserva de turnos:
             </p>
-            <ul className="space-y-2 pl-4 border-l border-white/10 font-mono text-xs text-neutral-400">
+            <ul className="space-y-2 pl-4 border-l border-ink/10 font-mono text-xs text-muted">
               <li>— Nombre y apellido del usuario o cliente.</li>
               <li>— Dirección de correo electrónico y número de teléfono / WhatsApp.</li>
               <li>— Metadatos de la reserva: fecha, horario, servicio y profesional seleccionado.</li>
@@ -66,29 +66,29 @@ export default function Privacidad() {
           </section>
 
           {/* Sección 3 — Google API User Data Policy */}
-          <section className="space-y-3 border border-white/15 p-6 bg-white/[0.02]">
-            <h2 className="font-mono text-xs text-white uppercase tracking-widest">
+          <section className="space-y-3 border border-ink/15 p-6 bg-ink/[0.02]">
+            <h2 className="font-mono text-xs text-ink uppercase tracking-widest">
               03 — USO DE DATOS DE GOOGLE (GOOGLE USER DATA POLICY)
             </h2>
             <p>
-              Nuestra aplicación utiliza Google Identity Services para autenticación 1-Click y Google Calendar API para sincronización de agendas. En cumplimiento con la <strong className="text-white font-medium">Google API Services User Data Policy</strong>:
+              Nuestra aplicación utiliza Google Identity Services para autenticación 1-Click y Google Calendar API para sincronización de agendas. En cumplimiento con la <strong className="text-ink font-medium">Google API Services User Data Policy</strong>:
             </p>
-            <ul className="space-y-2 pl-4 border-l border-white/20 font-mono text-xs text-neutral-400">
+            <ul className="space-y-2 pl-4 border-l border-ink/20 font-mono text-xs text-muted">
               <li>
-                — <span className="text-white">Autenticación:</span> Obtenemos el ID de usuario de Google, email y foto de perfil únicamente para verificar la identidad y crear la sesión del usuario.
+                — <span className="text-ink">Autenticación:</span> Obtenemos el ID de usuario de Google, email y foto de perfil únicamente para verificar la identidad y crear la sesión del usuario.
               </li>
               <li>
-                — <span className="text-white">Google Calendar:</span> Los eventos externos de la agenda del profesional se consultan exclusivamente para inhabilitar turnos colisionantes en el Slot Engine. No almacenamos el contenido personal confidencial de los eventos.
+                — <span className="text-ink">Google Calendar:</span> Los eventos externos de la agenda del profesional se consultan exclusivamente para inhabilitar turnos colisionantes en el Slot Engine. No almacenamos el contenido personal confidencial de los eventos.
               </li>
               <li>
-                — <span className="text-white">Prohibición de Comercialización:</span> No vendemos, transferimos ni compartimos datos obtenidos a través de Google con terceros, empresas de publicidad ni plataformas de intermediación.
+                — <span className="text-ink">Prohibición de Comercialización:</span> No vendemos, transferimos ni compartimos datos obtenidos a través de Google con terceros, empresas de publicidad ni plataformas de intermediación.
               </li>
             </ul>
           </section>
 
           {/* Sección 4 */}
           <section className="space-y-3">
-            <h2 className="font-mono text-xs text-white uppercase tracking-widest">
+            <h2 className="font-mono text-xs text-ink uppercase tracking-widest">
               04 — DIRECCIÓN CONFIDENCIAL Y PARTICULARES
             </h2>
             <p>
@@ -98,7 +98,7 @@ export default function Privacidad() {
 
           {/* Sección 5 */}
           <section className="space-y-3">
-            <h2 className="font-mono text-xs text-white uppercase tracking-widest">
+            <h2 className="font-mono text-xs text-ink uppercase tracking-widest">
               05 — DERECHOS DEL TITULAR DE LOS DATOS
             </h2>
             <p>
@@ -109,12 +109,12 @@ export default function Privacidad() {
       </main>
 
       {/* Footer Editorial B&W */}
-      <footer className="w-full border-t border-white/10 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-mono uppercase tracking-widest text-neutral-500">
+      <footer className="w-full border-t border-ink/10 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-mono uppercase tracking-widest text-faint">
         <div>
           <span>BARBERPOLE — PRIVACIDAD & SEGURIDAD</span>
         </div>
-        <div className="flex items-center gap-4 text-neutral-400">
-          <Link to="/terminos" className="hover:text-white transition-colors">
+        <div className="flex items-center gap-4 text-muted">
+          <Link to="/terminos" className="hover:text-ink transition-colors">
             Términos de Servicio →
           </Link>
         </div>

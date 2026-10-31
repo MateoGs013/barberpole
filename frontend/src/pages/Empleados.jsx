@@ -77,12 +77,12 @@ export default function Empleados() {
 
   return (
     <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint mb-1">
             — EQUIPO & PROFESIONALES
           </p>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             EMPLEADOS.
           </h1>
         </div>
@@ -91,7 +91,7 @@ export default function Empleados() {
         </button>
       </div>
 
-      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando...</p>}
       {error && (
         <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar empleados
@@ -99,14 +99,14 @@ export default function Empleados() {
       )}
 
       {empleados && empleados.length === 0 && (
-        <div className="py-12 border border-white/10 text-center">
-          <p className="font-mono text-sm uppercase text-neutral-400">No hay empleados cargados</p>
+        <div className="py-12 border border-ink/10 text-center">
+          <p className="font-mono text-sm uppercase text-muted">No hay empleados cargados</p>
         </div>
       )}
 
       {empleados && empleados.length > 0 && (
         <div className="space-y-6">
-          <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+          <ul className="divide-y divide-ink/10 border-t border-b border-ink/10">
             {pagina.map((emp) => (
               <FilaEmpleado
                 key={emp._id}
@@ -163,10 +163,10 @@ export default function Empleados() {
 
 function FilaEmpleado({ empleado, onEditar, onEliminar, onGestionarCalendar }) {
   return (
-    <li className="py-4 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <li className="py-4 px-2 hover:bg-ink/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2 mb-1">
-          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-white truncate">
+          <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-ink truncate">
             {empleado.nombre}
           </h3>
           <span className={`badge ${empleado.activo ? 'badge-confirmado' : 'badge-cancelado'}`}>
@@ -178,7 +178,7 @@ function FilaEmpleado({ empleado, onEditar, onEliminar, onGestionarCalendar }) {
               Google Calendar
             </span>
           ) : (
-            <span className="badge badge-pendiente !text-neutral-500 !border-neutral-700">
+            <span className="badge badge-pendiente !text-faint !border-ink/15">
               Sin Calendar
             </span>
           )}
@@ -186,10 +186,10 @@ function FilaEmpleado({ empleado, onEditar, onEliminar, onGestionarCalendar }) {
             <span className="badge badge-confirmado">Cuenta vinculada</span>
           )}
         </div>
-        <p className="font-mono text-xs uppercase tracking-wider text-neutral-400">
+        <p className="font-mono text-xs uppercase tracking-wider text-muted">
           {empleado.especialidad}
         </p>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 font-mono text-xs text-neutral-500">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 font-mono text-xs text-faint">
           {empleado.email && <span>{empleado.email}</span>}
           {empleado.telefono && <span>· {empleado.telefono}</span>}
           {empleado.googleSyncActivo && (
@@ -317,7 +317,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
       {esAdmin && (
         <div>
           <label className="label" htmlFor="usuarioVinc">
-            Cuenta vinculada <span className="text-neutral-500 normal-case font-mono text-[10px]">(opcional)</span>
+            Cuenta vinculada <span className="text-faint normal-case font-mono text-[10px]">(opcional)</span>
           </label>
           <select
             id="usuarioVinc"
@@ -340,12 +340,12 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
           type="checkbox"
           checked={activo}
           onChange={(e) => setActivo(e.target.checked)}
-          className="w-4 h-4 rounded-none accent-white cursor-pointer"
+          className="w-4 h-4 rounded-none accent-ink cursor-pointer"
         />
-        <span className="font-mono text-xs uppercase tracking-wider text-neutral-300">Empleado activo</span>
+        <span className="font-mono text-xs uppercase tracking-wider text-muted">Empleado activo</span>
       </label>
 
-      <div className="flex gap-3 pt-6 border-t border-white/10">
+      <div className="flex gap-3 pt-6 border-t border-ink/10">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
           Cancelar
         </button>
@@ -447,7 +447,7 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
   return (
     <Modal abierto={true} onCerrar={onCerrar} titulo={`GOOGLE CALENDAR — ${empActual.nombre}`}>
       <div className="space-y-6">
-        <p className="font-mono text-xs uppercase text-neutral-400 leading-relaxed">
+        <p className="font-mono text-xs uppercase text-muted leading-relaxed">
           Sincronización bidireccional: bloquea horarios personales en Google Calendar y
           automáticamente inhabilita los turnos en el motor de reservas.
         </p>
@@ -459,13 +459,13 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
         )}
 
         {/* Estado y Conexión */}
-        <div className="p-4 border border-white/10 space-y-4">
+        <div className="p-4 border border-ink/10 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-mono text-[10px] uppercase text-neutral-500 tracking-wider">
+              <p className="font-mono text-[10px] uppercase text-faint tracking-wider">
                 ESTADO DE SINCRONIZACIÓN
               </p>
-              <p className="font-mono text-sm text-white font-medium uppercase mt-0.5">
+              <p className="font-mono text-sm text-ink font-medium uppercase mt-0.5">
                 {empActual.googleSyncActivo ? '● CONECTADO Y SINCRONIZANDO' : '○ DESCONECTADO'}
               </p>
             </div>
@@ -505,7 +505,7 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
                 {cargando ? 'Vinculando...' : 'Vincular cuenta de Google'}
               </button>
 
-              <div className="pt-2 border-t border-white/5">
+              <div className="pt-2 border-t border-ink/5">
                 <button
                   type="button"
                   onClick={async () => {
@@ -532,9 +532,9 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between pt-2 border-t border-white/5">
-              <span className="font-mono text-xs text-neutral-400">
-                Cuenta: <strong className="text-white">{empActual.googleCalendarId}</strong>
+            <div className="flex items-center justify-between pt-2 border-t border-ink/5">
+              <span className="font-mono text-xs text-muted">
+                Cuenta: <strong className="text-ink">{empActual.googleCalendarId}</strong>
               </span>
               <button
                 type="button"
@@ -552,21 +552,21 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
         {empActual.googleSyncActivo && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="font-mono text-xs uppercase tracking-widest text-neutral-300">
+              <h4 className="font-mono text-xs uppercase tracking-widest text-muted">
                 — BLOQUEOS EXTERNOS ({empActual.eventosGoogle?.length || 0})
               </h4>
             </div>
 
             {empActual.eventosGoogle && empActual.eventosGoogle.length > 0 ? (
-              <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+              <ul className="divide-y divide-ink/10 border-t border-b border-ink/10">
                 {empActual.eventosGoogle.map((ev) => (
                   <li
                     key={ev._id || ev.googleEventId}
                     className="py-3 flex items-center justify-between gap-4 font-mono text-xs"
                   >
                     <div>
-                      <p className="text-white font-medium uppercase">{ev.titulo}</p>
-                      <p className="text-neutral-500 text-[11px] mt-0.5">
+                      <p className="text-ink font-medium uppercase">{ev.titulo}</p>
+                      <p className="text-faint text-[11px] mt-0.5">
                         {new Date(ev.inicio).toLocaleString('es-AR', {
                           dateStyle: 'short',
                           timeStyle: 'short',
@@ -589,14 +589,14 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
                 ))}
               </ul>
             ) : (
-              <p className="font-mono text-xs text-neutral-500 py-3 border-t border-b border-white/10 uppercase">
+              <p className="font-mono text-xs text-faint py-3 border-t border-b border-ink/10 uppercase">
                 No hay bloqueos activos registrados.
               </p>
             )}
 
             {/* Formulario para registrar bloqueo */}
-            <form onSubmit={registrarBloqueo} className="p-4 border border-white/10 space-y-3">
-              <p className="font-mono text-xs uppercase text-white font-medium">
+            <form onSubmit={registrarBloqueo} className="p-4 border border-ink/10 space-y-3">
+              <p className="font-mono text-xs uppercase text-ink font-medium">
                 + Bloquear nuevo horario personal
               </p>
               <div>
@@ -643,7 +643,7 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
           </div>
         )}
 
-        <div className="pt-4 border-t border-white/10 flex justify-end">
+        <div className="pt-4 border-t border-ink/10 flex justify-end">
           <button type="button" onClick={onCerrar} className="btn btn-secundario text-xs font-mono uppercase">
             Cerrar
           </button>

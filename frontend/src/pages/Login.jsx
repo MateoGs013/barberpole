@@ -56,12 +56,12 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-black text-white flex flex-col justify-between p-6 sm:p-10 md:p-16 lg:p-20 selection:bg-white selection:text-black">
+    <div className="min-h-screen w-full bg-canvas text-ink flex flex-col justify-between p-6 sm:p-10 md:p-16 lg:p-20 selection:bg-ink selection:text-canvas">
       {/* Header Editorial B&W */}
-      <header className="w-full border-b border-white/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-neutral-400">
+      <header className="w-full border-b border-ink/10 pb-6 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-muted">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-muted hover:text-ink transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Volver al inicio</span>
@@ -69,7 +69,7 @@ export default function Login() {
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="hidden sm:inline text-white font-medium">BARBERPOLE — STUDIO</span>
+          <span className="hidden sm:inline text-ink font-medium">BARBERPOLE — STUDIO</span>
         </div>
       </header>
 
@@ -77,19 +77,19 @@ export default function Login() {
       <main className="w-full my-auto py-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
         {/* Columna Izquierda: Identidad Tipográfica Monumental */}
         <div className="lg:col-span-6 space-y-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint">
             — ACCESO AL SISTEMA
           </p>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             INICIAR
             <br />
             SESIÓN.
           </h1>
-          <p className="font-sans text-sm text-neutral-400 max-w-md font-light leading-relaxed">
+          <p className="font-sans text-sm text-muted max-w-md font-light leading-relaxed">
             Plataforma despojada de fricción para salones y barberías. Ingresá con Google o tus credenciales de acceso directo.
           </p>
 
-          <div className="hidden lg:block pt-8 border-t border-white/10 space-y-3 font-mono text-xs text-neutral-500 uppercase tracking-wider">
+          <div className="hidden lg:block pt-8 border-t border-ink/10 space-y-3 font-mono text-xs text-faint uppercase tracking-wider">
             <div>01 — AUTENTICACIÓN GOOGLE 1-CLICK</div>
             <div>02 — CONTROL DE CONCURRENCIA ATÓMICO</div>
             <div>03 — SINCRONIZACIÓN GOOGLE CALENDAR</div>
@@ -113,11 +113,11 @@ export default function Login() {
               }}
             />
             <div className="flex items-center gap-3">
-              <span className="h-px bg-white/10 flex-1" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+              <span className="h-px bg-ink/10 flex-1" />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-faint">
                 O CON EMAIL DIRECTO
               </span>
-              <span className="h-px bg-white/10 flex-1" />
+              <span className="h-px bg-ink/10 flex-1" />
             </div>
           </div>
 
@@ -171,11 +171,11 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="pt-6 border-t border-white/10 flex items-center justify-between font-mono text-xs">
-            <span className="text-neutral-500">¿No tenés cuenta?</span>
+          <div className="pt-6 border-t border-ink/10 flex items-center justify-between font-mono text-xs">
+            <span className="text-faint">¿No tenés cuenta?</span>
             <Link
               to="/registro"
-              className="text-white hover:underline uppercase tracking-wider font-medium"
+              className="text-ink hover:underline uppercase tracking-wider font-medium"
             >
               Registrate ↗
             </Link>
@@ -184,14 +184,14 @@ export default function Login() {
       </main>
 
       {/* Footer Objetivo B&W */}
-      <footer className="w-full border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-neutral-500 uppercase tracking-widest gap-4">
+      <footer className="w-full border-t border-ink/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-faint uppercase tracking-widest gap-4">
         <span>BARBERPOLE — SISTEMA EDITORIAL</span>
-        <div className="flex items-center gap-4 text-neutral-400">
-          <Link to="/privacidad" className="hover:text-white transition-colors">
+        <div className="flex items-center gap-4 text-muted">
+          <Link to="/privacidad" className="hover:text-ink transition-colors">
             Privacidad
           </Link>
-          <span className="text-neutral-700">·</span>
-          <Link to="/terminos" className="hover:text-white transition-colors">
+          <span className="text-faint">·</span>
+          <Link to="/terminos" className="hover:text-ink transition-colors">
             Términos
           </Link>
         </div>

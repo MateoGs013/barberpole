@@ -5,9 +5,9 @@ export function ShinyText({ children, className = '' }) {
     <span
       className={`relative inline-flex overflow-hidden font-mono text-xs uppercase tracking-widest ${className}`}
     >
-      <span className="text-zinc-400">{children}</span>
+      <span className="text-muted">{children}</span>
       <motion.span
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/80 to-transparent bg-clip-text text-transparent select-none pointer-events-none"
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-ink/80 to-transparent bg-clip-text text-transparent select-none pointer-events-none"
         initial={{ x: '-100%' }}
         animate={{ x: '200%' }}
         transition={{

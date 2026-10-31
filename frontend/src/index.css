@@ -4,36 +4,51 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Sistema de tokens semánticos "Modo Hiperfoco".
+ * Los valores son canales RGB (para que las utilidades de Tailwind puedan
+ * aplicar alpha: p.ej. bg-ink/10). El mismo markup sirve dark y light porque
+ * las variables cambian con el tema — sin overrides !important.
+ */
 @layer base {
   :root {
     color-scheme: dark;
-    --bg-canvas: #000000;
-    --bg-surface: #0a0a0a;
-    --text-main: #ffffff;
-    --text-muted: #71717a;
-    --border-hairline: rgba(255, 255, 255, 0.08);
+    --canvas: 0 0 0; /* fondo base */
+    --surface: 10 10 10; /* fondo elevado sutil (#0a0a0a) */
+    --elevated: 22 22 24; /* cards / modales (#161618) */
+    --ink: 255 255 255; /* texto principal y superficies invertidas */
+    --muted: 161 161 170; /* texto secundario */
+    --faint: 115 115 115; /* texto terciario / metadatos */
+    --line: 255 255 255; /* color base de hairlines; la opacidad la pone la utilidad */
   }
 
-  html.light,
-  [data-theme='light'] {
+  :root.light,
+  :root[data-theme='light'] {
     color-scheme: light;
-    --bg-canvas: #ffffff;
-    --bg-surface: #f9f9f9;
-    --text-main: #000000;
-    --text-muted: #555555;
-    --border-hairline: rgba(0, 0, 0, 0.08);
+    --canvas: 255 255 255;
+    --surface: 249 249 249;
+    --elevated: 255 255 255;
+    --ink: 0 0 0;
+    --muted: 82 82 82;
+    --faint: 119 119 119;
+    --line: 0 0 0;
   }
 
   html,
   body {
-    background-color: var(--bg-canvas);
-    color: var(--text-main);
+    background-color: rgb(var(--canvas));
+    color: rgb(var(--ink));
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   body {
-    @apply font-sans antialiased selection:bg-white selection:text-black;
+    @apply font-sans antialiased;
     min-height: 100vh;
+  }
+
+  ::selection {
+    background: rgb(var(--ink));
+    color: rgb(var(--canvas));
   }
 
   h1,
@@ -42,67 +57,74 @@
   h4,
   h5,
   h6 {
-    @apply font-display tracking-tight text-white;
+    @apply font-display tracking-tight text-ink;
+  }
+
+  /* Anillo de foco de teclado consistente en toda la app (solo con teclado). */
+  :focus-visible {
+    outline: 2px solid rgb(var(--ink));
+    outline-offset: 2px;
   }
 }
 
-/* Custom minimal scrollbar */
+/* Scrollbar mínima, theme-aware */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-canvas);
+  background: rgb(var(--canvas));
 }
 ::-webkit-scrollbar-thumb {
-  background: #333333;
+  background: rgb(var(--ink) / 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555555;
+  background: rgb(var(--ink) / 0.35);
+}
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--ink) / 0.2) transparent;
 }
 
 @layer components {
   /* Botones monocromáticos de alta respuesta táctil binaria */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-none font-mono text-xs uppercase font-medium tracking-wider transition-all duration-150 cursor-pointer select-none active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-none font-mono text-xs uppercase font-medium tracking-wider transition-colors duration-150 cursor-pointer select-none active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none;
   }
-  .btn-primario {
-    @apply bg-white text-black hover:bg-neutral-200;
+  .btn-primario,
+  .btn-blanco,
+  .btn-aceptar,
+  .btn-terracotta {
+    @apply bg-ink text-canvas hover:bg-ink/90;
   }
   .btn-secundario {
-    @apply bg-transparent text-white border border-white/20 hover:border-white hover:bg-white hover:text-black;
-  }
-  .btn-terracotta {
-    @apply bg-white text-black hover:bg-neutral-200 active:scale-[0.98];
-  }
-  .btn-blanco {
-    @apply bg-white text-black hover:bg-neutral-200;
+    @apply bg-transparent text-ink border border-ink/20 hover:border-ink hover:bg-ink hover:text-canvas;
   }
   .btn-peligro {
     @apply bg-transparent text-rose-400 border border-rose-500/30 hover:bg-rose-500 hover:text-white;
   }
-  .btn-aceptar {
-    @apply bg-white text-black hover:bg-neutral-200;
-  }
 
   /* Inputs tipográficos integrados al lienzo (No-Card Layout) */
   .input {
-    @apply w-full px-0 py-3 bg-transparent border-b border-white/20 rounded-none font-mono text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-white hover:border-white/40 transition-colors duration-150;
+    @apply w-full px-0 py-3 bg-transparent border-b border-ink/20 rounded-none font-mono text-sm text-ink placeholder:text-faint focus:outline-none focus:border-ink hover:border-ink/40 transition-colors duration-150;
+  }
+  .input:focus-visible {
+    outline: none; /* el borde inferior ya marca el foco */
   }
   .label {
-    @apply block font-mono text-[11px] font-medium uppercase tracking-widest text-neutral-300 mb-2;
+    @apply block font-mono text-[11px] font-medium uppercase tracking-widest text-muted mb-2;
   }
 
-  /* Selectores nativos con estilo Zen y alto contraste */
+  /* Selectores nativos: flecha en gris medio, legible en ambos temas */
   select.input {
     @apply appearance-none cursor-pointer pr-8 bg-no-repeat transition-colors duration-150;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-position: right 0.25rem center;
     background-size: 1rem 1rem;
   }
   select.input option {
-    background-color: #0a0a0a;
-    color: #ffffff;
+    background-color: rgb(var(--elevated));
+    color: rgb(var(--ink));
     font-family: inherit;
     padding: 0.6rem 0.8rem;
   }
@@ -111,185 +133,42 @@
     cursor: not-allowed;
   }
 
-  /* Fila base de tabla editorial (reemplazo de cards) */
+  /* Fila/contenedor base editorial (reemplazo de cards) */
   .card {
-    @apply bg-transparent border border-white/10 rounded-none p-6 transition-colors duration-150 hover:border-white/25;
+    @apply bg-transparent border border-ink/10 rounded-none p-6 transition-colors duration-150 hover:border-ink/25;
   }
 
   /* Hairlines estructurales de 1px */
   .hairline {
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: rgb(var(--line) / 0.08);
   }
   .hairline-t {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgb(var(--line) / 0.08);
   }
   .hairline-b {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgb(var(--line) / 0.08);
   }
   .hairline-terracotta {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgb(var(--line) / 0.2);
   }
 
   /* Badges monocromáticos */
   .badge {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none font-mono text-[10px] uppercase font-medium tracking-widest border border-white/20 text-neutral-300;
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none font-mono text-[10px] uppercase font-medium tracking-widest border border-ink/20 text-muted;
   }
   .badge-terracotta {
-    @apply bg-white text-black border-white;
+    @apply bg-ink text-canvas border-ink;
   }
   .badge-pendiente {
-    @apply bg-transparent text-neutral-400 border-white/20;
+    @apply bg-transparent text-muted border-ink/20;
   }
   .badge-confirmado {
-    @apply bg-white/10 text-white border-white/30;
+    @apply bg-ink/10 text-ink border-ink/30;
   }
   .badge-completado {
-    @apply bg-transparent text-neutral-500 border-white/10;
+    @apply bg-transparent text-faint border-ink/10;
   }
   .badge-cancelado {
     @apply bg-transparent text-rose-400 border-rose-500/20;
   }
-}
-
-/* ─── Reglas de Inversión Editorial Puro (Light Mode) ─────────────────────── */
-html.light,
-html.light body {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-}
-
-html.light h1,
-html.light h2,
-html.light h3,
-html.light h4,
-html.light h5,
-html.light h6 {
-  color: #000000 !important;
-}
-
-html.light .bg-black,
-html.light .bg-\[\#000000\],
-html.light .bg-\[\#050505\],
-html.light .bg-zinc-950,
-html.light .bg-zinc-900\/40,
-html.light .bg-zinc-900\/50,
-html.light .bg-zinc-900\/60,
-html.light .bg-zinc-900 {
-  background-color: #ffffff !important;
-}
-
-html.light .bg-black\/95,
-html.light .bg-zinc-950\/90,
-html.light .bg-zinc-950\/80 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-}
-
-html.light .text-white,
-html.light .text-zinc-100,
-html.light .text-zinc-200 {
-  color: #000000 !important;
-}
-
-html.light .text-neutral-300,
-html.light .text-neutral-400,
-html.light .text-zinc-300,
-html.light .text-zinc-400 {
-  color: #555555 !important;
-}
-
-html.light .text-neutral-500,
-html.light .text-neutral-600,
-html.light .text-zinc-500,
-html.light .text-zinc-600 {
-  color: #777777 !important;
-}
-
-html.light .border-white\/10,
-html.light .border-white\/5,
-html.light .border-white\/15,
-html.light .border-white\/20 {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-html.light .border-white {
-  border-color: #000000 !important;
-}
-
-html.light .divide-white\/10 > :not([hidden]) ~ :not([hidden]),
-html.light .divide-white\/20 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-html.light .btn-primario {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-html.light .btn-primario:hover {
-  background-color: #222222 !important;
-}
-
-html.light .btn-secundario {
-  background-color: transparent !important;
-  color: #000000 !important;
-  border-color: rgba(0, 0, 0, 0.25) !important;
-}
-html.light .btn-secundario:hover {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border-color: #000000 !important;
-}
-
-html.light .input {
-  border-bottom-color: rgba(0, 0, 0, 0.2) !important;
-  color: #000000 !important;
-}
-html.light .input:focus {
-  border-bottom-color: #000000 !important;
-}
-html.light .input::placeholder {
-  color: #888888 !important;
-}
-html.light .label {
-  color: #333333 !important;
-}
-
-html.light select.input,
-[data-theme='light'] select.input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
-}
-html.light select.input option,
-[data-theme='light'] select.input option {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-}
-
-html.light .bg-white {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-html.light .text-black {
-  color: #ffffff !important;
-}
-
-html.light .hover\:bg-white\/5:hover {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-html.light .hover\:bg-white\/\[0\.02\]:hover {
-  background-color: rgba(0, 0, 0, 0.02) !important;
-}
-
-html.light .rounded-full.bg-white {
-  background-color: #000000 !important;
-}
-
-html.light .card {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-html.light .badge {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #333333 !important;
-}
-html.light .badge-confirmado {
-  background-color: rgba(0, 0, 0, 0.06) !important;
-  color: #000000 !important;
 }

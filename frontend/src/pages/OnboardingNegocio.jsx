@@ -143,20 +143,20 @@ export default function OnboardingNegocio() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 flex flex-col justify-between p-4 lg:p-8">
+    <div className="min-h-screen bg-[#050505] text-ink flex flex-col justify-between p-4 lg:p-8">
       {/* Header */}
-      <header className="max-w-4xl mx-auto w-full flex items-center justify-between pb-6 border-b border-white/10">
+      <header className="max-w-4xl mx-auto w-full flex items-center justify-between pb-6 border-b border-ink/10">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="w-1.5 h-1.5 rounded-full bg-white" />
-          <span className="font-mono text-xs uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">
-            BarberPole <span className="text-zinc-600">—</span> Plataforma de Turnos
+          <span className="w-1.5 h-1.5 rounded-full bg-ink" />
+          <span className="font-mono text-xs uppercase tracking-widest text-muted group-hover:text-ink transition-colors">
+            BarberPole <span className="text-faint">—</span> Plataforma de Turnos
           </span>
         </Link>
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <Link
             to="/login"
-            className="font-mono text-xs uppercase text-zinc-400 hover:text-white transition-colors"
+            className="font-mono text-xs uppercase text-muted hover:text-ink transition-colors"
           >
             ¿Ya tenés cuenta? Ingresar →
           </Link>
@@ -167,10 +167,10 @@ export default function OnboardingNegocio() {
       <main className="max-w-xl mx-auto w-full my-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <span className="font-mono text-xs text-zinc-500 uppercase tracking-widest">
+            <span className="font-mono text-xs text-faint uppercase tracking-widest">
               Paso {paso} de 3
             </span>
-            <h1 className="text-3xl font-display font-bold text-white tracking-tight mt-1">
+            <h1 className="text-3xl font-display font-bold text-ink tracking-tight mt-1">
               {paso === 1 && 'Identidad & Modalidad'}
               {paso === 2 && 'Cuenta de Acceso'}
               {paso === 3 && 'Elegí tu Plan'}
@@ -182,10 +182,10 @@ export default function OnboardingNegocio() {
                 key={n}
                 className={`w-2.5 h-2.5 rounded-full transition-all ${
                   paso === n
-                    ? 'bg-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.4)]'
+                    ? 'bg-ink scale-110 shadow-[0_0_10px_rgba(255,255,255,0.4)]'
                     : paso > n
-                    ? 'bg-zinc-600'
-                    : 'bg-zinc-800'
+                    ? 'bg-faint'
+                    : 'bg-elevated'
                 }`}
               />
             ))}
@@ -198,7 +198,7 @@ export default function OnboardingNegocio() {
           </div>
         )}
 
-        <div className="border border-white/10 p-6 sm:p-8">
+        <div className="border border-ink/10 p-6 sm:p-8">
           <AnimatePresence mode="wait">
             {/* PASO 1: MODALIDAD, RUBRO Y DATOS */}
             {paso === 1 && (
@@ -218,8 +218,8 @@ export default function OnboardingNegocio() {
                       onClick={() => setModalidad('local')}
                       className={`py-3 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
                         modalidad === 'local'
-                          ? 'border-white bg-white text-black font-semibold'
-                          : 'border-white/20 text-neutral-400 hover:border-white/50 hover:text-white'
+                          ? 'border-ink bg-ink text-canvas font-semibold'
+                          : 'border-ink/20 text-muted hover:border-ink/50 hover:text-ink'
                       }`}
                     >
                       Local / Salón
@@ -229,14 +229,14 @@ export default function OnboardingNegocio() {
                       onClick={() => setModalidad('particular')}
                       className={`py-3 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
                         modalidad === 'particular'
-                          ? 'border-white bg-white text-black font-semibold'
-                          : 'border-white/20 text-neutral-400 hover:border-white/50 hover:text-white'
+                          ? 'border-ink bg-ink text-canvas font-semibold'
+                          : 'border-ink/20 text-muted hover:border-ink/50 hover:text-ink'
                       }`}
                     >
                       Particular / Estudio
                     </button>
                   </div>
-                  <p className="font-mono text-[10px] text-neutral-500 mt-2 uppercase tracking-wide">
+                  <p className="font-mono text-[10px] text-faint mt-2 uppercase tracking-wide">
                     {modalidad === 'local'
                       ? 'Local comercial a la calle o establecimiento con equipo.'
                       : 'Atención individual independiente (en casa o estudio privado).'}
@@ -254,8 +254,8 @@ export default function OnboardingNegocio() {
                         onClick={() => setRubro(r.id)}
                         className={`py-2.5 px-2 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer truncate ${
                           rubro === r.id
-                            ? 'border-white bg-white text-black font-semibold'
-                            : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
+                            ? 'border-ink bg-ink text-canvas font-semibold'
+                            : 'border-ink/10 text-muted hover:border-ink/30 hover:text-ink'
                         }`}
                       >
                         {r.label}
@@ -294,15 +294,15 @@ export default function OnboardingNegocio() {
                   <label className="label" htmlFor="slug">
                     Enlace público para tu agenda (WhatsApp / Instagram) *
                   </label>
-                  <div className="flex items-center rounded-lg border border-white/10 bg-zinc-950/80 px-3 py-2 text-sm font-mono text-zinc-400">
-                    <span className="text-zinc-600 select-none">barberpole.app/</span>
+                  <div className="flex items-center rounded-lg border border-ink/10 bg-surface/80 px-3 py-2 text-sm font-mono text-muted">
+                    <span className="text-faint select-none">barberpole.app/</span>
                     <input
                       id="slug"
                       type="text"
                       value={slug}
                       onChange={(e) => setSlug(slugificar(e.target.value))}
                       placeholder="tu-estudio"
-                      className="bg-transparent text-white font-medium focus:outline-none flex-1 ml-1"
+                      className="bg-transparent text-ink font-medium focus:outline-none flex-1 ml-1"
                     />
                   </div>
                   {errores.slug && (
@@ -350,11 +350,11 @@ export default function OnboardingNegocio() {
                       type="checkbox"
                       checked={direccionPrivada}
                       onChange={(e) => setDireccionPrivada(e.target.checked)}
-                      className="w-4 h-4 accent-white rounded cursor-pointer"
+                      className="w-4 h-4 accent-ink rounded cursor-pointer"
                     />
                     <label
                       htmlFor="direccionPrivada"
-                      className="font-mono text-xs text-neutral-300 uppercase cursor-pointer select-none"
+                      className="font-mono text-xs text-muted uppercase cursor-pointer select-none"
                     >
                       Dirección privada (se envía al cliente tras reservar)
                     </label>
@@ -382,15 +382,15 @@ export default function OnboardingNegocio() {
               >
                 <div>
                   {usuario?.email ? (
-                  <div className="p-3 border border-white/20 bg-white/5 font-mono text-xs flex items-center justify-between">
+                  <div className="p-3 border border-ink/20 bg-ink/5 font-mono text-xs flex items-center justify-between">
                     <div>
-                      <span className="text-neutral-500 uppercase">CUENTA GOOGLE: </span>
-                      <span className="text-white font-medium">{usuario.nombre}</span> ({usuario.email})
+                      <span className="text-faint uppercase">CUENTA GOOGLE: </span>
+                      <span className="text-ink font-medium">{usuario.nombre}</span> ({usuario.email})
                     </div>
                     <span className="text-emerald-400 uppercase text-[10px] tracking-widest">CONECTADO</span>
                   </div>
                 ) : (
-                  <div className="space-y-3 pb-3 border-b border-white/10">
+                  <div className="space-y-3 pb-3 border-b border-ink/10">
                     <GoogleLoginButton
                       texto="AUTOCOMPLETAR CON GOOGLE"
                       onSuccess={(u) => {
@@ -399,11 +399,11 @@ export default function OnboardingNegocio() {
                       }}
                     />
                     <div className="flex items-center gap-2">
-                      <span className="h-px bg-white/10 flex-1" />
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-neutral-500">
+                      <span className="h-px bg-ink/10 flex-1" />
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-faint">
                         O CON EMAIL DIRECTO
                       </span>
-                      <span className="h-px bg-white/10 flex-1" />
+                      <span className="h-px bg-ink/10 flex-1" />
                     </div>
                   </div>
                 )}
@@ -490,18 +490,18 @@ export default function OnboardingNegocio() {
                     onClick={() => setPlan('free')}
                     className={`p-4 rounded-xl border cursor-pointer transition-all ${
                       plan === 'free'
-                        ? 'border-white bg-zinc-900 shadow-[0_0_20px_rgba(255,255,255,0.15)]'
-                        : 'border-white/10 bg-zinc-950/60 hover:border-white/20'
+                        ? 'border-ink bg-elevated shadow-[0_0_20px_rgba(255,255,255,0.15)]'
+                        : 'border-ink/10 bg-surface/60 hover:border-ink/20'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-xs uppercase text-zinc-400 font-bold">
+                      <span className="font-mono text-xs uppercase text-muted font-bold">
                         Plan Free
                       </span>
                       {plan === 'free' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                     </div>
-                    <p className="font-mono text-2xl font-bold text-white">$0</p>
-                    <p className="font-sans text-xs text-zinc-400 mt-2 leading-relaxed">
+                    <p className="font-mono text-2xl font-bold text-ink">$0</p>
+                    <p className="font-sans text-xs text-muted mt-2 leading-relaxed">
                       Hasta 50 turnos/mes, 1 profesional, link público activo. Ideal para particulares.
                     </p>
                   </div>
@@ -510,28 +510,28 @@ export default function OnboardingNegocio() {
                     onClick={() => setPlan('pro')}
                     className={`p-4 rounded-xl border cursor-pointer transition-all relative ${
                       plan === 'pro'
-                        ? 'border-white bg-zinc-900 shadow-[0_0_20px_rgba(255,255,255,0.15)]'
-                        : 'border-white/10 bg-zinc-950/60 hover:border-white/20'
+                        ? 'border-ink bg-elevated shadow-[0_0_20px_rgba(255,255,255,0.15)]'
+                        : 'border-ink/10 bg-surface/60 hover:border-ink/20'
                     }`}
                   >
-                    <span className="absolute -top-2.5 right-3 font-mono text-[10px] uppercase px-2 py-0.5 rounded-full bg-white text-black font-bold">
+                    <span className="absolute -top-2.5 right-3 font-mono text-[10px] uppercase px-2 py-0.5 rounded-full bg-ink text-canvas font-bold">
                       Recomendado
                     </span>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-xs uppercase text-zinc-400 font-bold">
+                      <span className="font-mono text-xs uppercase text-muted font-bold">
                         Plan Pro
                       </span>
                       {plan === 'pro' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                     </div>
-                    <p className="font-mono text-2xl font-bold text-white">$29 / mes</p>
-                    <p className="font-sans text-xs text-zinc-400 mt-2 leading-relaxed">
+                    <p className="font-mono text-2xl font-bold text-ink">$29 / mes</p>
+                    <p className="font-sans text-xs text-muted mt-2 leading-relaxed">
                       Turnos ilimitados, profesionales ilimitados, telemetría y Google Calendar sync.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-zinc-950 border border-white/10 text-xs font-mono text-zinc-400 mt-4">
-                  <div className="flex items-center gap-2 text-white font-semibold mb-1">
+                <div className="p-4 rounded-xl bg-surface border border-ink/10 text-xs font-mono text-muted mt-4">
+                  <div className="flex items-center gap-2 text-ink font-semibold mb-1">
                     <Sparkles className="w-4 h-4 text-emerald-400" />
                     <span>Tu agenda arrancará lista para recibir reservas:</span>
                   </div>
@@ -560,7 +560,7 @@ export default function OnboardingNegocio() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-4xl mx-auto w-full pt-6 border-t border-white/10 text-center font-mono text-xs text-zinc-600">
+      <footer className="max-w-4xl mx-auto w-full pt-6 border-t border-ink/10 text-center font-mono text-xs text-faint">
         BarberPole Multi-Tenant Platform · Motor Universal de Turnos 2026
       </footer>
     </div>

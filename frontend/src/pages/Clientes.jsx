@@ -65,12 +65,12 @@ export default function Clientes() {
 
   return (
     <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint mb-1">
             — BASE DE DATOS
           </p>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             CLIENTES.
           </h1>
         </div>
@@ -89,7 +89,7 @@ export default function Clientes() {
         />
       </div>
 
-      {cargando && <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">Cargando...</p>}
+      {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando...</p>}
       {error && (
         <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
           Error al cargar clientes
@@ -97,8 +97,8 @@ export default function Clientes() {
       )}
 
       {clientes && clientes.length === 0 && (
-        <div className="py-12 border border-white/10 text-center">
-          <p className="font-mono text-sm uppercase text-neutral-400">
+        <div className="py-12 border border-ink/10 text-center">
+          <p className="font-mono text-sm uppercase text-muted">
             {busqueda ? 'No encontramos clientes con esa búsqueda' : 'No hay clientes cargados'}
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function Clientes() {
 
       {clientes && clientes.length > 0 && (
         <div className="space-y-6">
-          <ul className="divide-y divide-white/10 border-t border-b border-white/10">
+          <ul className="divide-y divide-ink/10 border-t border-b border-ink/10">
             {pagina.map((c) => (
               <FilaCliente
                 key={c._id}
@@ -153,17 +153,17 @@ export default function Clientes() {
 
 function FilaCliente({ cliente, esAdmin, onEditar, onEliminar }) {
   return (
-    <li className="py-4 px-2 hover:bg-white/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <li className="py-4 px-2 hover:bg-ink/[0.02] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex-1 min-w-0">
-        <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-white truncate">
+        <h3 className="font-mono font-medium text-lg uppercase tracking-tight leading-tight text-ink truncate">
           {cliente.nombre}
         </h3>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 font-mono text-xs text-neutral-400">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 font-mono text-xs text-muted">
           {cliente.email && <span>{cliente.email}</span>}
           {cliente.telefono && <span>· {cliente.telefono}</span>}
         </div>
         {cliente.notas && (
-          <p className="font-mono text-xs mt-1 text-neutral-500 line-clamp-1">{cliente.notas}</p>
+          <p className="font-mono text-xs mt-1 text-faint line-clamp-1">{cliente.notas}</p>
         )}
       </div>
       <div className="flex gap-2 shrink-0 items-center">
@@ -273,7 +273,7 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
       {esAdmin && (
         <div>
           <label className="label" htmlFor="usuarioVinc">
-            Cuenta vinculada <span className="text-neutral-500 normal-case font-mono text-[10px]">(opcional — permite al cliente ver sus turnos)</span>
+            Cuenta vinculada <span className="text-faint normal-case font-mono text-[10px]">(opcional — permite al cliente ver sus turnos)</span>
           </label>
           <select
             id="usuarioVinc"
@@ -291,7 +291,7 @@ function FormCliente({ inicial, onCancelar, onGuardado }) {
         </div>
       )}
 
-      <div className="flex gap-3 pt-6 border-t border-white/10">
+      <div className="flex gap-3 pt-6 border-t border-ink/10">
         <button type="button" onClick={onCancelar} className="btn btn-secundario flex-1">
           Cancelar
         </button>

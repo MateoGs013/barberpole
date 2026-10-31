@@ -74,7 +74,7 @@ export function Modal({ abierto, onCerrar, titulo, children, ancho = 'max-w-lg' 
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-canvas/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
       onClick={onCerrar}
       role="presentation"
     >
@@ -88,17 +88,17 @@ export function Modal({ abierto, onCerrar, titulo, children, ancho = 'max-w-lg' 
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.98 }}
         transition={{ duration: 0.15, ease: 'easeOut' }}
-        className={`w-full ${ancho} m-auto my-auto max-h-[92vh] flex flex-col outline-none rounded-none bg-[#0a0a0a] border border-white/20 text-white shadow-2xl relative`}
+        className={`w-full ${ancho} m-auto my-auto max-h-[92vh] flex flex-col outline-none rounded-none bg-[#0a0a0a] border border-ink/20 text-ink shadow-2xl relative`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 sm:px-6 py-4 shrink-0 bg-[#0a0a0a]">
-          <h2 id="modal-titulo" className="font-mono font-medium text-base sm:text-lg uppercase text-white tracking-tight">
+        <div className="flex items-center justify-between border-b border-ink/10 px-5 sm:px-6 py-4 shrink-0 bg-[#0a0a0a]">
+          <h2 id="modal-titulo" className="font-mono font-medium text-base sm:text-lg uppercase text-ink tracking-tight">
             {titulo}
           </h2>
           <button
             type="button"
             onClick={onCerrar}
-            className="p-1.5 text-neutral-400 hover:text-white transition-colors outline-none cursor-pointer"
+            className="p-1.5 text-muted hover:text-ink transition-colors outline-none cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X className="w-4 h-4" />

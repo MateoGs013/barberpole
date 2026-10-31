@@ -129,7 +129,7 @@ export default function ConfiguracionNegocio() {
   if (cargando) {
     return (
       <div className="p-8 max-w-4xl mx-auto">
-        <p className="font-mono text-xs uppercase text-neutral-500 animate-pulse">
+        <p className="font-mono text-xs uppercase text-faint animate-pulse">
           Cargando configuración...
         </p>
       </div>
@@ -139,12 +139,12 @@ export default function ConfiguracionNegocio() {
   if (!negocio && usuario?.rol === 'superadmin') {
     return (
       <div className="p-6 lg:p-12 max-w-2xl mx-auto space-y-6 font-mono text-xs">
-        <div className="border border-white/10 p-6 bg-white/[0.02] space-y-4">
-          <div className="text-white font-medium uppercase tracking-wider text-sm flex items-center gap-2">
+        <div className="border border-ink/10 p-6 bg-ink/[0.02] space-y-4">
+          <div className="text-ink font-medium uppercase tracking-wider text-sm flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
             <span>MODO SUPERADMINISTRADOR</span>
           </div>
-          <p className="text-neutral-400 font-sans text-sm font-light leading-relaxed">
+          <p className="text-muted font-sans text-sm font-light leading-relaxed">
             Como Superadministrador global no tenés un negocio individual asignado directamente. Podés configurar cada salón o estudio particular ingresando a su ficha en el Panel de Superadmin.
           </p>
           <div className="pt-2">
@@ -160,12 +160,12 @@ export default function ConfiguracionNegocio() {
   return (
     <div className="p-4 lg:p-8 max-w-4xl mx-auto space-y-8">
       {/* Header Zen */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 mb-1">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint mb-1">
             — PARÁMETROS OPERATIVOS & MODALIDAD
           </p>
-          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-white uppercase leading-none">
+          <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase leading-none">
             CONFIGURACIÓN.
           </h1>
         </div>
@@ -190,7 +190,7 @@ export default function ConfiguracionNegocio() {
       <form onSubmit={onSubmit} className="space-y-10">
         {/* SECCIÓN 1: Identidad, Rubro & Modalidad */}
         <section className="space-y-4">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 pb-2 border-b border-white/10">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted pb-2 border-b border-ink/10">
             01 — MODALIDAD & IDENTIDAD
           </h2>
 
@@ -203,8 +203,8 @@ export default function ConfiguracionNegocio() {
                   onClick={() => setModalidad('local')}
                   className={`py-2.5 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
                     modalidad === 'local'
-                      ? 'border-white bg-white text-black font-semibold'
-                      : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
+                      ? 'border-ink bg-ink text-canvas font-semibold'
+                      : 'border-ink/10 text-muted hover:border-ink/30 hover:text-ink'
                   }`}
                 >
                   Local / Salón
@@ -214,8 +214,8 @@ export default function ConfiguracionNegocio() {
                   onClick={() => setModalidad('particular')}
                   className={`py-2.5 px-3 border font-mono text-xs uppercase tracking-wider text-center transition-colors cursor-pointer ${
                     modalidad === 'particular'
-                      ? 'border-white bg-white text-black font-semibold'
-                      : 'border-white/10 text-neutral-400 hover:border-white/30 hover:text-white'
+                      ? 'border-ink bg-ink text-canvas font-semibold'
+                      : 'border-ink/10 text-muted hover:border-ink/30 hover:text-ink'
                   }`}
                 >
                   Particular / Estudio
@@ -256,7 +256,7 @@ export default function ConfiguracionNegocio() {
               <input
                 id="slug"
                 type="text"
-                className="input text-neutral-500 cursor-not-allowed"
+                className="input text-faint cursor-not-allowed"
                 value={negocio?.slug || ''}
                 disabled
               />
@@ -306,9 +306,9 @@ export default function ConfiguracionNegocio() {
                 type="checkbox"
                 checked={direccionPrivada}
                 onChange={(e) => setDireccionPrivada(e.target.checked)}
-                className="w-4 h-4 accent-white rounded cursor-pointer"
+                className="w-4 h-4 accent-ink rounded cursor-pointer"
               />
-              <label htmlFor="privada" className="font-mono text-xs uppercase text-neutral-300 cursor-pointer select-none">
+              <label htmlFor="privada" className="font-mono text-xs uppercase text-muted cursor-pointer select-none">
                 Dirección privada (no se muestra públicamente, solo se envía tras reservar)
               </label>
             </div>
@@ -317,7 +317,7 @@ export default function ConfiguracionNegocio() {
 
         {/* SECCIÓN 2: Jornada y Horarios */}
         <section className="space-y-4">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 pb-2 border-b border-white/10">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted pb-2 border-b border-ink/10">
             02 — JORNADA & HORARIOS DE ATENCIÓN
           </h2>
 
@@ -333,8 +333,8 @@ export default function ConfiguracionNegocio() {
                     onClick={() => toggleDia(dia.id)}
                     className={`px-3 py-2 font-mono text-xs uppercase tracking-wider transition-colors border cursor-pointer ${
                       activo
-                        ? 'bg-white text-black border-white font-medium'
-                        : 'bg-transparent text-neutral-500 border-white/10 hover:border-white/30 hover:text-white'
+                        ? 'bg-ink text-canvas border-ink font-medium'
+                        : 'bg-transparent text-faint border-ink/10 hover:border-ink/30 hover:text-ink'
                     }`}
                   >
                     {dia.corto}
@@ -401,7 +401,7 @@ export default function ConfiguracionNegocio() {
 
         {/* SECCIÓN 3: Políticas de Reserva y Cancelación */}
         <section className="space-y-4">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 pb-2 border-b border-white/10">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-muted pb-2 border-b border-ink/10">
             03 — REGLAS DE RESERVA & CANCELACIÓN
           </h2>
 
@@ -454,24 +454,24 @@ export default function ConfiguracionNegocio() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-white/10 space-y-3">
+          <div className="pt-4 border-t border-ink/10 space-y-3">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={notificacionesWhatsapp}
                 onChange={(e) => setNotificacionesWhatsapp(e.target.checked)}
-                className="w-4 h-4 rounded-none accent-white cursor-pointer"
+                className="w-4 h-4 rounded-none accent-ink cursor-pointer"
               />
-              <span className="font-mono text-xs uppercase tracking-wider text-neutral-300">
+              <span className="font-mono text-xs uppercase tracking-wider text-muted">
                 Habilitar enlace de aviso y recordatorio directo por WhatsApp
               </span>
             </label>
 
-            <div className="p-3 border border-white/10 bg-white/[0.01]">
-              <p className="font-mono text-[11px] uppercase tracking-wider text-neutral-400">
-                POLÍTICA DE PAGO: <strong className="text-white">EFECTIVO / ACORDAR CON EL PROFESIONAL</strong>
+            <div className="p-3 border border-ink/10 bg-ink/[0.01]">
+              <p className="font-mono text-[11px] uppercase tracking-wider text-muted">
+                POLÍTICA DE PAGO: <strong className="text-ink">EFECTIVO / ACORDAR CON EL PROFESIONAL</strong>
               </p>
-              <p className="font-mono text-[10px] text-neutral-500 mt-1">
+              <p className="font-mono text-[10px] text-faint mt-1">
                 Cero comisiones ni pasarelas obligatorias; cobro directo acordado con el cliente al momento de brindar el servicio.
               </p>
             </div>
@@ -479,7 +479,7 @@ export default function ConfiguracionNegocio() {
         </section>
 
         {/* Botón de Guardado */}
-        <div className="pt-6 border-t border-white/10 flex justify-end">
+        <div className="pt-6 border-t border-ink/10 flex justify-end">
           <button
             type="submit"
             disabled={guardando}

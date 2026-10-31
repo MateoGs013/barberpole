@@ -18,18 +18,18 @@ export function TickScale({
         return (
           <span
             key={i}
-            className={`w-[1px] bg-white/20 transition-all ${
+            className={`w-[1px] bg-ink/20 transition-all ${
               direction === 'horizontal'
                 ? isTall
-                  ? 'h-6 bg-white/40'
+                  ? 'h-6 bg-ink/40'
                   : isMed
-                    ? 'h-4 bg-white/25'
-                    : 'h-2.5 bg-white/15'
+                    ? 'h-4 bg-ink/25'
+                    : 'h-2.5 bg-ink/15'
                 : isTall
-                  ? 'w-6 bg-white/40'
+                  ? 'w-6 bg-ink/40'
                   : isMed
-                    ? 'w-4 bg-white/25'
-                    : 'w-2.5 bg-white/15'
+                    ? 'w-4 bg-ink/25'
+                    : 'w-2.5 bg-ink/15'
             }`}
           />
         )
