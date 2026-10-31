@@ -17,8 +17,8 @@
     --surface: 10 10 10; /* fondo elevado sutil (#0a0a0a) */
     --elevated: 22 22 24; /* cards / modales (#161618) */
     --ink: 255 255 255; /* texto principal y superficies invertidas */
-    --muted: 161 161 170; /* texto secundario */
-    --faint: 115 115 115; /* texto terciario / metadatos */
+    --muted: 163 163 170; /* texto secundario */
+    --faint: 130 130 134; /* texto terciario / metadatos (contraste AA sobre canvas) */
     --line: 255 255 255; /* color base de hairlines; la opacidad la pone la utilidad */
   }
 
@@ -30,7 +30,7 @@
     --elevated: 255 255 255;
     --ink: 0 0 0;
     --muted: 82 82 82;
-    --faint: 119 119 119;
+    --faint: 106 106 106; /* contraste AA sobre canvas claro */
     --line: 0 0 0;
   }
 
@@ -170,5 +170,18 @@ html {
   }
   .badge-cancelado {
     @apply bg-transparent text-rose-400 border-rose-500/20;
+  }
+}
+
+/* Movimiento reducido: neutraliza transiciones y animaciones CSS.
+   Las animaciones JS de Framer se desactivan vía <MotionConfig reducedMotion="user">. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

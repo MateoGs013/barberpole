@@ -138,21 +138,21 @@ export function MatrixCalendar({
         <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
-            tabIndex={-1}
             onClick={irMesAnterior}
             className="w-8 h-8 border border-ink/10 hover:border-ink text-muted hover:text-ink flex items-center justify-center transition-colors cursor-pointer"
             title="Mes anterior"
+            aria-label="Mes anterior"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
           </button>
           <button
             type="button"
-            tabIndex={-1}
             onClick={irMesSiguiente}
             className="w-8 h-8 border border-ink/10 hover:border-ink text-muted hover:text-ink flex items-center justify-center transition-colors cursor-pointer"
             title="Mes siguiente"
+            aria-label="Mes siguiente"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
