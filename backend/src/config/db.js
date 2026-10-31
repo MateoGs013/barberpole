@@ -4,6 +4,7 @@
 
 import mongoose from 'mongoose'
 import dns from 'node:dns'
+import { logger } from './logger.js'
 
 export const conectarDB = async () => {
   try {
@@ -18,14 +19,14 @@ export const conectarDB = async () => {
       try {
         dns.setServers(['1.1.1.1', '8.8.8.8'])
       } catch (dnsErr) {
-        console.warn('No se pudo aplicar DNS personalizado para SRV:', dnsErr.message)
+        logger.warn(`No se pudo aplicar DNS personalizado para SRV: ${dnsErr.message}`)
       }
     }
 
     await mongoose.connect(uri)
-    console.log('MongoDB conectado exitosamente')
+    logger.info('MongoDB conectado exitosamente')
   } catch (error) {
-    console.error('Error conectando a MongoDB:', error.message)
+    logger.error({ err: error }, 'Error conectando a MongoDB')
     process.exit(1)
   }
 }

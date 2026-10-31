@@ -1,38 +1,42 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
+import { validarEnv } from './src/config/env.js'
+import { logger } from './src/config/logger.js'
 import { conectarDB } from './src/config/db.js'
 import { app } from './src/app.js'
 
-const PORT = process.env.PORT || 4000
+// Valida el entorno antes de levantar nada: si falta algo crítico, corta acá.
+const env = validarEnv()
+const PORT = env.PORT
 
 let server
 
 const iniciar = async () => {
   await conectarDB()
   server = app.listen(PORT, () => {
-    console.log(`Servidor BarberPole escuchando en http://localhost:${PORT}`)
+    logger.info(`Servidor BarberPole escuchando en http://localhost:${PORT}`)
   })
 }
 
 const apagarGraciosamente = async (señal) => {
-  console.log(`\nRecibida señal ${señal}. Iniciando apagado controlado...`)
+  logger.info(`Recibida señal ${señal}. Iniciando apagado controlado...`)
 
   // Timeout de seguridad para evitar cuelgues indefinidos
   const forceExitTimeout = setTimeout(() => {
-    console.error('El apagado controlado excedió el tiempo límite. Forzando salida.')
+    logger.error('El apagado controlado excedió el tiempo límite. Forzando salida.')
     process.exit(1)
   }, 10000)
   forceExitTimeout.unref()
 
   if (server) {
     server.close(async () => {
-      console.log('Servidor HTTP cerrado exitosamente.')
+      logger.info('Servidor HTTP cerrado exitosamente.')
       try {
         await mongoose.disconnect()
-        console.log('Conexión con MongoDB cerrada.')
+        logger.info('Conexión con MongoDB cerrada.')
         process.exit(0)
       } catch (err) {
-        console.error('Error cerrando MongoDB:', err)
+        logger.error({ err }, 'Error cerrando MongoDB')
         process.exit(1)
       }
     })

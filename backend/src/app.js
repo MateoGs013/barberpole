@@ -1,9 +1,14 @@
 import express from 'express'
 import cors from 'cors'
-import morgan from 'morgan'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import mongoose from 'mongoose'
+import { pinoHttp } from 'pino-http'
+import { randomUUID } from 'node:crypto'
+import swaggerUi from 'swagger-ui-express'
+
+import { logger } from './config/logger.js'
+import { openapiSpec } from './docs/openapi.js'
 
 import { authRouter } from './routes/auth.routes.js'
 import { servicioRouter } from './routes/servicio.routes.js'
@@ -78,9 +83,23 @@ const authLimiter = rateLimit({
 
 app.use(globalLimiter)
 app.use(express.json())
-if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan('dev'))
-}
+
+// Logging estructurado de requests con request-id (propaga/echo del header x-request-id).
+app.use(
+  pinoHttp({
+    logger,
+    genReqId: (req, res) => {
+      const existente = req.headers['x-request-id']
+      const id = existente || randomUUID()
+      res.setHeader('x-request-id', id)
+      return id
+    },
+  })
+)
+
+// Documentación interactiva de la API (OpenAPI 3 / Swagger UI)
+app.get('/api/docs.json', (req, res) => res.json(openapiSpec))
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec))
 
 // Ruta de salud e inspección de estado de base de datos
 app.get('/api/salud', (req, res) => {
@@ -114,9 +133,13 @@ app.use('/api/turnos', turnoRouter)
 
 // Manejador de errores global
 app.use((error, req, res, next) => {
-  if (process.env.NODE_ENV !== 'test') {
-    console.error(error)
-  }
   const status = error.status || 500
+  // Logueamos los 5xx como error; los 4xx (errores de cliente) como warn.
+  const log = req.log || logger
+  if (status >= 500) {
+    log.error({ err: error }, 'Error no controlado')
+  } else {
+    log.warn({ err: error, status }, 'Error de solicitud')
+  }
   res.status(status).json({ error: error.message || 'Error del servidor' })
 })

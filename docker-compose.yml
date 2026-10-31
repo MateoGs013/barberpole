@@ -12,7 +12,7 @@ services:
     environment:
       PORT: 4000
       MONGODB_URI: ${MONGODB_URI}
-      JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-key-for-docker-compose-production}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET es obligatorio y no debe tener un valor por defecto}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       SUPERADMIN_EMAILS: ${SUPERADMIN_EMAILS:-}
       INITIAL_SUPERADMIN_EMAIL: ${INITIAL_SUPERADMIN_EMAIL:-}

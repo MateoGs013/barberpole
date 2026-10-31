@@ -21,4 +21,8 @@ COPY --chown=node:node src ./src
 
 EXPOSE 4000
 
+# Healthcheck contra el endpoint /api/salud (Node 22 trae fetch global, sin curl/wget).
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+  CMD node -e "fetch('http://localhost:4000/api/salud').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 CMD ["node", "server.js"]
