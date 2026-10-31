@@ -219,8 +219,10 @@ cd frontend && npm test
 - `PUT /api/servicios/:id` — Edición de tarifa o duración (*admin*).
 - `DELETE /api/servicios/:id` — Baja (*admin*).
 
-### Observabilidad (`/api/salud`)
+### Observabilidad
 - `GET /api/salud` — Healthcheck activo con estado de Mongoose y uptime.
+- `GET /api/docs` — Documentación interactiva de la API (Swagger UI / OpenAPI 3); spec cruda en `GET /api/docs.json`.
+- `GET /metrics` — Métricas en formato Prometheus (proceso Node + duración/total de requests HTTP).
 
 ---
 

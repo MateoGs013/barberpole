@@ -9,6 +9,7 @@ import swaggerUi from 'swagger-ui-express'
 
 import { logger } from './config/logger.js'
 import { openapiSpec } from './docs/openapi.js'
+import { metricsMiddleware, metricsHandler } from './config/metrics.js'
 
 import { authRouter } from './routes/auth.routes.js'
 import { servicioRouter } from './routes/servicio.routes.js'
@@ -84,10 +85,17 @@ const authLimiter = rateLimit({
 app.use(globalLimiter)
 app.use(express.json())
 
+// Métricas Prometheus: mide duración y cuenta cada request (antes del routing).
+app.use(metricsMiddleware)
+
 // Logging estructurado de requests con request-id (propaga/echo del header x-request-id).
+// Se ignoran los endpoints de scraping/health para no inundar los logs.
 app.use(
   pinoHttp({
     logger,
+    autoLogging: {
+      ignore: (req) => req.url === '/metrics' || req.url === '/api/salud',
+    },
     genReqId: (req, res) => {
       const existente = req.headers['x-request-id']
       const id = existente || randomUUID()
@@ -96,6 +104,9 @@ app.use(
     },
   })
 )
+
+// Endpoint de métricas para scraping de Prometheus
+app.get('/metrics', metricsHandler)
 
 // Documentación interactiva de la API (OpenAPI 3 / Swagger UI)
 app.get('/api/docs.json', (req, res) => res.json(openapiSpec))
