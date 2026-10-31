@@ -14,7 +14,8 @@ const esquema = z.object({
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
   // Opcionales: la app degrada con gracia si no están (CORS abierto en dev,
-  // login con Google deshabilitado, etc.).
+  // login con Google deshabilitado, rate-limit/lock en memoria sin Redis, etc.).
+  REDIS_URL: z.string().optional(),
   FRONTEND_URL: z.string().optional(),
   SUPERADMIN_EMAILS: z.string().optional(),
   INITIAL_SUPERADMIN_EMAIL: z.string().optional(),

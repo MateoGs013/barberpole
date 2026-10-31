@@ -2,6 +2,7 @@ import { Turno } from '../models/Turno.js'
 import { Cliente } from '../models/Cliente.js'
 import { Empleado } from '../models/Empleado.js'
 import { Servicio } from '../models/Servicio.js'
+import { conBloqueo } from '../config/lock.js'
 
 const POBLAR = [
   { path: 'cliente', select: 'nombre email telefono' },
@@ -10,32 +11,13 @@ const POBLAR = [
   { path: 'negocio', select: 'nombre slug' },
 ]
 
-// Lock en memoria por empleado: serializa el chequeo de solapamiento + creación
-// DENTRO de un mismo proceso. OJO: no cubre múltiples instancias (ej. varias
-// réplicas en Coolify). Para el caso multi-instancia, crearTurno agrega una
-// reconciliación post-creación contra la base (ver reconciliarSolapamiento).
-const locksPorEmpleado = new Map()
-
-const conBloqueoEmpleado = async (empleadoId, accion) => {
-  const clave = String(empleadoId)
-  const lockAnterior = locksPorEmpleado.get(clave) || Promise.resolve()
-
-  let resolverLock
-  const nuevoLock = new Promise((resolve) => {
-    resolverLock = resolve
-  })
-  locksPorEmpleado.set(clave, nuevoLock)
-
-  try {
-    await lockAnterior
-    return await accion()
-  } finally {
-    resolverLock()
-    if (locksPorEmpleado.get(clave) === nuevoLock) {
-      locksPorEmpleado.delete(clave)
-    }
-  }
-}
+// Serializa el chequeo de solapamiento + creación por empleado. Usa el lock
+// distribuido (Redis) cuando está disponible y cae al lock en proceso cuando no
+// (ver config/lock.js). En cualquier caso, la reconciliación post-creación
+// contra la base (reconciliarSolapamiento) es el backstop de correctitud ante
+// carreras entre múltiples instancias.
+const conBloqueoEmpleado = (empleadoId, accion) =>
+  conBloqueo(`empleado:${empleadoId}`, accion)
 
 export const listarTurnos = async ({
   clienteId,

@@ -23,6 +23,21 @@ services:
     networks:
       - barberpole-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: barberpole-redis-local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - barberpole-network
+
   backend:
     build:
       context: ./backend
@@ -36,11 +51,14 @@ services:
       MONGODB_URI: mongodb://mongodb:27017/peluqueria
       JWT_SECRET: dev-secret-key-for-local-development-only
       JWT_EXPIRES_IN: 7d
+      REDIS_URL: redis://redis:6379
       FRONTEND_URL: http://localhost,http://localhost:3000,http://localhost:80
       NODE_ENV: production
       TZ: America/Argentina/Buenos_Aires
     depends_on:
       mongodb:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - barberpole-network

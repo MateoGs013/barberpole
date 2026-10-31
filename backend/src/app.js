@@ -6,10 +6,12 @@ import mongoose from 'mongoose'
 import { pinoHttp } from 'pino-http'
 import { randomUUID } from 'node:crypto'
 import swaggerUi from 'swagger-ui-express'
+import { RedisStore } from 'rate-limit-redis'
 
 import { logger } from './config/logger.js'
 import { openapiSpec } from './docs/openapi.js'
 import { metricsMiddleware, metricsHandler } from './config/metrics.js'
+import { redis } from './config/redis.js'
 
 import { authRouter } from './routes/auth.routes.js'
 import { servicioRouter } from './routes/servicio.routes.js'
@@ -64,13 +66,18 @@ app.use(
   })
 )
 
-// Rate limiting
+// Rate limiting. Con Redis disponible, el contador se comparte entre instancias
+// (store distribuido); si no, cada instancia usa su store en memoria.
 const isTest = process.env.NODE_ENV === 'test'
+const storeRedis = (prefix) =>
+  redis ? new RedisStore({ sendCommand: (...args) => redis.call(...args), prefix }) : undefined
+
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: isTest ? 10000 : 300,
   standardHeaders: true,
   legacyHeaders: false,
+  store: storeRedis('rl-global:'),
   message: { error: 'Demasiadas solicitudes desde esta IP, intente de nuevo en 15 minutos.' },
 })
 
@@ -79,6 +86,7 @@ const authLimiter = rateLimit({
   max: isTest ? 10000 : 20,
   standardHeaders: true,
   legacyHeaders: false,
+  store: storeRedis('rl-auth:'),
   message: { error: 'Demasiados intentos de autenticación, intente de nuevo en 15 minutos.' },
 })
 

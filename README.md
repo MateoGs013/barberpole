@@ -68,7 +68,7 @@ graph TD
 
 ### 3. ⚡ Slot Engine & Control de Concurrencia
 - **Disponibilidad Inteligente**: `GET /api/empleados/:id/disponibilidad?fecha=YYYY-MM-DD&servicioId=...` calcula dinámicamente horarios libres respetando horarios de apertura/cierre y turnos existentes.
-- **Anti-Doble-Reserva**: Lock secuencial por empleado dentro del proceso (`conBloqueoEmpleado`) que serializa el chequeo de solapamiento y la creación, devolviendo `409 Conflict` ante colisiones. Como red de seguridad entre múltiples instancias, una reconciliación contra la base resuelve carreras concurrentes de forma determinística (sobrevive el turno de `_id` menor).
+- **Anti-Doble-Reserva**: Lock por empleado que serializa el chequeo de solapamiento y la creación, devolviendo `409 Conflict` ante colisiones. Usa un **lock distribuido en Redis** (`SET NX PX` + liberación segura por Lua) cuando hay `REDIS_URL` configurada, y cae a un lock en proceso cuando no. En ambos casos, una **reconciliación contra la base** es el backstop de correctitud: ante carreras entre múltiples instancias sobrevive de forma determinística el turno de `_id` menor.
 - **Cancelación Autónoma**: Validación estricta de ventana mínima de 2 horas previas a la cita (`PATCH /api/turnos/:id/cancelar`).
 - **Snapshots Contables Inmutables**: Los turnos graban `precioCobrado`, `duracionMinutos` y `fechaHoraFin` en el momento exacto de la reserva.
 

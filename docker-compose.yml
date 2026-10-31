@@ -20,6 +20,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_CALENDAR_REDIRECT_URI: ${GOOGLE_CALENDAR_REDIRECT_URI:-}
+      REDIS_URL: ${REDIS_URL:-}
       NODE_ENV: production
       TZ: America/Argentina/Buenos_Aires
     networks:
