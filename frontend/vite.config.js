@@ -31,5 +31,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.js',
+    // Solo tests unitarios bajo src/. Los e2e de Playwright (e2e/) corren con `npm run test:e2e`.
+    include: ['src/**/*.{test,spec}.{js,jsx}'],
   },
 })

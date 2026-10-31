@@ -21,3 +21,9 @@ npm-debug.log*
 # Datos locales
 backend/.data/
 *.lock
+
+# Playwright (e2e)
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { onboardingNegocioAPI } from '../api/negocios.api.js'
+import { guardarToken } from '../api/http.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
 import { ThemeToggle } from '../components/ThemeToggle.jsx'
@@ -128,7 +129,10 @@ export default function OnboardingNegocio() {
         modalidad,
       })
 
-      localStorage.setItem('token', res.token)
+      // Usar el mismo storage que el resto de la app (clave 'peluqueria.token').
+      // Antes guardaba bajo 'token', que el cliente HTTP no lee: tras el onboarding
+      // la sesión se perdía y el dashboard rebotaba a /login.
+      guardarToken(res.token)
       toast.exito(`¡${res.negocio.nombre} creado con éxito!`)
       window.location.href = '/dashboard'
     } catch (err) {
