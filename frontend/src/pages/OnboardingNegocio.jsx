@@ -143,7 +143,7 @@ export default function OnboardingNegocio() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-ink flex flex-col justify-between p-4 lg:p-8">
+    <div className="min-h-screen bg-canvas text-ink flex flex-col justify-between p-4 lg:p-8">
       {/* Header */}
       <header className="max-w-4xl mx-auto w-full flex items-center justify-between pb-6 border-b border-ink/10">
         <Link to="/" className="flex items-center gap-2 group">
@@ -182,7 +182,7 @@ export default function OnboardingNegocio() {
                 key={n}
                 className={`w-2.5 h-2.5 rounded-full transition-all ${
                   paso === n
-                    ? 'bg-ink scale-110 shadow-[0_0_10px_rgba(255,255,255,0.4)]'
+                    ? 'bg-ink scale-110 shadow-[0_0_10px_rgb(var(--ink)/0.4)]'
                     : paso > n
                     ? 'bg-faint'
                     : 'bg-elevated'
@@ -193,7 +193,7 @@ export default function OnboardingNegocio() {
         </div>
 
         {errorGlobal && (
-          <div className="mb-6 rounded-xl border border-rose-500/30 bg-rose-950/40 text-rose-300 px-4 py-3 font-mono text-xs">
+          <div className="mb-6 rounded-xl border border-danger/30 bg-danger/10 text-danger px-4 py-3 font-mono text-xs">
             {errorGlobal}
           </div>
         )}
@@ -283,7 +283,7 @@ export default function OnboardingNegocio() {
                     autoFocus
                   />
                   {errores.nombreNegocio && (
-                    <p className="font-mono text-xs text-rose-400 mt-1 uppercase">
+                    <p className="font-mono text-xs text-danger mt-1 uppercase">
                       {errores.nombreNegocio}
                     </p>
                   )}
@@ -306,7 +306,7 @@ export default function OnboardingNegocio() {
                     />
                   </div>
                   {errores.slug && (
-                    <p className="font-mono text-xs text-rose-400 mt-1 uppercase">
+                    <p className="font-mono text-xs text-danger mt-1 uppercase">
                       {errores.slug}
                     </p>
                   )}
@@ -387,7 +387,7 @@ export default function OnboardingNegocio() {
                       <span className="text-faint uppercase">CUENTA GOOGLE: </span>
                       <span className="text-ink font-medium">{usuario.nombre}</span> ({usuario.email})
                     </div>
-                    <span className="text-emerald-400 uppercase text-[10px] tracking-widest">CONECTADO</span>
+                    <span className="text-accent uppercase text-[10px] tracking-widest">CONECTADO</span>
                   </div>
                 ) : (
                   <div className="space-y-3 pb-3 border-b border-ink/10">
@@ -421,7 +421,7 @@ export default function OnboardingNegocio() {
                     autoFocus
                   />
                   {errores.nombreOwner && (
-                    <p className="font-mono text-xs text-rose-400 mt-1 uppercase">
+                    <p className="font-mono text-xs text-danger mt-1 uppercase">
                       {errores.nombreOwner}
                     </p>
                   )}
@@ -440,7 +440,7 @@ export default function OnboardingNegocio() {
                     className="input"
                   />
                   {errores.email && (
-                    <p className="font-mono text-xs text-rose-400 mt-1 uppercase">
+                    <p className="font-mono text-xs text-danger mt-1 uppercase">
                       {errores.email}
                     </p>
                   )}
@@ -459,7 +459,7 @@ export default function OnboardingNegocio() {
                     className="input"
                   />
                   {errores.password && (
-                    <p className="font-mono text-xs text-rose-400 mt-1 uppercase">
+                    <p className="font-mono text-xs text-danger mt-1 uppercase">
                       {errores.password}
                     </p>
                   )}
@@ -490,7 +490,7 @@ export default function OnboardingNegocio() {
                     onClick={() => setPlan('free')}
                     className={`p-4 rounded-xl border cursor-pointer transition-all ${
                       plan === 'free'
-                        ? 'border-ink bg-elevated shadow-[0_0_20px_rgba(255,255,255,0.15)]'
+                        ? 'border-ink bg-elevated shadow-[0_0_20px_rgb(var(--ink)/0.15)]'
                         : 'border-ink/10 bg-surface/60 hover:border-ink/20'
                     }`}
                   >
@@ -498,7 +498,7 @@ export default function OnboardingNegocio() {
                       <span className="font-mono text-xs uppercase text-muted font-bold">
                         Plan Free
                       </span>
-                      {plan === 'free' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                      {plan === 'free' && <CheckCircle2 className="w-4 h-4 text-accent" />}
                     </div>
                     <p className="font-mono text-2xl font-bold text-ink">$0</p>
                     <p className="font-sans text-xs text-muted mt-2 leading-relaxed">
@@ -510,7 +510,7 @@ export default function OnboardingNegocio() {
                     onClick={() => setPlan('pro')}
                     className={`p-4 rounded-xl border cursor-pointer transition-all relative ${
                       plan === 'pro'
-                        ? 'border-ink bg-elevated shadow-[0_0_20px_rgba(255,255,255,0.15)]'
+                        ? 'border-ink bg-elevated shadow-[0_0_20px_rgb(var(--ink)/0.15)]'
                         : 'border-ink/10 bg-surface/60 hover:border-ink/20'
                     }`}
                   >
@@ -521,7 +521,7 @@ export default function OnboardingNegocio() {
                       <span className="font-mono text-xs uppercase text-muted font-bold">
                         Plan Pro
                       </span>
-                      {plan === 'pro' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                      {plan === 'pro' && <CheckCircle2 className="w-4 h-4 text-accent" />}
                     </div>
                     <p className="font-mono text-2xl font-bold text-ink">$29 / mes</p>
                     <p className="font-sans text-xs text-muted mt-2 leading-relaxed">
@@ -532,7 +532,7 @@ export default function OnboardingNegocio() {
 
                 <div className="p-4 rounded-xl bg-surface border border-ink/10 text-xs font-mono text-muted mt-4">
                   <div className="flex items-center gap-2 text-ink font-semibold mb-1">
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                    <Sparkles className="w-4 h-4 text-accent" />
                     <span>Tu agenda arrancará lista para recibir reservas:</span>
                   </div>
                   <p>

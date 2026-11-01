@@ -99,7 +99,7 @@ export default function Login() {
         {/* Columna Derecha: Formulario Profesional */}
         <div className="lg:col-span-6 max-w-lg w-full space-y-8 lg:ml-auto">
           {errorGlobal && (
-            <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase tracking-wide">
+            <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase tracking-wide">
               {errorGlobal}
             </div>
           )}
@@ -136,7 +136,7 @@ export default function Login() {
                 autoComplete="email"
               />
               {errores.email && (
-                <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
+                <p className="font-mono text-xs text-danger mt-2 uppercase tracking-wide">
                   {errores.email}
                 </p>
               )}
@@ -156,7 +156,7 @@ export default function Login() {
                 autoComplete="current-password"
               />
               {errores.password && (
-                <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
+                <p className="font-mono text-xs text-danger mt-2 uppercase tracking-wide">
                   {errores.password}
                 </p>
               )}

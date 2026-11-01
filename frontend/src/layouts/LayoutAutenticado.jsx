@@ -60,7 +60,7 @@ export function LayoutAutenticado() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col pb-24 lg:pb-0 bg-[#050505] text-ink">
+    <div className="min-h-screen flex flex-col pb-24 lg:pb-0 bg-canvas text-ink">
       <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-ink/10">
         <div className="px-4 lg:px-8 py-3 flex items-center justify-between gap-4">
           {/* Logo Monocromático Studio */}
@@ -84,7 +84,7 @@ export function LayoutAutenticado() {
                     className={({ isActive }) =>
                       `px-3 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider transition-all duration-150 ${
                         isActive
-                          ? 'bg-ink/10 text-ink border border-ink/15 shadow-[0_0_15px_rgba(255,255,255,0.05)]'
+                          ? 'bg-ink/10 text-ink border border-ink/15 shadow-[0_0_15px_rgb(var(--ink)/0.05)]'
                           : 'text-muted hover:text-ink hover:bg-ink/5 border border-transparent'
                       }`
                     }

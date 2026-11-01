@@ -88,10 +88,10 @@ export function Modal({ abierto, onCerrar, titulo, children, ancho = 'max-w-lg' 
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.98 }}
         transition={{ duration: 0.15, ease: 'easeOut' }}
-        className={`w-full ${ancho} m-auto my-auto max-h-[92vh] flex flex-col outline-none rounded-none bg-[#0a0a0a] border border-ink/20 text-ink shadow-2xl relative`}
+        className={`w-full ${ancho} m-auto my-auto max-h-[92vh] flex flex-col outline-none rounded-none bg-elevated border border-ink/20 text-ink shadow-2xl relative`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-ink/10 px-5 sm:px-6 py-4 shrink-0 bg-[#0a0a0a]">
+        <div className="flex items-center justify-between border-b border-ink/10 px-5 sm:px-6 py-4 shrink-0 bg-elevated">
           <h2 id="modal-titulo" className="font-mono font-medium text-base sm:text-lg uppercase text-ink tracking-tight">
             {titulo}
           </h2>

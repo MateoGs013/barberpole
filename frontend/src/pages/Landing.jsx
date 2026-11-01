@@ -27,27 +27,27 @@ function HeaderEditorial({ usuario }) {
   }
 
   return (
-    <header className="w-full border-b border-ink/10 px-6 sm:px-12 md:px-16 py-5 flex items-center justify-between text-xs font-mono uppercase tracking-widest text-muted">
-      <div className="flex items-center gap-6">
-        <Link to="/" className="text-ink font-medium text-sm tracking-tight">
+    <header className="w-full border-b border-ink/10 px-6 sm:px-12 md:px-16 py-5 flex items-center justify-between gap-6 text-xs font-mono uppercase tracking-widest text-muted">
+      <div className="flex items-center gap-6 shrink-0">
+        <Link to="/" className="text-ink font-medium text-sm tracking-tight shrink-0">
           BARBERPOLE
         </Link>
-        <span className="hidden md:inline text-faint">— MOTOR UNIVERSAL DE TURNOS</span>
+        <span className="hidden 2xl:inline text-faint whitespace-nowrap">— MOTOR UNIVERSAL DE TURNOS</span>
       </div>
 
-      <nav className="hidden lg:flex items-center gap-8 text-muted">
-        <a href="#salones" className="hover:text-ink transition-colors">
+      <nav className="hidden xl:flex items-center gap-8 text-muted shrink-0">
+        <a href="#salones" className="hover:text-ink transition-colors whitespace-nowrap">
           01 — ESPACIOS ↘
         </a>
-        <a href="#capacidades" className="hover:text-ink transition-colors">
+        <a href="#capacidades" className="hover:text-ink transition-colors whitespace-nowrap">
           02 — CAPACIDADES ↘
         </a>
-        <a href="#planes" className="hover:text-ink transition-colors">
+        <a href="#planes" className="hover:text-ink transition-colors whitespace-nowrap">
           03 — PLANES ↘
         </a>
       </nav>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 shrink-0">
         <ThemeToggle className="hidden md:inline-flex" />
         <button
           onClick={abrirCommandPalette}
@@ -60,16 +60,17 @@ function HeaderEditorial({ usuario }) {
         </button>
 
         {usuario ? (
-          <Link to="/dashboard" className="px-4 py-2 bg-ink text-canvas font-semibold hover:bg-ink/90 transition-colors">
+          <Link to="/dashboard" className="px-4 py-2 bg-ink text-canvas font-semibold hover:bg-ink/90 transition-colors whitespace-nowrap">
             PANEL ↗
           </Link>
         ) : (
           <div className="flex items-center gap-2">
-            <Link to="/login" className="px-3 py-2 text-muted hover:text-ink transition-colors">
+            <Link to="/login" className="px-3 py-2 text-muted hover:text-ink transition-colors whitespace-nowrap">
               INGRESAR
             </Link>
-            <Link to="/onboarding" className="px-4 py-2 bg-ink text-canvas font-semibold hover:bg-ink/90 transition-colors">
-              CREAR ESPACIO ↗
+            <Link to="/onboarding" className="px-4 py-2 bg-ink text-canvas font-semibold hover:bg-ink/90 transition-colors whitespace-nowrap">
+              <span className="sm:hidden">CREAR ↗</span>
+              <span className="hidden sm:inline">CREAR ESPACIO ↗</span>
             </Link>
           </div>
         )}
@@ -364,7 +365,7 @@ function PricingEditorial() {
               </div>
 
               <div className="flex items-baseline gap-2">
-                <span className="font-mono text-4xl font-semibold text-ink">{p.precio}</span>
+                <span className="font-mono text-4xl font-semibold text-ink tabular-nums">{p.precio}</span>
                 <span className="font-mono text-xs text-faint uppercase">{p.periodo}</span>
               </div>
 

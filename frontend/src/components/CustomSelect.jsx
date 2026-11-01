@@ -155,7 +155,7 @@ export function CustomSelect({
         <div
           role="listbox"
           tabIndex={-1}
-          className="absolute z-50 left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-[#0a0a0a] border border-ink/20 shadow-2xl text-xs font-mono animate-in fade-in zoom-in-95 duration-100 divide-y divide-ink/5"
+          className="absolute z-50 left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-elevated border border-ink/20 shadow-2xl text-xs font-mono animate-in fade-in zoom-in-95 duration-100 divide-y divide-ink/5"
         >
           {normalizadas.length === 0 ? (
             <div className="px-4 py-3 text-faint italic uppercase tracking-wider text-[11px]">

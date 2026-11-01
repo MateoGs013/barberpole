@@ -95,7 +95,7 @@ export default function Registro() {
         {/* Columna Derecha: Formulario */}
         <div className="lg:col-span-6 max-w-lg w-full space-y-8 lg:ml-auto">
           {errorGlobal && (
-            <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase tracking-wide">
+            <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase tracking-wide">
               {errorGlobal}
             </div>
           )}
@@ -130,7 +130,7 @@ export default function Registro() {
                 autoComplete="name"
               />
               {errores.nombre && (
-                <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
+                <p className="font-mono text-xs text-danger mt-2 uppercase tracking-wide">
                   {errores.nombre}
                 </p>
               )}
@@ -150,7 +150,7 @@ export default function Registro() {
                 autoComplete="email"
               />
               {errores.email && (
-                <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
+                <p className="font-mono text-xs text-danger mt-2 uppercase tracking-wide">
                   {errores.email}
                 </p>
               )}
@@ -171,7 +171,7 @@ export default function Registro() {
                   autoComplete="new-password"
                 />
                 {errores.password && (
-                  <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
+                  <p className="font-mono text-xs text-danger mt-2 uppercase tracking-wide">
                     {errores.password}
                   </p>
                 )}
@@ -191,7 +191,7 @@ export default function Registro() {
                   autoComplete="new-password"
                 />
                 {errores.password2 && (
-                  <p className="font-mono text-xs text-rose-400 mt-2 uppercase tracking-wide">
+                  <p className="font-mono text-xs text-danger mt-2 uppercase tracking-wide">
                     {errores.password2}
                   </p>
                 )}

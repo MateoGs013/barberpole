@@ -269,7 +269,7 @@ export default function Turnos() {
       )}
 
       {error && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           Error al cargar los turnos de la agenda
         </div>
       )}
@@ -394,7 +394,7 @@ function FilaTurnoEditorial({
             </span>
           )}
           {turno.googleCalendarEventId && (
-            <span className="text-[10px] text-emerald-400 font-mono tracking-wider">
+            <span className="text-[10px] text-accent font-mono tracking-wider">
               ● SYNC CALENDAR
             </span>
           )}
@@ -455,7 +455,7 @@ function FilaTurnoEditorial({
             {turno.estado === 'confirmado' && (
               <button
                 onClick={() => onCambiarEstado('completado')}
-                className="btn btn-secundario !px-3 !py-1.5 text-xs font-mono uppercase text-emerald-300 border-emerald-500/30"
+                className="btn btn-secundario !px-3 !py-1.5 text-xs font-mono uppercase text-accent border-accent/30"
               >
                 Completar
               </button>
@@ -612,7 +612,7 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
   return (
     <form onSubmit={onSubmit} className="space-y-6 font-mono text-xs">
       {errorGlobal && (
-        <div className="p-3 border border-rose-500/30 text-rose-300 uppercase">
+        <div className="p-3 border border-danger/30 text-danger uppercase">
           {errorGlobal}
         </div>
       )}
@@ -634,7 +634,7 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
               </option>
             ))}
           </select>
-          {errores.cliente && <p className="text-rose-400 mt-1 uppercase text-[10px]">{errores.cliente}</p>}
+          {errores.cliente && <p className="text-danger mt-1 uppercase text-[10px]">{errores.cliente}</p>}
         </div>
 
         <div>
@@ -656,7 +656,7 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
               </option>
             ))}
           </select>
-          {errores.servicio && <p className="text-rose-400 mt-1 uppercase text-[10px]">{errores.servicio}</p>}
+          {errores.servicio && <p className="text-danger mt-1 uppercase text-[10px]">{errores.servicio}</p>}
         </div>
 
         <div>
@@ -678,7 +678,7 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
               </option>
             ))}
           </select>
-          {errores.empleado && <p className="text-rose-400 mt-1 uppercase text-[10px]">{errores.empleado}</p>}
+          {errores.empleado && <p className="text-danger mt-1 uppercase text-[10px]">{errores.empleado}</p>}
         </div>
       </div>
 
@@ -767,7 +767,7 @@ function FormTurnoUnificado({ inicial, onCancelar, onGuardado }) {
             )}
           </div>
         )}
-        {errores.horario && <p className="text-rose-400 mt-1 uppercase text-[10px]">{errores.horario}</p>}
+        {errores.horario && <p className="text-danger mt-1 uppercase text-[10px]">{errores.horario}</p>}
       </div>
 
       {/* Sección 3: Estado y Notas */}

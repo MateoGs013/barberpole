@@ -52,7 +52,7 @@ export function BoardingPassTicket({
           <div className="flex items-center gap-3">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                confirmado ? 'bg-emerald-400' : 'bg-ink'
+                confirmado ? 'bg-accent' : 'bg-ink'
               }`}
             />
             <span className="font-semibold uppercase tracking-widest text-ink">
@@ -160,7 +160,7 @@ export function BoardingPassTicket({
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between font-mono text-xs text-muted uppercase tracking-widest border-b border-ink/10 pb-3">
               <span>SINCRONIZACIÓN AUTOMÁTICA</span>
-              <span className="text-emerald-400">RESERVA CONFIRMADA</span>
+              <span className="text-accent">RESERVA CONFIRMADA</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -194,7 +194,7 @@ export function BoardingPassTicket({
                 className="inline-flex items-center gap-2 text-muted hover:text-ink uppercase tracking-wider transition-colors"
                 title="Enviar confirmación automática a WhatsApp"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                <MessageSquare className="w-3.5 h-3.5 text-accent" />
                 <span>Avisar por WhatsApp ↗</span>
               </a>
 

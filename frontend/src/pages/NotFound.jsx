@@ -5,7 +5,7 @@ import { ArrowLeft, LayoutDashboard } from 'lucide-react'
 export default function NotFound() {
   const { usuario } = useAuth()
   return (
-    <div className="min-h-screen bg-[#050505] text-ink flex flex-col">
+    <div className="min-h-screen bg-canvas text-ink flex flex-col">
       <header className="px-4 lg:px-8 py-3.5 border-b border-ink/10 bg-surface/80 backdrop-blur-xl">
         <Link
           to="/"

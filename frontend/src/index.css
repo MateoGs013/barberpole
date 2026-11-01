@@ -20,6 +20,9 @@
     --muted: 163 163 170; /* texto secundario */
     --faint: 130 130 134; /* texto terciario / metadatos (contraste AA sobre canvas) */
     --line: 255 255 255; /* color base de hairlines; la opacidad la pone la utilidad */
+    /* Único acento semántico, usado con intención. */
+    --accent: 52 211 153; /* éxito / live / confirmado — menta brillante sobre negro */
+    --danger: 251 113 133; /* error / destructivo */
   }
 
   :root.light,
@@ -32,6 +35,9 @@
     --muted: 82 82 82;
     --faint: 106 106 106; /* contraste AA sobre canvas claro */
     --line: 0 0 0;
+    /* Acento oscurecido para mantener contraste AA sobre blanco. */
+    --accent: 4 120 87; /* verde profundo legible sobre canvas claro */
+    --danger: 190 18 60; /* rojo profundo legible sobre canvas claro */
   }
 
   html,
@@ -58,6 +64,21 @@
   h5,
   h6 {
     @apply font-display tracking-tight text-ink;
+    /* Reparte las líneas de los títulos de forma pareja (evita viudas). */
+    text-wrap: balance;
+  }
+
+  /* Párrafos con mejor corte de línea donde el navegador lo soporta. */
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Cifras tabulares: precios, métricas y horarios alinean columnas y no
+     "bailan" al animarse. El mono ya es de ancho fijo; esto lo hace explícito
+     y cubre números en Inter/Space Grotesk. */
+  .font-mono,
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Anillo de foco de teclado consistente en toda la app (solo con teclado). */
@@ -101,7 +122,7 @@ html {
     @apply bg-transparent text-ink border border-ink/20 hover:border-ink hover:bg-ink hover:text-canvas;
   }
   .btn-peligro {
-    @apply bg-transparent text-rose-400 border border-rose-500/30 hover:bg-rose-500 hover:text-white;
+    @apply bg-transparent text-danger border border-danger/30 hover:bg-danger hover:text-canvas;
   }
 
   /* Inputs tipográficos integrados al lienzo (No-Card Layout) */
@@ -169,7 +190,7 @@ html {
     @apply bg-transparent text-faint border-ink/10;
   }
   .badge-cancelado {
-    @apply bg-transparent text-rose-400 border-rose-500/20;
+    @apply bg-transparent text-danger border-danger/20;
   }
 }
 

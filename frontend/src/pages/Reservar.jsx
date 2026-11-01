@@ -151,7 +151,7 @@ export default function Reservar() {
       <div className="min-h-screen w-full bg-canvas text-ink p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-between selection:bg-ink selection:text-canvas">
         <header className="w-full border-b border-ink/10 pb-8 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
           <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-emerald-400 mb-2">
+            <p className="font-mono text-xs uppercase tracking-widest text-accent mb-2">
               ● RESERVA REGISTRADA CON ÉXITO
             </p>
             <h1 className="text-4xl sm:text-6xl font-mono font-medium tracking-tight text-ink uppercase">
@@ -352,7 +352,7 @@ export default function Reservar() {
                   Calculando disponibilidad en vivo...
                 </p>
               ) : errorSlots ? (
-                <p className="font-mono text-xs text-rose-400 uppercase py-2">
+                <p className="font-mono text-xs text-danger uppercase py-2">
                   {errorSlots}
                 </p>
               ) : slots.length === 0 ? (
@@ -387,7 +387,7 @@ export default function Reservar() {
       <footer className="w-full border-t border-ink/10 pt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-6">
         <div>
           {errorGlobal ? (
-            <p className="font-mono text-xs text-rose-400 uppercase">{errorGlobal}</p>
+            <p className="font-mono text-xs text-danger uppercase">{errorGlobal}</p>
           ) : (
             <div className="font-mono text-xs uppercase tracking-widest text-muted">
               <span>RESUMEN:</span>{' '}

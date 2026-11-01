@@ -14,18 +14,13 @@ export default {
         muted: 'rgb(var(--muted) / <alpha-value>)',
         faint: 'rgb(var(--faint) / <alpha-value>)',
         line: 'rgb(var(--line) / <alpha-value>)',
+        accent: 'rgb(var(--accent) / <alpha-value>)',
+        danger: 'rgb(var(--danger) / <alpha-value>)',
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-      },
-      boxShadow: {
-        bruta: '0 0 0 1px rgba(255, 255, 255, 0.1)',
-        'bruta-sm': '0 0 0 1px rgba(255, 255, 255, 0.15)',
-        'bruta-lg': '0 0 30px -5px rgba(255, 255, 255, 0.08)',
-        glow: '0 0 25px -4px rgba(255, 255, 255, 0.18)',
-        island: '0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12)',
       },
       borderWidth: {
         3: '1px', // suaviza bordes anteriores a 1px fino

@@ -141,7 +141,7 @@ export default function ConfiguracionNegocio() {
       <div className="p-6 lg:p-12 max-w-2xl mx-auto space-y-6 font-mono text-xs">
         <div className="border border-ink/10 p-6 bg-ink/[0.02] space-y-4">
           <div className="text-ink font-medium uppercase tracking-wider text-sm flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="w-2 h-2 rounded-full bg-accent" />
             <span>MODO SUPERADMINISTRADOR</span>
           </div>
           <p className="text-muted font-sans text-sm font-light leading-relaxed">
@@ -182,7 +182,7 @@ export default function ConfiguracionNegocio() {
       </div>
 
       {errorGlobal && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           {errorGlobal}
         </div>
       )}

@@ -91,7 +91,7 @@ export default function Superadmin() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
             <p className="font-mono text-xs uppercase tracking-widest text-muted">
               — PANEL DE CONTROL CENTRAL · MULTI-TENANT SAAS
             </p>
@@ -124,7 +124,7 @@ export default function Superadmin() {
         <div className="p-5 border border-ink/10 bg-ink/[0.01]">
           <div className="flex items-center justify-between text-faint mb-2">
             <span className="font-mono text-xs uppercase tracking-wider">Espacios Activos</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <ShieldCheck className="w-4 h-4 text-accent" />
           </div>
           <p className="font-mono font-bold text-3xl lg:text-4xl text-ink tracking-tight">
             {salonesActivos}
@@ -204,7 +204,7 @@ export default function Superadmin() {
       {/* Lista Tabular Editorial */}
       {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando espacios...</p>}
       {error && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           Error al cargar negocios multi-tenant
         </div>
       )}
@@ -410,7 +410,7 @@ function ModalCrearSalon({ onCerrar, onCreado }) {
     <Modal abierto={true} onCerrar={onCerrar} titulo="CREAR NEGOCIO O ESTUDIO">
       <form onSubmit={onSubmit} className="space-y-6">
         {errorLocal && (
-          <div className="p-3 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+          <div className="p-3 border border-danger/30 text-danger font-mono text-xs uppercase">
             {errorLocal}
           </div>
         )}
@@ -643,7 +643,7 @@ function ModalEditarSalon({ salon, onCerrar, onActualizado }) {
     <Modal abierto={true} onCerrar={onCerrar} titulo={`CONFIGURAR — ${salon.nombre}`}>
       <form onSubmit={onSubmit} className="space-y-6">
         {errorLocal && (
-          <div className="p-3 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+          <div className="p-3 border border-danger/30 text-danger font-mono text-xs uppercase">
             {errorLocal}
           </div>
         )}

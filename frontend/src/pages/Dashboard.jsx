@@ -6,7 +6,6 @@ import { listarTurnosAPI } from '../api/turnos.api.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { SpotlightCard } from '../components/SpotlightCard.jsx'
 import { NumberTicker } from '../components/NumberTicker.jsx'
-import { ShinyText } from '../components/ShinyText.jsx'
 import {
   Calendar,
   Clock,
@@ -120,15 +119,15 @@ export default function Dashboard() {
 
       {/* Banner de Superadmin */}
       {usuario?.rol === 'superadmin' && (
-        <div className="p-4 border border-emerald-500/30 bg-emerald-500/[0.04] font-mono text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-emerald-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="p-4 border border-accent/30 bg-accent/[0.04] font-mono text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-accent">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
             <span className="font-semibold uppercase tracking-wider">MODO SUPERADMINISTRADOR</span>
             <span className="text-muted">— Plataforma central y directorio de tenants.</span>
           </div>
           <Link
             to="/superadmin"
-            className="px-3 py-1.5 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-400 hover:text-canvas uppercase tracking-wider transition-colors shrink-0"
+            className="px-3 py-1.5 border border-accent/40 text-accent hover:bg-accent hover:text-canvas uppercase tracking-wider transition-colors shrink-0"
           >
             Ver Espacios Registrados →
           </Link>

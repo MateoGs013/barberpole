@@ -71,7 +71,7 @@ export default function Servicios() {
 
       {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando...</p>}
       {error && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           Error al cargar servicios
         </div>
       )}
@@ -217,7 +217,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       {errorGlobal && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           {errorGlobal}
         </div>
       )}
@@ -225,7 +225,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
       <div>
         <label className="label" htmlFor="nombre">Nombre</label>
         <input id="nombre" type="text" className="input" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-        {errores.nombre && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.nombre}</p>}
+        {errores.nombre && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.nombre}</p>}
       </div>
 
       <div>
@@ -250,7 +250,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
             value={precio}
             onChange={(e) => setPrecio(e.target.value)}
           />
-          {errores.precio && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.precio}</p>}
+          {errores.precio && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.precio}</p>}
         </div>
         <div>
           <label className="label" htmlFor="duracion">Duración (min)</label>
@@ -263,7 +263,7 @@ function FormServicio({ inicial, onCancelar, onGuardado }) {
             value={duracion}
             onChange={(e) => setDuracion(e.target.value)}
           />
-          {errores.duracion && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.duracion}</p>}
+          {errores.duracion && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.duracion}</p>}
         </div>
       </div>
 

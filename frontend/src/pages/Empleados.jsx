@@ -93,7 +93,7 @@ export default function Empleados() {
 
       {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando...</p>}
       {error && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           Error al cargar empleados
         </div>
       )}
@@ -174,7 +174,7 @@ function FilaEmpleado({ empleado, onEditar, onEliminar, onGestionarCalendar }) {
           </span>
           {empleado.googleSyncActivo ? (
             <span className="badge badge-confirmado flex items-center gap-1.5" title={`Google Calendar: ${empleado.googleCalendarId}`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               Google Calendar
             </span>
           ) : (
@@ -278,7 +278,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       {errorGlobal && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           {errorGlobal}
         </div>
       )}
@@ -286,7 +286,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
       <div>
         <label className="label" htmlFor="nombre">Nombre</label>
         <input id="nombre" type="text" className="input" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-        {errores.nombre && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.nombre}</p>}
+        {errores.nombre && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.nombre}</p>}
       </div>
 
       <div>
@@ -299,7 +299,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
           value={especialidad}
           onChange={(e) => setEspecialidad(e.target.value)}
         />
-        {errores.especialidad && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.especialidad}</p>}
+        {errores.especialidad && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.especialidad}</p>}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
@@ -310,7 +310,7 @@ function FormEmpleado({ inicial, onCancelar, onGuardado }) {
         <div>
           <label className="label" htmlFor="email">Email</label>
           <input id="email" type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
-          {errores.email && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.email}</p>}
+          {errores.email && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.email}</p>}
         </div>
       </div>
 
@@ -453,7 +453,7 @@ function ModalGoogleCalendar({ empleado, onCerrar, onActualizado }) {
         </p>
 
         {errorLocal && (
-          <div className="p-3 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+          <div className="p-3 border border-danger/30 text-danger font-mono text-xs uppercase">
             {errorLocal}
           </div>
         )}

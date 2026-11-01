@@ -67,7 +67,7 @@ export default function Usuarios() {
 
       {cargando && <p className="font-mono text-xs uppercase text-faint animate-pulse">Cargando...</p>}
       {error && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           Error al cargar usuarios
         </div>
       )}
@@ -205,7 +205,7 @@ function FormUsuario({ inicial, onCancelar, onGuardado, esSuperadmin = false }) 
   return (
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       {errorGlobal && (
-        <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+        <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
           {errorGlobal}
         </div>
       )}
@@ -213,13 +213,13 @@ function FormUsuario({ inicial, onCancelar, onGuardado, esSuperadmin = false }) 
       <div>
         <label className="label" htmlFor="nombre">Nombre</label>
         <input id="nombre" type="text" className="input" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-        {errores.nombre && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.nombre}</p>}
+        {errores.nombre && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.nombre}</p>}
       </div>
 
       <div>
         <label className="label" htmlFor="email">Email</label>
         <input id="email" type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
-        {errores.email && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.email}</p>}
+        {errores.email && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.email}</p>}
       </div>
 
       <div>
@@ -235,7 +235,7 @@ function FormUsuario({ inicial, onCancelar, onGuardado, esSuperadmin = false }) 
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
         />
-        {errores.password && <p className="font-mono text-xs text-rose-400 mt-2 uppercase">{errores.password}</p>}
+        {errores.password && <p className="font-mono text-xs text-danger mt-2 uppercase">{errores.password}</p>}
       </div>
 
       <div>

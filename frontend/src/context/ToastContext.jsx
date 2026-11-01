@@ -109,10 +109,10 @@ function ContenedorToastsStacked({ toasts, onCerrar }) {
 
 function IconoToast({ tipo }) {
   if (tipo === 'exito') {
-    return <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+    return <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
   }
   if (tipo === 'error') {
-    return <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+    return <AlertCircle className="w-4 h-4 text-danger shrink-0" />
   }
-  return <Info className="w-4 h-4 text-sky-400 shrink-0" />
+  return <Info className="w-4 h-4 text-muted shrink-0" />
 }

@@ -561,7 +561,7 @@ export default function PortalNegocio() {
                   )}
 
                   {fecha && errorSlots && (
-                    <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs">
+                    <div className="p-4 border border-danger/30 text-danger font-mono text-xs">
                       {errorSlots}
                     </div>
                   )}
@@ -634,7 +634,7 @@ export default function PortalNegocio() {
                 </div>
                 <span
                   className={`font-mono text-xs uppercase tracking-widest ${
-                    turnoConfirmado ? 'text-emerald-400 font-semibold' : 'text-muted'
+                    turnoConfirmado ? 'text-accent font-semibold' : 'text-muted'
                   }`}
                 >
                   {turnoConfirmado ? '● CONFIRMADO' : 'ETAPA FINAL'}
@@ -642,7 +642,7 @@ export default function PortalNegocio() {
               </div>
 
               {errorGlobal && (
-                <div className="p-4 border border-rose-500/30 text-rose-300 font-mono text-xs uppercase">
+                <div className="p-4 border border-danger/30 text-danger font-mono text-xs uppercase">
                   {errorGlobal}
                 </div>
               )}
