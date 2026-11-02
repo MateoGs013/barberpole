@@ -94,7 +94,7 @@ function HeroEditorial() {
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm md:text-base font-light text-muted max-w-3xl leading-relaxed">
           <p>
-            Plataforma despojada de fricción para salones, estudios y profesionales independientes. Eliminá los mensajes manuales de WhatsApp y permití que tus clientes aseguren su turno en 30 segundos.
+            Plataforma despojada de fricción para salones, estudios y profesionales independientes. Eliminá los mensajes manuales de WhatsApp y permití que tus clientes aseguren su turno en 30&nbsp;segundos.
           </p>
           <p>
             Cero comisiones intermedias, enlace público propio para compartir y bloqueo atómico de horarios en tiempo real con sincronización a Google Calendar.
@@ -417,7 +417,7 @@ function FooterEditorial() {
           Términos
         </Link>
         <span className="text-faint">·</span>
-        <span>BUENOS AIRES · '26</span>
+        <span>BUENOS AIRES · ’26</span>
       </div>
     </footer>
   )

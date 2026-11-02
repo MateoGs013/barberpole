@@ -24,8 +24,24 @@
     <meta property="og:title" content="BarberPole — Motor Universal de Turnos" />
     <meta property="og:description" content="Reserva directa de turnos en tiempo real con Slot Engine y sincronización de Google Calendar." />
     <meta property="og:image" content="/icons/icon-512.png" />
+
+    <!-- Aplica el tema guardado antes del primer paint (evita el flash de
+         tema). Debe correr sincrónico y antes de que React monte. -->
+    <script>
+      (function () {
+        try {
+          var guardado = localStorage.getItem('barberpole_theme')
+          var tema = guardado === 'light' ? 'light' : 'dark'
+          var root = document.documentElement
+          root.classList.add(tema)
+          root.setAttribute('data-theme', tema)
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute('content', tema === 'light' ? '#ffffff' : '#000000')
+        } catch (e) {}
+      })()
+    </script>
   </head>
-  <body class="bg-black text-white antialiased select-none">
+  <body class="antialiased select-none">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

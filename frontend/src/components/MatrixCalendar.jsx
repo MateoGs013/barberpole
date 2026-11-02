@@ -125,7 +125,7 @@ export function MatrixCalendar({
               {infoSeleccionada ? infoSeleccionada.mesNom : MESES[mesVista]}
             </h3>
             <div className="flex items-center gap-2 font-mono text-xs text-muted uppercase tracking-widest mt-0.5">
-              <span>'{String(infoSeleccionada ? infoSeleccionada.anioNum : anioVista).slice(-2)}</span>
+              <span>’{String(infoSeleccionada ? infoSeleccionada.anioNum : anioVista).slice(-2)}</span>
               <span>—</span>
               <span className="text-ink font-medium">
                 {infoSeleccionada ? infoSeleccionada.diaSem : 'SELECCIONÁ DÍA'}

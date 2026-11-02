@@ -16,6 +16,9 @@
   },
   "author": "Mateo Gabús",
   "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "axios": "^1.7.7",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^14.6.0",
