@@ -60,7 +60,7 @@ export function LayoutAutenticado() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col pb-24 lg:pb-0 bg-canvas text-ink">
+    <div className="min-h-screen flex flex-col pb-24 2xl:pb-0 bg-canvas text-ink">
       <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-ink/10">
         <div className="px-4 lg:px-8 py-3 flex items-center justify-between gap-4">
           {/* Logo Monocromático Studio */}
@@ -74,8 +74,10 @@ export function LayoutAutenticado() {
             </span>
           </Link>
 
-          {/* Nav horizontal desktop */}
-          <nav className="hidden lg:block">
+          {/* Nav horizontal desktop (aparece en 2xl; por debajo se usa el BottomNav,
+              que es un nav completo con menú "Más"). Evita el desborde del header
+              con 7-8 pills + el cluster de usuario en el rango de laptop. */}
+          <nav className="hidden 2xl:block">
             <ul className="flex items-center gap-1.5 p-1 rounded-xl bg-elevated/40 border border-ink/5">
               {links.map((link) => (
                 <li key={link.to}>

@@ -97,7 +97,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="lg:hidden fixed bottom-3 inset-x-3 z-40 bg-surface/90 backdrop-blur-xl border border-ink/10 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.8)] px-2 py-1">
+      <nav className="2xl:hidden fixed bottom-3 inset-x-3 z-40 bg-surface/90 backdrop-blur-xl border border-ink/10 rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.8)] px-2 py-1">
         <ul className={`grid ${columnas} items-center`}>
           {principales.map((item) => {
             const Icono = ICONOS[item.to] || Calendar
