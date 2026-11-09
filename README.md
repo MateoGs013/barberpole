@@ -1,14 +1,10 @@
-# BarberPole 💈 — B2B Multi-Tenant Barbershop & Salon SaaS Platform
+# Barberpole — B2B Multi-Tenant Barbershop & Salon SaaS Platform
 
 [![CI/CD Pipeline](https://github.com/MateoGs013/barberpole/actions/workflows/ci.yml/badge.svg)](https://github.com/MateoGs013/barberpole/actions/workflows/ci.yml)
-[![Node.js Version](https://img.shields.io/badge/Node.js-22%2B-brightgreen.svg)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Design: Modo Hiperfoco OLED](https://img.shields.io/badge/Design-Modo_Hiperfoco_OLED_%23050505-000000.svg)]()
-[![Microinteractions: Bencho UI](https://img.shields.io/badge/Interactions-Bencho_UI_Tactile-blueviolet.svg)](https://bencho.dev/)
 
 Plataforma SaaS multi-inquilino (Multi-Tenant) comercial de alto rendimiento para barberías, salones y profesionales independientes. Cuenta con arquitectura multi-tenant con aislamiento de datos, onboarding autoservicio con subdominios/slugs dinámicos (/:slug), motor inteligente de disponibilidad en tiempo real (**Slot Engine**), sincronización con Google Calendar, control atómico de concurrencia anti-double booking, y una interfaz visual ultra-minimalista **"Modo Hiperfoco" (OLED Black #050505)** con micro-interacciones táctiles.
 
-**🔗 Demo en vivo: [parcial-2-peluqueria.vercel.app](https://parcial-2-peluqueria.vercel.app/)**
+En vivo: [turnos.mateogs.tech](https://turnos.mateogs.tech) · Caso: [mateogs.tech/projects/barberpole](https://mateogs.tech/projects/barberpole)
 
 ![barberpole — landing](docs/preview-hero.png)
 
@@ -16,7 +12,7 @@ Plataforma SaaS multi-inquilino (Multi-Tenant) comercial de alto rendimiento par
 
 ---
 
-## 🏛️ Arquitectura Multi-Tenant SaaS
+## Arquitectura Multi-Tenant SaaS
 
 ```mermaid
 graph TD
@@ -46,9 +42,9 @@ graph TD
 
 ---
 
-## ✨ Características Principales
+## Características Principales
 
-### 1. 🏢 Multi-Tenancy B2B & Onboarding Autoservicio
+### 1. Multi-Tenancy B2B & Onboarding Autoservicio
 - **Aislamiento Estricto por Tenant**: Cada entidad (`Servicio`, `Empleado`, `Turno`, `Cliente`) está asociada a un `Negocio` mediante índices compuestos `{ negocio: 1, ... }`.
 - **Onboarding de 3 Pasos (`/onboarding`)**:
   1. *Identidad del Salón*: Nombre comercial, dirección, WhatsApp y auto-generación de slug en tiempo real con normalización NFD.
@@ -59,14 +55,14 @@ graph TD
   - Reserva en 1 pantalla: selección de servicio, barbero, fecha y slot interactivo con ingreso directo de nombre + WhatsApp.
   - Explosión táctil de confeti (`canvas-confetti`) y resumen en Dynamic Island flotante al confirmar.
 
-### 2. 🖤 Estética "Modo Hiperfoco" & Micro-interacciones Táctiles
+### 2. Estética "Modo Hiperfoco" & Micro-interacciones Táctiles
 - **Fondo OLED Black `#050505`** con grilla técnica sutil de 24px y bordes monolíticos en `rgba(255,255,255,0.08)`.
 - **Spotlight Cards**: Efecto specular de iluminación radial que sigue las coordenadas exactas del cursor del usuario (`SpotlightCard`).
 - **Tactile Slots (Bencho UI inspired)**: Chips de horario con resortes Framer Motion (`type: "spring", stiffness: 450, damping: 25`), indicadores de estado en vivo (verde activo / gris ocupado) y animaciones hápticas.
 - **Dynamic Island**: Píldora morphing flotante que expande el resumen en vivo de la reserva y confirma la cita sin cambios bruscos de pantalla.
 - **BarberPole Monocromático**: Emblema minimalista con reflejo de cristal satinado y rotación sutil.
 
-### 3. ⚡ Slot Engine & Control de Concurrencia
+### 3. Slot Engine & Control de Concurrencia
 - **Disponibilidad Inteligente**: `GET /api/empleados/:id/disponibilidad?fecha=YYYY-MM-DD&servicioId=...` calcula dinámicamente horarios libres respetando horarios de apertura/cierre y turnos existentes.
 - **Anti-Doble-Reserva**: Lock por empleado que serializa el chequeo de solapamiento y la creación, devolviendo `409 Conflict` ante colisiones. Usa un **lock distribuido en Redis** (`SET NX PX` + liberación segura por Lua) cuando hay `REDIS_URL` configurada, y cae a un lock en proceso cuando no. En ambos casos, una **reconciliación contra la base** es el backstop de correctitud: ante carreras entre múltiples instancias sobrevive de forma determinística el turno de `_id` menor.
 - **Cancelación Autónoma**: Validación estricta de ventana mínima de 2 horas previas a la cita (`PATCH /api/turnos/:id/cancelar`).
@@ -74,14 +70,14 @@ graph TD
 
 ---
 
-## ⚡ Demo en Vivo & Salones Pre-Sembrados
+## Demo en Vivo & Salones Pre-Sembrados
 
 En el entorno local o de demostración se encuentran configurados dos salones completos:
 
 | Salón / Tenant | URL de Turnos | Dueño / Admin | Contraseña | Plan |
 | :--- | :--- | :--- | :--- | :--- |
-| 💈 **Studio Palermo** | `http://localhost:5173/studio-palermo` | `admin@peluqueria.com` | `admin123` | **Pro** |
-| 🚀 **La Nave Barbershop** | `http://localhost:5173/la-nave` | `owner@lanave.com` | `admin123` | **Enterprise** |
+| **Studio Palermo** | `http://localhost:5173/studio-palermo` | `admin@peluqueria.com` | `admin123` | **Pro** |
+| **La Nave Barbershop** | `http://localhost:5173/la-nave` | `owner@lanave.com` | `admin123` | **Enterprise** |
 
 ### Accesos Rápidos de la Plataforma:
 - **Landing B2B SaaS**: `http://localhost:5173/`
@@ -91,7 +87,7 @@ En el entorno local o de demostración se encuentran configurados dos salones co
 
 ---
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Opción A: Levantar con Docker Compose
 
@@ -153,37 +149,37 @@ npm run dev
 
 ---
 
-## 🧪 Suite de Tests Automatizados (66/66 Pasando)
+## Suite de Tests Automatizados (66/66 Pasando)
 
 ### Backend Tests (`48 passed` | `vitest` + `supertest` + `mongodb-memory-server`)
 ```bash
 cd backend && npm test
 ```
-- ✅ Onboarding autoservicio de nuevos salones (`POST /api/negocios/onboarding`).
-- ✅ Detección y rechazo de slugs duplicados con código `409 Conflict`.
-- ✅ Consulta de portal público de tenant con servicios y profesionales (`GET /api/negocios/publico/:slug`).
-- ✅ **Aislamiento Multi-Tenant Estricto**: verificación cruzada de que servicios, turnos, empleados y usuarios de un salón son invisibles e intocables desde otro (anti-IDOR en `/api/usuarios`, `/api/turnos/:id` y `/api/empleados/:id`).
-- ✅ Registro público y creación atómica de perfiles `Cliente`.
-- ✅ Autenticación segura con JWT `negocio` claim y política de contraseñas (mín. 8, con letra y número).
-- ✅ **Hardening OAuth de Google**: validación de audiencia (`aud`) del ID token, rechazo de email no verificado y `state` firmado (JWT) en el callback de Calendar.
-- ✅ Rechazo estricto de turnos en fechas pasadas (`400 Bad Request`).
-- ✅ Inmutabilidad de snapshots contables (`precioCobrado`, `duracionMinutos`).
-- ✅ Slot Engine: cálculo dinámico de franjas horarias libres y ocupadas, con colisión contra eventos de Google Calendar.
-- ✅ **Anti-Doble-Reserva**: carreras paralelas de reservas concurrentes al mismo horario resultan en exactamente 1 confirmación y 1 rechazo `409 Conflict`.
+- Onboarding autoservicio de nuevos salones (`POST /api/negocios/onboarding`).
+- Detección y rechazo de slugs duplicados con código `409 Conflict`.
+- Consulta de portal público de tenant con servicios y profesionales (`GET /api/negocios/publico/:slug`).
+- **Aislamiento Multi-Tenant Estricto**: verificación cruzada de que servicios, turnos, empleados y usuarios de un salón son invisibles e intocables desde otro (anti-IDOR en `/api/usuarios`, `/api/turnos/:id` y `/api/empleados/:id`).
+- Registro público y creación atómica de perfiles `Cliente`.
+- Autenticación segura con JWT `negocio` claim y política de contraseñas (mín. 8, con letra y número).
+- **Hardening OAuth de Google**: validación de audiencia (`aud`) del ID token, rechazo de email no verificado y `state` firmado (JWT) en el callback de Calendar.
+- Rechazo estricto de turnos en fechas pasadas (`400 Bad Request`).
+- Inmutabilidad de snapshots contables (`precioCobrado`, `duracionMinutos`).
+- Slot Engine: cálculo dinámico de franjas horarias libres y ocupadas, con colisión contra eventos de Google Calendar.
+- **Anti-Doble-Reserva**: carreras paralelas de reservas concurrentes al mismo horario resultan en exactamente 1 confirmación y 1 rechazo `409 Conflict`.
 
 ### Frontend Tests (`18 passed` | `vitest` + `@testing-library/react` + `jsdom`)
 ```bash
 cd frontend && npm test
 ```
-- ✅ Flujo completo de Onboarding SaaS: renderizado, auto-generación reactiva de slug y validación de campos obligatorios (`OnboardingNegocio.test.jsx`).
-- ✅ Formulario de Login, validación y 1-Click Demo rápido (`Login.test.jsx`).
-- ✅ Accesibilidad WAI-ARIA del componente Modal (focus trap, tecla ESC, `role="dialog"`) (`Modal.test.jsx`).
-- ✅ Wizard interactivo de 3 pasos con Slot Engine y confirmación háptica (`Reservar.test.jsx`).
-- ✅ Gestión de turnos y confirmación de cancelación (`Turnos.test.jsx`).
+- Flujo completo de Onboarding SaaS: renderizado, auto-generación reactiva de slug y validación de campos obligatorios (`OnboardingNegocio.test.jsx`).
+- Formulario de Login, validación y 1-Click Demo rápido (`Login.test.jsx`).
+- Accesibilidad WAI-ARIA del componente Modal (focus trap, tecla ESC, `role="dialog"`) (`Modal.test.jsx`).
+- Wizard interactivo de 3 pasos con Slot Engine y confirmación háptica (`Reservar.test.jsx`).
+- Gestión de turnos y confirmación de cancelación (`Turnos.test.jsx`).
 
 ---
 
-## 📡 Endpoints de la API REST
+## Endpoints de la API REST
 
 ### Multi-Tenant & Onboarding (`/api/negocios`)
 - `POST /api/negocios/onboarding` — Registro público de un nuevo salón y su dueño.
@@ -226,8 +222,8 @@ cd frontend && npm test
 
 ---
 
-## 👨‍💻 Autor
+## Autor
 
-**Mateo Gabús**  
+**Mateo Sonzogni** · [mateogs.tech](https://mateogs.tech)  
 *Proyecto de portafolio — SaaS multi-tenant full-stack (Node.js/Express · MongoDB · React)*  
 Repositorio: [https://github.com/MateoGs013/barberpole.git](https://github.com/MateoGs013/barberpole.git)
